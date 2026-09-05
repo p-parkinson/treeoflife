@@ -26,7 +26,8 @@ python3 -m http.server     # or serve it
   the meeting point → each animal — with skipped rungs marked as "+3 more groups" so nothing is
   hidden dishonestly. **Show every step** switches to the complete lineage.
 - **Full scientific classification** tucked behind a collapsed panel for anyone who wants the Latin.
-- **A browsable tree** of the whole dataset: expand, filter, and click any group to load it into a slot.
+- **A browsable tree** of the whole dataset, collapsed by default: open it to expand, filter, and click any
+  group to load it into a slot.
 - **Shareable links** — the URL hash carries the pair, e.g. `index.html#a=Panthera%20leo&b=Octopus%20vulgaris`.
 - Plus *Surprise me*, *Swap*, and one-click example pairs.
 

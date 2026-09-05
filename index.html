@@ -145,6 +145,8 @@ details.full > summary::-webkit-details-marker{display:none}
 details.full > summary::before{content:"+";font-size:20px;color:var(--muted);width:18px;text-align:center}
 details.full[open] > summary::before{content:"\2013"}
 details.full > summary:hover{background:var(--paper-2)}
+details.full > summary .tools{margin-left:auto;font-family:var(--body);font-size:14px;font-weight:600;color:var(--muted)}
+details.full#explorer .body{padding:0 20px 18px}
 details.full .body{padding:0 20px 18px;overflow-x:auto}
 
 table.lin{width:100%;border-collapse:collapse;font-size:15px}
@@ -257,15 +259,15 @@ footer strong{color:var(--ink)}
   </details>
 </section>
 
-<section class="card" id="explorer">
-  <h3>Explore the whole tree <span class="tools" id="treeStat"></span></h3>
+<details class="full" id="explorer">
+  <summary>Explore the whole tree <span class="tools" id="treeStat"></span></summary>
   <div class="tree-tools">
     <input id="treeFilter" type="text" placeholder="Search the tree..." autocomplete="off" spellcheck="false">
     <button id="expandPath">Show my two animals</button>
     <button id="collapseAll">Close all</button>
   </div>
   <div class="body"><div class="tree" id="tree"></div></div>
-</section>
+</details>
 
 <footer>
   <p><strong>How this works.</strong> Every animal here sits on one big family tree. To find a common ancestor,
