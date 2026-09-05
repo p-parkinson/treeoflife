@@ -8,6 +8,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<script>
+  /* Runs before anything is drawn: a saved choice beats the device setting.
+     "auto" leaves whatever the host or the operating system decided. */
+  try{
+    var saved = localStorage.getItem("tol-theme");
+    if(saved === "light" || saved === "dark"){
+      document.documentElement.setAttribute("data-theme", saved);
+      window.__tolStampedTheme = true;   // ours, not the host's
+    }
+  }catch(e){}
+</script>
 <style>
 :root{
   --paper:#f3f7ef; --paper-2:#e9f0e4; --card:#ffffff;
@@ -70,6 +81,11 @@ header.top{display:flex;gap:14px;align-items:flex-start;margin-bottom:20px}
 header.top .mark{flex:0 0 auto;margin-top:2px}
 h1{font-size:31px;margin:0;line-height:1.1}
 header.top p{margin:6px 0 0;color:var(--muted);font-size:16.5px;max-width:56ch}
+.theme{margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.theme span{font-size:13.5px;color:var(--muted);margin-right:2px}
+.theme button{padding:7px 13px;font-size:14px;min-height:38px;color:var(--muted);border-width:1px}
+.theme button[aria-pressed="true"]{background:var(--shared);border-color:var(--shared);color:var(--on-shared)}
+@media (max-width:700px){.theme{margin-left:0;width:100%}}
 
 /* ---------- pick two animals ---------- */
 .picker{
@@ -220,7 +236,6 @@ table.lin .cn{color:var(--muted);font-size:13.5px}
 .chip .sci{font-weight:400;font-style:italic;color:var(--muted);font-size:13px}
 .chip button{min-height:30px;width:30px;padding:0;border:0;background:none;color:var(--muted);font-size:19px;line-height:1;border-radius:50%}
 .chip button:hover{background:var(--line);color:var(--ink)}
-.chips-empty{color:var(--muted);margin:0 0 14px}
 .count-note{color:var(--muted);font-size:14px;margin:8px 0 0}
 
 /* ---------- export bar ---------- */
@@ -232,7 +247,7 @@ table.lin .cn{color:var(--muted);font-size:13.5px}
 .export .note{font-size:13px;color:var(--faint)}
 
 /* ---------- picture-only mode (#...&bare=1) ---------- */
-body.bare header.top, body.bare .tabs, body.bare .picker, body.bare #explorer,
+body.bare header.top, body.bare .theme, body.bare .tabs, body.bare .picker, body.bare #explorer,
 body.bare footer, body.bare .export, body.bare .skip, body.bare .swipe-hint{display:none}
 body.bare .wrap{padding:10px}
 body.bare .card{border:0;box-shadow:none;margin:0}
@@ -240,10 +255,11 @@ body.bare .card > h3{border:0;padding-bottom:0}
 
 /* ---------- print ---------- */
 @media print{
-  :root{--paper:#fff;--paper-2:#fff;--card:#fff;--ink:#111a14;--muted:#3f5147;--faint:#4a5c51;--line:#c9d6c9;
+  :root, :root[data-theme="dark"], :root[data-theme="light"]{
+        --paper:#fff;--paper-2:#fff;--card:#fff;--ink:#111a14;--muted:#3f5147;--faint:#4a5c51;--line:#c9d6c9;
         --shared:#186637;--shadow:none}
   body{background:#fff}
-  header.top, .tabs, .picker, #explorer, footer, .export, .skip, .swipe-hint, .legend{display:none !important}
+  header.top, .tabs, .picker, #explorer, footer, .export, .skip, .swipe-hint, .legend, .theme{display:none !important}
   .wrap{max-width:none;padding:0 3mm}
   .card{border:0;box-shadow:none;margin:0;break-inside:avoid}
   .card > h3{border:0;padding:0 0 8px}
@@ -289,6 +305,12 @@ footer a{color:var(--a);text-underline-offset:2px}
   <div>
     <h1>Tree of Life</h1>
     <p>Every animal alive today is related to every other one. Pick two and see where their family trees join.</p>
+  </div>
+  <div class="theme" role="group" aria-label="Page colours">
+    <span id="themeLabel">Colours</span>
+    <button type="button" data-theme-btn="auto" aria-pressed="true">Auto</button>
+    <button type="button" data-theme-btn="light" aria-pressed="false">Light</button>
+    <button type="button" data-theme-btn="dark" aria-pressed="false">Dark</button>
   </div>
 </header>
 
@@ -2116,6 +2138,30 @@ $("examples").addEventListener("click", e => {
   compare();
   $("result").scrollIntoView({behavior:calmly(), block:"start"});
 });
+
+/* ---- light, dark, or whatever the device says ---- */
+/* A host (the artifact viewer, say) may stamp a theme of its own. Remember it, so
+   "Auto" hands control back to the host rather than wiping its choice - but ignore
+   the stamp this page's own head script wrote. */
+const hostTheme = window.__tolStampedTheme ? null : document.documentElement.getAttribute("data-theme");
+function applyTheme(mode){
+  const root = document.documentElement;
+  if(mode === "auto"){
+    if(hostTheme) root.setAttribute("data-theme", hostTheme); else root.removeAttribute("data-theme");
+  } else root.setAttribute("data-theme", mode);
+  document.querySelectorAll("[data-theme-btn]").forEach(b =>
+    b.setAttribute("aria-pressed", b.dataset.themeBtn === mode ? "true" : "false"));
+  try{ mode === "auto" ? localStorage.removeItem("tol-theme") : localStorage.setItem("tol-theme", mode); }catch(e){}
+}
+document.querySelector(".theme").addEventListener("click", e => {
+  const b = e.target.closest("[data-theme-btn]");
+  if(b) applyTheme(b.dataset.themeBtn);
+});
+(function startTheme(){
+  let saved = null;
+  try{ saved = localStorage.getItem("tol-theme"); }catch(e){}
+  applyTheme(saved === "light" || saved === "dark" ? saved : "auto");
+})();
 
 /* =====================================================================
    10. THE FIVE-ANIMAL VIEW: PICKING, LINKS, PRINTING AND EXPORT

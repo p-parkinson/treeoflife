@@ -32,6 +32,8 @@ python3 -m http.server     # or serve it
 - **Shareable links** — the URL hash carries the pair, e.g. `index.html#a=Panthera%20leo&b=Octopus%20vulgaris`.
 - **Two layouts.** On a laptop or tablet the two lineages fork left and right; on a phone the same
   tree is redrawn as an indented list so the names get the full width. It switches on rotation.
+- **Light or dark**, chosen in the header: *Auto* follows the device, *Light* and *Dark* override it and
+  the choice is remembered. Printing always uses the light palette whichever is on screen.
 - Plus *Surprise me*, *Swap*, and one-click example pairs.
 
 ## The family tree of up to five animals
