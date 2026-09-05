@@ -139,10 +139,18 @@ button.primary:hover{filter:brightness(1.06);background:var(--shared)}
 .card > h3 .tools{margin-left:auto;display:flex;gap:10px;align-items:center;font-family:var(--body);font-size:14px;font-weight:600;color:var(--muted)}
 .card .body{padding:18px 20px}
 .switch{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
-.switch input{width:16px;height:16px;accent-color:var(--shared);cursor:pointer}
+.switch input{width:22px;height:22px;accent-color:var(--shared);cursor:pointer}
+@media (pointer: coarse){
+  .switch{min-height:44px}
+  .tw{width:34px;height:34px;flex-basis:34px}
+  .row .nm{padding:6px 6px}
+  .row{padding:4px 6px}
+}
 
 .diagram-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .diagram-scroll svg{display:block;width:100%;max-width:900px;min-width:620px;height:auto;margin:0 auto}
+@media (max-width:660px){.diagram-scroll svg{min-width:0}}
+.swipe-hint{margin:0;padding:0 20px 12px;color:var(--muted);font-size:14px}
 .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--muted);padding:0 20px 16px}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:7px;vertical-align:-1px}
 
@@ -168,7 +176,7 @@ table.lin .sci{font-style:italic}
 table.lin .cn{color:var(--muted);font-size:13.5px}
 
 /* ---------- explorer ---------- */
-.tree{font-size:15px;max-height:520px;overflow:auto;padding:4px 2px 10px}
+.tree{font-size:15px;max-height:520px;overflow:auto;-webkit-overflow-scrolling:touch;padding:4px 2px 10px}
 .tree:focus-visible{outline:3px solid var(--a);outline-offset:-3px}
 .node{padding-left:15px;border-left:2px solid var(--line);margin-left:10px}
 .node.root{border-left:0;margin-left:0;padding-left:0}
@@ -194,6 +202,7 @@ table.lin .cn{color:var(--muted);font-size:13.5px}
 
 footer{margin-top:30px;color:var(--muted);font-size:14.5px;line-height:1.65;max-width:70ch}
 footer strong{color:var(--ink)}
+footer a{color:var(--a);text-underline-offset:2px}
 @media (max-width:700px){
   h1{font-size:26px}
   .slots{grid-template-columns:1fr}
@@ -262,6 +271,7 @@ footer strong{color:var(--ink)}
       </span>
     </h3>
     <div class="body diagram-scroll" id="diagram"></div>
+    <p class="swipe-hint" id="swipeHint" hidden>The picture is wider than your screen &mdash; slide it sideways to see all of it.</p>
     <div class="legend">
       <span><i aria-hidden="true" style="background:var(--shared)"></i>shared ancestors</span>
       <span><i aria-hidden="true" style="background:var(--meet)"></i>where they meet</span>
@@ -296,6 +306,15 @@ footer strong{color:var(--ink)}
   <p>The dates are rough estimates from fossils and DNA, so treat them as "roughly this long ago" rather than exact
   numbers. The tree follows how scientists group animals today, which has a few surprises in it: birds count as
   dinosaurs, whales sit inside the hoofed animals, and termites are a kind of cockroach.</p>
+
+  <p><strong>Where this comes from.</strong> The 343 animals, the groups they sit in and the dates were compiled by
+  hand for this page, following the modern published picture of how animals are related. It is a teaching model, not
+  a copy of any one database, and nothing here is looked up live. If you need the authoritative version &mdash; for a
+  project, a label or a lesson plan &mdash; use
+  <a href="https://tree.opentreeoflife.org">Open Tree of Life</a>,
+  <a href="https://www.gbif.org">GBIF</a> or
+  <a href="https://www.ncbi.nlm.nih.gov/taxonomy">NCBI Taxonomy</a> for classification, and
+  <a href="https://timetree.org">TimeTree</a> for divergence dates.</p>
 </footer>
 
 </div>
@@ -1361,9 +1380,10 @@ function compare(){
 
   $("legA").textContent = label(a);
   $("legB").textContent = label(b);
-  $("diagram").innerHTML = drawDiagram(r, $("fullSteps").checked);
+  $("diagram").innerHTML = drawDiagram(r, $("fullSteps").checked, isNarrow());
   $("linTable").innerHTML = lineageTable(r, a, b);
   $("result").classList.add("show");
+  showSwipeHint();          // only measurable once the panel is on screen
 
   $("announce").textContent = same
     ? label(a) + " and " + label(b) + " are the same animal."
@@ -1372,6 +1392,116 @@ function compare(){
   location.replace("#a=" + encodeURIComponent(sciOf(a)) + "&b=" + encodeURIComponent(sciOf(b)));
   [a,b].forEach(n => lineage(n).forEach(x => expanded.add(x.id)));
   renderTree();
+}
+
+/* A phone cannot hold the side-by-side picture at a readable size, so below this
+   width the same tree is drawn as an indented list instead. */
+const isNarrow = () => document.querySelector(".wrap").clientWidth - 44 < 600;
+
+/* Redraw when the window crosses that threshold (rotating an iPad, mostly). */
+let lastNarrow = null, resizeTimer = null;
+addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if(picked.a && picked.b && isNarrow() !== lastNarrow) compare();
+    showSwipeHint();
+  }, 150);
+});
+
+/* The wide diagram keeps a readable minimum width, so it can still scroll inside
+   its own box on a mid-size screen. Say so, but only when it actually overflows. */
+function showSwipeHint(){
+  const box = $("diagram");
+  $("swipeHint").hidden = box.scrollWidth <= box.clientWidth + 1;
+  markScrollables();
+}
+
+/* A box that scrolls sideways has to be reachable by keyboard - but only while it
+   really does scroll, so no empty tab stops appear on a wide screen. */
+function markScrollables(){
+  [[$("diagram"), "The picture of how the two animals are connected. Scroll sideways to see all of it."],
+   [$("linTable").parentElement, "The full classification table. Scroll sideways to see all of it."]
+  ].forEach(([el, lbl]) => {
+    if(el.scrollWidth > el.clientWidth + 1){
+      el.tabIndex = 0; el.setAttribute("role", "group"); el.setAttribute("aria-label", lbl);
+    } else {
+      el.removeAttribute("tabindex"); el.removeAttribute("role"); el.removeAttribute("aria-label");
+    }
+  });
+}
+addEventListener("resize", showSwipeHint);
+
+/* ---- the phone version: one indented tree, full width for the names ---- */
+function drawNarrow(r, trunk, tailA, tailB, full){
+  const W = 360, xT = 24, xB = 50, top = 18, bottom = 22;
+  const rowH = full ? 34 : 50, meetExtra = full ? 0 : 16;
+  const p = [];
+  const SH = "var(--shared)", CA = "var(--a)", CB = "var(--b)", MEET = "var(--meet)";
+
+  /* work out where every row sits before drawing anything */
+  const rows = [];
+  let y = top;
+  trunk.forEach((e,i) => {
+    const meet = i === trunk.length - 1;
+    rows.push({e, x: xT, col: SH, y, meet, kind: "trunk"});
+    y += rowH + (meet ? meetExtra : 0);
+  });
+  const startA = y;
+  tailA.forEach((e,j) => { rows.push({e, x: xB, col: CA, y, kind: "a", leaf: j === tailA.length-1, first: j===0}); y += rowH; });
+  const startB = y;
+  tailB.forEach((e,j) => { rows.push({e, x: xB, col: CB, y, kind: "b", leaf: j === tailB.length-1, first: j===0}); y += rowH; });
+  const H = y + bottom;
+  const meetY = rows.find(rw => rw.meet).y;
+
+  const line = (x1,y1,x2,y2,col,w,dashed) => p.push('<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+
+    '" stroke-width="'+w+'" stroke-linecap="round"'+(dashed?' stroke-dasharray="2 7"':'')+'/>');
+  /* an elbow down from the meeting point and across into a branch */
+  const elbow = (col, toY) => p.push('<path d="M '+xT+' '+meetY+' V '+(toY-14)+' Q '+xT+' '+toY+' '+(xT+16)+' '+toY+
+    ' H '+xB+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-linecap="round"/>');
+
+  if(tailA.length) elbow(CA, startA);
+  if(tailB.length) elbow(CB, startB);
+
+  rows.forEach((rw, i) => {
+    const n = rw.e.node, prev = rows[i-1];
+    /* the spine: connect to the row above when it is in the same column */
+    if(prev && prev.x === rw.x && !rw.first){
+      line(rw.x, prev.y, rw.x, rw.y, rw.col, 3, rw.e.skipped > 0);
+      if(rw.e.skipped > 0)
+        p.push('<text x="'+(rw.x+14)+'" y="'+((prev.y+rw.y)/2+4)+'" fill="var(--faint)" font-size="13">+'+
+          rw.e.skipped+' more '+(rw.e.skipped===1?"group":"groups")+'</text>');
+    }
+    if(rw.meet){
+      p.push('<circle cx="'+rw.x+'" cy="'+rw.y+'" r="12" fill="'+MEET+'"/>');
+      p.push('<path d="'+star(rw.x, rw.y, 6.5)+'" fill="var(--card)"/>');
+    } else {
+      p.push('<circle cx="'+rw.x+'" cy="'+rw.y+'" r="'+(rw.leaf?8:6)+'" fill="'+(rw.leaf?rw.col:"var(--card)")+
+        '" stroke="'+rw.col+'" stroke-width="3"/>');
+    }
+    const tx = rw.x + (rw.meet ? 22 : 18);
+    if(full){
+      p.push('<text x="'+tx+'" y="'+(rw.y+4)+'" fill="var(--ink)" font-size="13.5"'+((rw.leaf||rw.meet)?' font-weight="700"':'')+
+        (n.species?' font-style="italic"':'')+'>'+esc(sciOf(n))+
+        '<tspan fill="var(--faint)" font-size="13" font-style="normal" font-weight="400" dx="8">'+esc(rankWord(n.rank))+'</tspan></text>');
+      return;
+    }
+    p.push('<text x="'+tx+'" y="'+(rw.y-1)+'" fill="'+(rw.leaf ? rw.col : "var(--ink)")+'" font-size="'+((rw.meet||rw.leaf)?16:15)+
+      '" font-weight="'+((rw.meet||rw.leaf)?700:600)+'" font-family="Fredoka, system-ui, sans-serif">'+esc(label(n))+'</text>');
+    const sub = (showsSci(n) ? sciOf(n) + " · " : "") + rankWord(n.rank) +
+                (rw.meet && n.mya ? " · " + agePhrase(n.mya).replace("about ","") : "");
+    p.push('<text x="'+tx+'" y="'+(rw.y+16)+'" fill="var(--muted)" font-size="13"'+(showsSci(n)?' font-style="italic"':'')+'>'+esc(sub)+'</text>');
+    if(rw.meet)
+      p.push('<text x="'+tx+'" y="'+(rw.y+33)+'" fill="'+MEET+'" font-size="13" font-weight="700">they meet here</text>');
+  });
+
+  const endA = tailA.length ? tailA[tailA.length-1].node : trunk[trunk.length-1].node;
+  const endB = tailB.length ? tailB[tailB.length-1].node : trunk[trunk.length-1].node;
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-labelledby="diagTitle diagDesc">' +
+    '<title id="diagTitle">How ' + esc(label(endA)) + ' and ' + esc(label(endB)) + ' are connected</title>' +
+    '<desc id="diagDesc">' + esc("An indented list: the shared groups from " + label(trunk[0].node) + " down to " +
+      label(trunk[trunk.length-1].node) + ", where the tree splits into a branch leading to " + label(endA) +
+      " and a branch leading to " + label(endB) + ". The same information is written out in the panel called " +
+      "See the full scientific classification.") + '</desc>' + p.join("") + '</svg>';
 }
 
 /* ---- the picture ---- */
@@ -1385,10 +1515,12 @@ function star(cx, cy, r){
   return d + "Z";
 }
 
-function drawDiagram(r, full){
+function drawDiagram(r, full, narrow){
   const trunk = full ? r.shared.map(n=>({node:n,skipped:0})) : condense(r.shared, false);
   const tailA = full ? r.tailA.map(n=>({node:n,skipped:0})) : condense(r.tailA, true);
   const tailB = full ? r.tailB.map(n=>({node:n,skipped:0})) : condense(r.tailB, true);
+  lastNarrow = !!narrow;
+  if(narrow) return drawNarrow(r, trunk, tailA, tailB, full);
 
   const W = 900, rowH = full ? 36 : 56, top = full ? 26 : 34, bottom = 30;
   const xA = 285, xB = 615, cx = (xA + xB) / 2;
@@ -1590,6 +1722,7 @@ $("swap").addEventListener("click", () => {
   compare();
 });
 $("fullSteps").addEventListener("change", () => { if(picked.a && picked.b) compare(); });
+document.querySelectorAll("details").forEach(d => d.addEventListener("toggle", markScrollables));
 
 const allSpecies = [...nodes.values()].filter(n=>n.species);
 $("rand").addEventListener("click", () => {

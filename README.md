@@ -29,6 +29,8 @@ python3 -m http.server     # or serve it
 - **A browsable tree** of the whole dataset, collapsed by default: open it to expand, filter, and click any
   group to load it into a slot.
 - **Shareable links** — the URL hash carries the pair, e.g. `index.html#a=Panthera%20leo&b=Octopus%20vulgaris`.
+- **Two layouts.** On a laptop or tablet the two lineages fork left and right; on a phone the same
+  tree is redrawn as an indented list so the names get the full width. It switches on rotation.
 - Plus *Surprise me*, *Swap*, and one-click example pairs.
 
 ## Design notes
@@ -58,7 +60,11 @@ light or dark theme**, and the manual parts were tested too.
 - **Contrast:** every colour meets 4.5:1 against its own background in both themes — checked on
   the tinted rows too, not just white.
 - **Zoom and reflow:** no sideways scrolling at 320 px or at 200% zoom; nothing clips under the
-  WCAG text-spacing overrides. Touch targets are at least 44 px tall.
+  WCAG text-spacing overrides. Touch targets are at least 44 px tall, and any box that does scroll
+  sideways becomes keyboard-reachable while it does.
+- **Phones and tablets:** checked on iPhone SE, iPhone 13 (both orientations), iPad and Galaxy Tab —
+  no sideways page scroll, text inputs at 16 px so iOS doesn't zoom on focus, and taps verified on
+  the suggestion list and panels.
 - **Motion:** `prefers-reduced-motion` is honoured, including the scrolling.
 
 Known limitation: the tree explorer is a list of buttons rather than a full ARIA treeview, so a
@@ -99,3 +105,34 @@ the crown group, shown only for major clades — orders of magnitude, not measur
 **Scope:** the dataset covers common and widely known animals rather than all ~1.5 million described
 species, and it stops at animals (no plants, fungi or microbes below the root). An animal that isn't
 in it says so instead of guessing.
+
+## Sources, credit and licence
+
+**Where the data comes from.** The taxa, the groupings and the divergence dates were compiled by hand
+for this project, following the modern published picture of animal phylogeny. Nothing is copied from,
+or looked up live in, a taxonomic database, and the tree has not been reconciled against one — it is a
+teaching model chosen for recognisability, so it stops at ~1,050 taxa and rounds every date. Treat it
+accordingly, and point anyone who needs authoritative data at:
+
+- [Open Tree of Life](https://tree.opentreeoflife.org) — synthetic phylogeny, open data
+- [GBIF Backbone Taxonomy](https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) and
+  [NCBI Taxonomy](https://www.ncbi.nlm.nih.gov/taxonomy) — classification, both with public APIs
+- [WoRMS](https://www.marinespecies.org) — the marine groups in particular
+- [TimeTree](https://timetree.org) — divergence-time estimates of the kind the dates here approximate
+
+Those are the right sources to wire up if you ever want the app to cover every described species rather
+than a curated few hundred; the app is structured so a fetched dataset could replace the two arrays.
+
+**Fonts.** Fredoka and Nunito, served by Google Fonts under the SIL Open Font License. The page falls
+back to system fonts and works fully offline without them.
+
+**Code.** No dependencies, no frameworks, no analytics, no network calls at runtime — nothing to
+acknowledge and nothing that phones home. Suitable for a school network or an offline museum kiosk.
+
+**Pictures.** Not bundled. `tools/fetch-images.mjs` fetches them from Wikimedia Commons and records
+per-image credits; those images keep their own licences (usually CC BY or CC BY-SA) and must be
+credited wherever they appear. See [tools/README.md](tools/README.md).
+
+**This repository** is released under [CC0 1.0](LICENSE) — public domain dedication. Reuse the app,
+the data file, or the tooling in a classroom, a museum, or anything else without asking. That covers
+this project's own content only: fonts and any fetched images keep their own terms.
