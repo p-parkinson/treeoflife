@@ -41,6 +41,36 @@ anchored to something a reader can picture ("back then, every animal on Earth li
 Nature-notebook palette on soft green paper, Fredoka for headings and Nunito for text (both from
 Google Fonts, with system fallbacks), and a full dark theme that follows the reader's device.
 
+## Accessibility
+
+Built for a classroom or a museum bench, so it is meant to work for whoever sits down at it.
+Checked with axe-core (WCAG 2.1/2.2 A and AA, plus best practices): **no violations in either
+light or dark theme**, and the manual parts were tested too.
+
+- **Keyboard only:** a skip link, then the two search boxes, buttons, panels and tree — all
+  reachable and operable, with a visible focus ring on everything. The suggestion list is a
+  proper ARIA combobox (arrow keys, Enter, Escape, `aria-activedescendant`); the tree's expanders
+  and names are real buttons, and focus stays put when the tree re-renders underneath you.
+- **Screen readers:** every answer is announced in one sentence through a live region
+  ("Lion and brown bear: close cousins. They meet at Carnivorans, about 55 million years ago."),
+  the diagram carries a written description of the same shape, and the full classification panel
+  is its text equivalent.
+- **Contrast:** every colour meets 4.5:1 against its own background in both themes — checked on
+  the tinted rows too, not just white.
+- **Zoom and reflow:** no sideways scrolling at 320 px or at 200% zoom; nothing clips under the
+  WCAG text-spacing overrides. Touch targets are at least 44 px tall.
+- **Motion:** `prefers-reduced-motion` is honoured, including the scrolling.
+
+Known limitation: the tree explorer is a list of buttons rather than a full ARIA treeview, so a
+screen-reader user tabs through it rather than using arrow keys. It is a secondary panel, closed
+by default, and everything in it is reachable another way.
+
+## Pictures for each group
+
+`tools/fetch-images.mjs` collects one photo per milestone group from Wikimedia Commons, with the
+credits each licence requires — run on your machine, results committed, so the app still makes no
+network calls. See [tools/README.md](tools/README.md).
+
 ## The data
 
 A curated, clade-based backbone of ~1,050 taxa including **343 animal species**, spanning

@@ -11,11 +11,12 @@
 <style>
 :root{
   --paper:#f3f7ef; --paper-2:#e9f0e4; --card:#ffffff;
-  --ink:#1e2b23; --muted:#5f7367; --faint:#8a9c90; --line:#dde7d8;
-  --shared:#2e9e5f; --shared-soft:#e4f4e9;
-  --a:#2c6fd1; --a-soft:#e3edfb;
-  --b:#d9631f; --b-soft:#fbeade;
-  --meet:#c58205; --meet-soft:#fdf1d8;
+  --ink:#1e2b23; --muted:#4e6357; --faint:#586b60; --line:#dde7d8;
+  --shared:#1f7a45; --shared-soft:#e4f4e9; --on-shared:#ffffff;
+  --a:#1f5fc4; --a-soft:#e3edfb;
+  --b:#a8500f; --b-soft:#fbeade;
+  --meet:#8a6000; --meet-soft:#fdf1d8;
+  --warn:#a63a00;
   --shadow:0 2px 3px rgba(30,43,35,.04), 0 10px 24px rgba(30,43,35,.07);
   --r-lg:22px; --r-md:14px;
   --display:"Fredoka",system-ui,"Segoe UI",sans-serif;
@@ -24,8 +25,9 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#141c17; --paper-2:#1a241d; --card:#1c261f;
-    --ink:#e9f1e9; --muted:#a5b8ab; --faint:#7f9388; --line:#2c392f;
-    --shared:#5ed08c; --shared-soft:#1d3326;
+    --ink:#e9f1e9; --muted:#adbfb3; --faint:#94a89b; --line:#2c392f;
+    --shared:#5ed08c; --shared-soft:#1d3326; --on-shared:#0f1a13;
+    --warn:#ffab7a;
     --a:#7aabf6; --a-soft:#1d2c40;
     --b:#f2a06d; --b-soft:#38271c;
     --meet:#f0c257; --meet-soft:#3a3018;
@@ -34,8 +36,9 @@
 }
 :root[data-theme="dark"]{
   --paper:#141c17; --paper-2:#1a241d; --card:#1c261f;
-  --ink:#e9f1e9; --muted:#a5b8ab; --faint:#7f9388; --line:#2c392f;
-  --shared:#5ed08c; --shared-soft:#1d3326;
+  --ink:#e9f1e9; --muted:#adbfb3; --faint:#94a89b; --line:#2c392f;
+  --shared:#5ed08c; --shared-soft:#1d3326; --on-shared:#0f1a13;
+  --warn:#ffab7a;
   --a:#7aabf6; --a-soft:#1d2c40;
   --b:#f2a06d; --b-soft:#38271c;
   --meet:#f0c257; --meet-soft:#3a3018;
@@ -53,7 +56,11 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 .wrap{max-width:1000px;margin:0 auto;padding:26px 18px 70px}
-h1,h2,h3,.display{font-family:var(--display);font-weight:600;letter-spacing:.1px;text-wrap:balance}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:absolute;left:12px;top:-60px;z-index:60;background:var(--card);color:var(--ink);border:2px solid var(--shared);
+  border-radius:10px;padding:10px 16px;font-weight:700;text-decoration:none;transition:top .15s}
+.skip:focus{top:12px}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.1px;text-wrap:balance}
 
 /* ---------- header ---------- */
 header.top{display:flex;gap:14px;align-items:flex-start;margin-bottom:20px}
@@ -80,11 +87,9 @@ header.top p{margin:6px 0 0;color:var(--muted);font-size:16.5px;max-width:56ch}
 .slot input::placeholder{color:var(--faint)}
 .slot.a input:focus{border-color:var(--a);background:var(--card)}
 .slot.b input:focus{border-color:var(--b);background:var(--card)}
-.slot input:focus-visible{outline:none}
 .chosen{margin-top:7px;font-size:14px;color:var(--muted);min-height:20px}
 .chosen .sci{font-style:italic}
-.chosen.none{color:#c2410c;font-weight:600}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chosen.none{color:#f5a06a}}
+.chosen.none{color:var(--warn);font-weight:600}
 
 .suggest{
   position:absolute;z-index:40;left:0;right:0;top:100%;margin-top:6px;
@@ -101,14 +106,16 @@ header.top p{margin:6px 0 0;color:var(--muted);font-size:16.5px;max-width:56ch}
 
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;align-items:center}
 button{font:inherit;font-weight:600;cursor:pointer;border-radius:999px;border:2px solid var(--line);
-  background:var(--card);color:var(--ink);padding:10px 18px;transition:background .15s,border-color .15s,transform .06s}
+  background:var(--card);color:var(--ink);padding:10px 18px;min-height:44px;transition:background .15s,border-color .15s,transform .06s}
 button:hover{background:var(--paper-2)}
 button:active{transform:translateY(1px)}
-button:focus-visible{outline:3px solid var(--a);outline-offset:2px}
-button.primary{background:var(--shared);border-color:var(--shared);color:#fff;font-size:17px;padding:11px 22px}
+:focus-visible{outline:3px solid var(--a);outline-offset:2px;border-radius:8px}
+.slot.b input:focus-visible{outline-color:var(--b)}
+@media (forced-colors: active){:focus-visible{outline-color:Highlight}}
+button.primary{background:var(--shared);border-color:var(--shared);color:var(--on-shared);font-size:17px;padding:11px 22px}
 button.primary:hover{filter:brightness(1.06);background:var(--shared)}
 .examples{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14.5px;color:var(--muted)}
-.examples button{padding:6px 14px;font-size:14.5px;font-weight:600;color:var(--muted);border-width:1px}
+.examples button{padding:6px 14px;font-size:14.5px;font-weight:600;color:var(--muted);border-width:1px;min-height:36px}
 
 /* ---------- the answer ---------- */
 #result{display:none;margin-top:24px}
@@ -150,7 +157,7 @@ details.full#explorer .body{padding:0 20px 18px}
 details.full .body{padding:0 20px 18px;overflow-x:auto}
 
 table.lin{width:100%;border-collapse:collapse;font-size:15px}
-table.lin th{text-align:left;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
+table.lin th{text-align:left;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
 table.lin td{padding:6px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 table.lin tr.shared td{background:var(--shared-soft)}
 table.lin tr.meetrow td{background:var(--meet-soft);font-weight:700}
@@ -162,17 +169,21 @@ table.lin .cn{color:var(--muted);font-size:13.5px}
 
 /* ---------- explorer ---------- */
 .tree{font-size:15px;max-height:520px;overflow:auto;padding:4px 2px 10px}
+.tree:focus-visible{outline:3px solid var(--a);outline-offset:-3px}
 .node{padding-left:15px;border-left:2px solid var(--line);margin-left:10px}
 .node.root{border-left:0;margin-left:0;padding-left:0}
 .row{display:flex;align-items:center;gap:8px;padding:3px 8px;border-radius:10px;line-height:1.5;flex-wrap:wrap}
 .row:hover{background:var(--paper-2)}
-.tw{width:18px;flex:0 0 18px;text-align:center;color:var(--muted);cursor:pointer;user-select:none;font-size:12px}
-.tw.leaf{cursor:default;opacity:.4}
-.row .nm{cursor:pointer;font-weight:700}
-.row .nm:hover{text-decoration:underline}
+.tw{width:26px;height:26px;flex:0 0 26px;min-height:0;padding:0;display:inline-flex;align-items:center;justify-content:center;
+  color:var(--muted);background:none;border:0;border-radius:8px;cursor:pointer;user-select:none;font-size:13px}
+.tw:hover{background:var(--line)}
+.tw.leaf{cursor:default;opacity:.45}
+.row .nm{cursor:pointer;font-weight:700;background:none;border:0;padding:2px 4px;min-height:0;font-size:15px;
+  font-family:inherit;color:var(--ink);border-radius:8px}
+.row .nm:hover{text-decoration:underline;background:none}
 .row .sci{font-style:italic;color:var(--muted);font-size:13.5px}
-.row .rk{font-size:12.5px;color:var(--faint)}
-.row .count{font-size:12.5px;color:var(--faint)}
+.row .rk{font-size:13px;color:var(--faint)}
+.row .count{font-size:13px;color:var(--faint)}
 .row.is-a{background:var(--a-soft);box-shadow:inset 3px 0 0 var(--a)}
 .row.is-b{background:var(--b-soft);box-shadow:inset 3px 0 0 var(--b)}
 .row.is-meet{background:var(--meet-soft);box-shadow:inset 3px 0 0 var(--meet)}
@@ -194,6 +205,7 @@ footer strong{color:var(--ink)}
 </style>
 </head>
 <body>
+<a class="skip" href="#result">Skip to the answer</a>
 <div class="wrap">
 
 <header class="top">
@@ -211,20 +223,24 @@ footer strong{color:var(--ink)}
   </div>
 </header>
 
-<section class="picker">
+<main id="main">
+
+<section class="picker" role="search" aria-label="Choose two animals">
   <div class="slots">
     <div class="slot a">
       <label for="inA">First animal</label>
-      <input id="inA" type="text" autocomplete="off" spellcheck="false" placeholder="lion, octopus, honey bee...">
-      <div class="suggest" id="sugA"></div>
-      <div class="chosen" id="chA"></div>
+      <input id="inA" type="text" autocomplete="off" spellcheck="false" placeholder="lion, octopus, honey bee..."
+             role="combobox" aria-expanded="false" aria-controls="sugA" aria-haspopup="listbox" aria-autocomplete="list">
+      <div class="suggest" id="sugA" role="listbox" tabindex="-1" aria-label="Suggestions for the first animal"></div>
+      <div class="chosen" id="chA" role="status"></div>
     </div>
     <div class="plus">and</div>
     <div class="slot b">
       <label for="inB">Second animal</label>
-      <input id="inB" type="text" autocomplete="off" spellcheck="false" placeholder="blue whale, penguin, tarantula...">
-      <div class="suggest" id="sugB"></div>
-      <div class="chosen" id="chB"></div>
+      <input id="inB" type="text" autocomplete="off" spellcheck="false" placeholder="blue whale, penguin, tarantula..."
+             role="combobox" aria-expanded="false" aria-controls="sugB" aria-haspopup="listbox" aria-autocomplete="list">
+      <div class="suggest" id="sugB" role="listbox" tabindex="-1" aria-label="Suggestions for the second animal"></div>
+      <div class="chosen" id="chB" role="status"></div>
     </div>
   </div>
   <div class="actions">
@@ -235,7 +251,8 @@ footer strong{color:var(--ink)}
   <div class="examples" id="examples"><span>Try:</span></div>
 </section>
 
-<section id="result">
+<section id="result" aria-labelledby="verdictHead">
+  <p class="sr-only" id="announce" role="status"></p>
   <div class="verdict" id="verdict"></div>
 
   <div class="card">
@@ -246,10 +263,10 @@ footer strong{color:var(--ink)}
     </h3>
     <div class="body diagram-scroll" id="diagram"></div>
     <div class="legend">
-      <span><i style="background:var(--shared)"></i>shared ancestors</span>
-      <span><i style="background:var(--meet)"></i>where they meet</span>
-      <span><i style="background:var(--a)"></i><span id="legA">first animal</span></span>
-      <span><i style="background:var(--b)"></i><span id="legB">second animal</span></span>
+      <span><i aria-hidden="true" style="background:var(--shared)"></i>shared ancestors</span>
+      <span><i aria-hidden="true" style="background:var(--meet)"></i>where they meet</span>
+      <span><i aria-hidden="true" style="background:var(--a)"></i><span id="legA">first animal</span></span>
+      <span><i aria-hidden="true" style="background:var(--b)"></i><span id="legB">second animal</span></span>
     </div>
   </div>
 
@@ -262,12 +279,15 @@ footer strong{color:var(--ink)}
 <details class="full" id="explorer">
   <summary>Explore the whole tree <span class="tools" id="treeStat"></span></summary>
   <div class="tree-tools">
+    <label class="sr-only" for="treeFilter">Search the tree</label>
     <input id="treeFilter" type="text" placeholder="Search the tree..." autocomplete="off" spellcheck="false">
     <button id="expandPath">Show my two animals</button>
     <button id="collapseAll">Close all</button>
   </div>
-  <div class="body"><div class="tree" id="tree"></div></div>
+  <div class="body"><div class="tree" id="tree" tabindex="0" role="group" aria-label="The whole tree of life, group by group"></div></div>
 </details>
+
+</main>
 
 <footer>
   <p><strong>How this works.</strong> Every animal here sits on one big family tree. To find a common ancestor,
@@ -1188,6 +1208,12 @@ function whatWasHappening(mya){
   if(mya >= 5)   return "In evolution's terms that is fairly recent.";
   return "In evolution's terms that is extremely recent.";
 }
+/* "Carnivorans" -> "carnivorans", but "Nile crocodile" and "Old World monkeys" keep their capitals */
+function lower(name){
+  return /[A-Z]/.test(name.slice(1)) || /^(Nile|African|American|Asian|European|Indian|Atlantic|Pacific|Komodo|Tasmanian|Burmese|Sumatran|Galapagos|Philippine|Roman|Virginia|Australian|Japanese|Chinese|Arctic|Antarctic)\b/.test(name)
+    ? name : name.charAt(0).toLowerCase() + name.slice(1);
+}
+
 function closeness(m){
   const byRank = {species:"The same animal", genus:"Very close cousins", subfamily:"Close cousins",
     family:"Close cousins", tribe:"Close cousins"};
@@ -1205,6 +1231,7 @@ function closeness(m){
    5. PICKING TWO ANIMALS
    ===================================================================== */
 const $ = id => document.getElementById(id);
+const calmly = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const label = n => n.common || n.name;                       // what a person calls it
 const sciOf = n => n.name;                                   // what a scientist calls it
@@ -1235,15 +1262,22 @@ function wireSuggest(slot){
   const input = $(slot === "a" ? "inA" : "inB");
   const box = $(slot === "a" ? "sugA" : "sugB");
   let items = [], hi = -1;
-  const close = () => { box.classList.remove("open"); box.innerHTML = ""; items = []; hi = -1; };
+  const close = () => {
+    box.classList.remove("open"); box.innerHTML = ""; items = []; hi = -1;
+    input.setAttribute("aria-expanded","false");
+    input.removeAttribute("aria-activedescendant");
+  };
   const render = () => {
     if(!items.length) return close();
     box.innerHTML = items.map((n,i) =>
-      '<div data-i="'+i+'"'+(i===hi?' class="hi"':'')+'>' +
+      '<div id="'+box.id+'-opt-'+i+'" role="option" aria-selected="'+(i===hi)+'" data-i="'+i+'"'+(i===hi?' class="hi"':'')+'>' +
         '<span class="nm">'+esc(label(n))+'</span>' +
         (showsSci(n) ? '<span class="sci">'+esc(sciOf(n))+'</span>' : '') +
         '<span class="grp">'+esc(groupLabel(n))+'</span></div>').join("");
     box.classList.add("open");
+    input.setAttribute("aria-expanded","true");
+    if(hi >= 0) input.setAttribute("aria-activedescendant", box.id + "-opt-" + hi);
+    else input.removeAttribute("aria-activedescendant");
   };
   const choose = i => { if(items[i]){ setPick(slot, items[i]); close(); } };
   input.addEventListener("input", () => { items = search(input.value, 8); hi = -1; render(); });
@@ -1257,13 +1291,20 @@ function wireSuggest(slot){
       else { setPick(slot, search(input.value,1)[0] || null); close(); }
     } else if(e.key === "Escape") close();
   });
-  input.addEventListener("blur", () => setTimeout(() => {
-    close();
-    const v = input.value.trim();
-    if(!v){ picked[slot] = null; $(slot==="a"?"chA":"chB").textContent = ""; return; }
-    if(!picked[slot] || label(picked[slot]).toLowerCase() !== v.toLowerCase())
-      setPick(slot, search(v,1)[0] || null);
-  }, 150));
+  /* Settle the box shortly after it loses focus - but only if the person has really
+     left it alone. Coming straight back, or typing again, must not have their text
+     replaced out from under them. */
+  input.addEventListener("blur", () => {
+    const leftWith = input.value;
+    setTimeout(() => {
+      if(document.activeElement === input || input.value !== leftWith) return;
+      close();
+      const v = input.value.trim();
+      if(!v){ picked[slot] = null; $(slot==="a"?"chA":"chB").textContent = ""; return; }
+      if(!picked[slot] || label(picked[slot]).toLowerCase() !== v.toLowerCase())
+        setPick(slot, search(v,1)[0] || null);
+    }, 150);
+  });
   box.addEventListener("mousedown", e => {
     const d = e.target.closest("[data-i]"); if(!d) return;
     e.preventDefault(); choose(+d.dataset.i);
@@ -1297,12 +1338,12 @@ function compare(){
     story = "Those are the same animal, so every ancestor they have is shared.";
   } else if(nested){
     const inner = r.tailA.length ? a : b, outer = r.tailA.length ? b : a;
-    story = "A " + label(inner).toLowerCase() + " is one kind of " + label(outer).toLowerCase() +
+    story = "A " + lower(label(inner)) + " is one kind of " + lower(label(outer)) +
             ", so one sits inside the other on the tree rather than on a separate branch.";
   } else {
     story = "Go back " + (when ? when.replace(" ago","") : "far enough") + " and you reach a single animal that is an ancestor of both the " +
-            label(a).toLowerCase() + " and the " + label(b).toLowerCase() + ". It belongs to the group scientists call " +
-            sciOf(m) + (m.common ? " — the " + m.common.toLowerCase() : "") + ". " + whatWasHappening(age);
+            lower(label(a)) + " and the " + lower(label(b)) + ". It belongs to the group scientists call " +
+            sciOf(m) + (m.common ? " — the " + lower(m.common).replace(" & ", " and ") : "") + ". " + whatWasHappening(age);
   }
 
   const older = !age && nearestAge(m) ? nearestAge(m) : null;
@@ -1324,6 +1365,10 @@ function compare(){
   $("linTable").innerHTML = lineageTable(r, a, b);
   $("result").classList.add("show");
 
+  $("announce").textContent = same
+    ? label(a) + " and " + label(b) + " are the same animal."
+    : label(a) + " and " + label(b) + ": " + closeness(m).toLowerCase() + ". They meet at " + label(m) +
+      (when ? ", " + when : "") + ".";
   location.replace("#a=" + encodeURIComponent(sciOf(a)) + "&b=" + encodeURIComponent(sciOf(b)));
   [a,b].forEach(n => lineage(n).forEach(x => expanded.add(x.id)));
   renderTree();
@@ -1354,7 +1399,7 @@ function drawDiagram(r, full){
   const seg = (x1,y1,x2,y2,col,w,dashed) => p.push('<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+
       '" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round"'+(dashed?' stroke-dasharray="2 7"':'')+'/>');
   const gap = (x,yy,n,anchor,dx) => p.push('<text x="'+(x+dx)+'" y="'+(yy+4)+'" text-anchor="'+anchor+
-      '" fill="var(--faint)" font-size="12.5">+'+n+' more '+(n===1?"group":"groups")+'</text>');
+      '" fill="var(--faint)" font-size="13">+'+n+' more '+(n===1?"group":"groups")+'</text>');
 
   /* one taxon's label: two friendly lines, or one compact line in full mode */
   const nodeLabel = (n, x, yy, anchor, col, big) => {
@@ -1367,7 +1412,7 @@ function drawDiagram(r, full){
     p.push('<text x="'+x+'" y="'+(yy-2)+'" text-anchor="'+anchor+'" fill="'+col+'" font-size="'+(big?16:15)+
       '" font-weight="'+(big?700:600)+'" font-family="Fredoka, system-ui, sans-serif">'+esc(label(n))+'</text>');
     const sub = (showsSci(n) ? sciOf(n) + " · " : "") + rankWord(n.rank);
-    p.push('<text x="'+x+'" y="'+(yy+15)+'" text-anchor="'+anchor+'" fill="var(--muted)" font-size="12.5"'+
+    p.push('<text x="'+x+'" y="'+(yy+15)+'" text-anchor="'+anchor+'" fill="var(--muted)" font-size="13"'+
       (showsSci(n)?' font-style="italic"':'')+'>'+esc(sub)+'</text>');
   };
 
@@ -1381,7 +1426,7 @@ function drawDiagram(r, full){
       p.push('<circle cx="'+cx+'" cy="'+yy+'" r="7" fill="var(--card)" stroke="var(--shared)" stroke-width="3"/>');
       nodeLabel(e.node, cx + 20, yy, "start", "var(--ink)", false);
       if(e.node.mya && !full)
-        p.push('<text x="'+(cx-20)+'" y="'+(yy+4)+'" text-anchor="end" fill="var(--faint)" font-size="12.5">'+
+        p.push('<text x="'+(cx-20)+'" y="'+(yy+4)+'" text-anchor="end" fill="var(--faint)" font-size="13">'+
           esc(agePhrase(e.node.mya).replace("about ",""))+'</text>');
     } else {
       p.push('<circle cx="'+cx+'" cy="'+yy+'" r="13" fill="var(--meet)"/>');
@@ -1389,7 +1434,7 @@ function drawDiagram(r, full){
       nodeLabel(e.node, cx + 26, yy, "start", "var(--ink)", true);
       p.push('<text x="'+(cx-26)+'" y="'+(yy-2)+'" text-anchor="end" fill="var(--meet)" font-size="13.5" font-weight="700">they meet here</text>');
       if(e.node.mya)
-        p.push('<text x="'+(cx-26)+'" y="'+(yy+15)+'" text-anchor="end" fill="var(--muted)" font-size="12.5">'+
+        p.push('<text x="'+(cx-26)+'" y="'+(yy+15)+'" text-anchor="end" fill="var(--muted)" font-size="13">'+
           esc(agePhrase(e.node.mya))+'</text>');
     }
   });
@@ -1413,8 +1458,16 @@ function drawDiagram(r, full){
   branch(tailA, xA, "var(--a)", "end", -18);
   branch(tailB, xB, "var(--b)", "start", 18);
 
-  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+
-    '" role="img" aria-label="Diagram of the two family trees meeting">'+p.join("")+'</svg>';
+  const first = trunk[0].node, meet = trunk[meetIdx].node;
+  const endA = tailA.length ? tailA[tailA.length-1].node : meet;
+  const endB = tailB.length ? tailB[tailB.length-1].node : meet;
+  const desc = "The trunk starts at " + label(first) + " and runs down through " + (trunk.length - 1) +
+    " shared " + (trunk.length === 2 ? "group" : "groups") + " to " + label(meet) +
+    ", where the two lines separate: one branch leads to " + label(endA) + ", the other to " + label(endB) +
+    ". The same information is written out in the panel called See the full scientific classification.";
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-labelledby="diagTitle diagDesc">' +
+    '<title id="diagTitle">How ' + esc(label(endA)) + ' and ' + esc(label(endB)) + ' are connected</title>' +
+    '<desc id="diagDesc">' + esc(desc) + '</desc>' + p.join("")+'</svg>';
 }
 
 /* ---- the full classification, for anyone who wants it ---- */
@@ -1444,18 +1497,28 @@ let filterMatches = null;
 function renderNode(n, isRoot){
   const kids = filterMatches ? n.children.filter(c=>filterMatches.has(c.id)) : n.children;
   const open = kids.length && (expanded.has(n.id) || (filterMatches && filterMatches.has(n.id)));
+  const kidCount = !n.species && n.children.length ? descendantSpecies(n) + " animals" : "";
+  const spoken = [label(n), showsSci(n) ? sciOf(n) : "", rankWord(n.rank), kidCount].filter(Boolean).join(", ");
   let html = '<div class="node'+(isRoot?" root":"")+'">' +
     '<div class="row" data-id="'+n.id+'">' +
-      '<span class="tw'+(kids.length?"":" leaf")+'" data-tw="'+n.id+'">'+(kids.length ? (open?"▾":"▸") : "•")+'</span>' +
-      '<span class="nm" data-pick="'+n.id+'">'+esc(label(n))+'</span>' +
+      (kids.length
+        ? '<button type="button" class="tw" data-tw="'+n.id+'" aria-expanded="'+(open?"true":"false")+
+          '" aria-label="'+(open?"Hide":"Show")+' what is inside '+esc(label(n))+'">'+(open?"▾":"▸")+'</button>'
+        : '<span class="tw leaf" aria-hidden="true">•</span>') +
+      '<button type="button" class="nm" data-pick="'+n.id+'" aria-label="Choose '+esc(spoken)+'">'+esc(label(n))+'</button>' +
       (showsSci(n) ? '<span class="sci">'+esc(sciOf(n))+'</span>' : '') +
       '<span class="rk">'+esc(rankWord(n.rank))+'</span>' +
-      (!n.species && n.children.length ? '<span class="count">'+descendantSpecies(n)+' animals</span>' : '') +
+      (kidCount ? '<span class="count">'+esc(kidCount)+'</span>' : '') +
     '</div>';
   if(open) html += kids.map(c=>renderNode(c,false)).join("");
   return html + '</div>';
 }
 function renderTree(){ treeEl.innerHTML = renderNode(ROOT, true); paintTree(); }
+/* the tree is re-rendered wholesale, so put the keyboard focus back where it was */
+function refocus(selector){
+  const el = treeEl.querySelector(selector);
+  if(el && treeEl.closest("details")?.open) el.focus({preventScroll:true});
+}
 function paintTree(){
   const r = (picked.a && picked.b) ? mrca(picked.a, picked.b) : null;
   treeEl.querySelectorAll(".row").forEach(row => {
@@ -1471,14 +1534,16 @@ treeEl.addEventListener("click", e => {
     const id = tw.dataset.tw;
     if(expanded.has(id)) expanded.delete(id); else expanded.add(id);
     renderTree();
+    refocus('[data-tw="' + id + '"]');
     return;
   }
   const pick = e.target.closest("[data-pick]");
   if(pick){
-    const n = nodes.get(pick.dataset.pick);
+    const id = pick.dataset.pick;
     const slot = !picked.a ? "a" : (!picked.b ? "b" : nextSlot);
     nextSlot = slot === "a" ? "b" : "a";
-    setPick(slot, n);
+    setPick(slot, nodes.get(id));
+    refocus('[data-pick="' + id + '"]');
   }
 });
 $("treeFilter").addEventListener("input", e => {
@@ -1496,8 +1561,10 @@ $("expandPath").addEventListener("click", () => {
   [picked.a, picked.b].filter(Boolean).forEach(n => lineage(n).forEach(x => expanded.add(x.id)));
   renderTree();
   const r = (picked.a && picked.b) ? mrca(picked.a, picked.b) : null;
-  const target = treeEl.querySelector('.row[data-id="' + (r ? r.node.id : (picked.a || ROOT).id) + '"]');
-  if(target) target.scrollIntoView({block:"center", behavior:"smooth"});
+  const id = r ? r.node.id : (picked.a || ROOT).id;
+  const target = treeEl.querySelector('.row[data-id="' + id + '"]');
+  if(target) target.scrollIntoView({block:"center", behavior:calmly()});
+  refocus('[data-pick="' + id + '"]');
 });
 $("collapseAll").addEventListener("click", () => {
   expanded.clear(); expanded.add("life");
@@ -1543,7 +1610,7 @@ $("examples").addEventListener("click", e => {
   setPick("a", search(x,1)[0], {sync:false});
   setPick("b", search(y,1)[0], {sync:false});
   compare();
-  $("result").scrollIntoView({behavior:"smooth", block:"start"});
+  $("result").scrollIntoView({behavior:calmly(), block:"start"});
 });
 
 window.addEventListener("hashchange", () => {
