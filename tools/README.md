@@ -22,6 +22,7 @@ required and goes into the User-Agent header.
 | `--only <id>` | Fetch a single group, e.g. `--only insecta`. |
 | `--force` | Re-download pictures that are already on disk. |
 | `--inline` | Also write `images/images.js`, every picture as a data URI. |
+| `--species all` | Fetch a photo of each **animal** instead of each group. Also takes a list: `--species "lion,emu,octopus"`. |
 | `--dry-run` | Look everything up and report, but write nothing. |
 | `--delay 250` | Milliseconds between requests. |
 
@@ -35,6 +36,31 @@ images/images.js      only with --inline: the same pictures as data URIs
 
 `npm i -D sharp` is optional; if it's present the pictures are re-encoded as WebP, which is
 roughly a third of the size. Expect about 1–2 MB for all 66 groups.
+
+## Photos of the animals themselves
+
+The family-tree view puts a picture at the end of each branch. Those come from
+`--species`, which reads the animal list straight out of `index.html` — no second copy to
+keep in step — and uses each scientific name as the Wikipedia title:
+
+```bash
+node tools/fetch-images.mjs --contact you@example.org --species all --inline
+```
+
+A species' lead image on Wikipedia is nearly always a decent photo of the animal, so these
+need no hand-curation, unlike the big groups above. Ids come out as `sp-panthera-leo`, matching
+what the page builds.
+
+All 343 animals is roughly 7 MB, which is too much to inline into one HTML file. Either fetch
+the ones you actually use — `--species "lion,brown bear,emu,octopus,honey bee"` — or keep the
+files in `images/` and serve the folder. The app draws a plain coloured ring for any animal with
+no picture, so a partial set is fine.
+
+To switch the pictures on, uncomment the line near the bottom of `index.html`:
+
+```html
+<script src="images/images.js"></script>
+```
 
 ## How it picks a picture
 

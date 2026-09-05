@@ -28,10 +28,45 @@ python3 -m http.server     # or serve it
 - **Full scientific classification** tucked behind a collapsed panel for anyone who wants the Latin.
 - **A browsable tree** of the whole dataset, collapsed by default: open it to expand, filter, and click any
   group to load it into a slot.
+- **A second view** for up to five animals at once — see below.
 - **Shareable links** — the URL hash carries the pair, e.g. `index.html#a=Panthera%20leo&b=Octopus%20vulgaris`.
 - **Two layouts.** On a laptop or tablet the two lineages fork left and right; on a phone the same
   tree is redrawn as an indented list so the names get the full width. It switches on rotation.
 - Plus *Surprise me*, *Swap*, and one-click example pairs.
+
+## The family tree of up to five animals
+
+The second tab takes up to five animals and draws the tree that connects them all — no
+sentences, no dates, just the shape: shared history down the middle, a branch point wherever
+the lineages split, and each animal at the end of its own coloured branch with a photo if one
+has been fetched. Dashed lines carry a small number saying how many in-between groups are not
+shown, so the compression is visible rather than silent.
+
+Branches are ordered by the tree, not by the order you typed them, which is what keeps the
+lines from crossing.
+
+**Every picture is a URL**, so it can be linked, bookmarked, put in a worksheet or screenshotted
+by any tool:
+
+```
+index.html#tree=lion,brown+bear,honey+bee,octopus,emperor+penguin
+index.html#tree=Panthera+leo,Ursus+arctos          # scientific names work too
+index.html#tree=lion,emu&bare=1                    # just the picture: no header, no controls
+```
+
+**Getting it out of the browser:**
+
+- **Print or save as PDF** uses the browser's own print dialog with a print stylesheet — the
+  page's furniture drops away, colours are kept, and the SVG stays vector, so the text in the PDF
+  is real text. A paper picker sets `@page` to A4 or A3, portrait or landscape. Chrome and Edge
+  honour that; Firefox and Safari may still need the paper chosen in the dialog.
+- **Download SVG** resolves the CSS custom properties to real colours first, so the file works
+  anywhere, and **Download PNG** renders that at 2× through a canvas. Both are plain browser APIs,
+  no library. (Downloads are blocked inside a published Claude Artifact; they work on a normal
+  web host or from a local file.)
+
+For a class set, `page.pdf({format:'A3', landscape:true})` in a short Playwright script turns a
+list of those URLs into a folder of PDFs without touching the print dialog.
 
 ## Design notes
 

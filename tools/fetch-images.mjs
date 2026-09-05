@@ -4,6 +4,9 @@
  *
  *   node tools/fetch-images.mjs --contact you@example.org
  *
+ * With --species it does the same for the animals themselves, reading the list
+ * straight out of index.html so the two can never drift apart.
+ *
  * For every entry in tools/milestone-images.json it:
  *   1. asks English Wikipedia for the page's lead image (or uses an explicit
  *      Commons file name when the mapping overrides it),
@@ -34,6 +37,7 @@ const opt = (name, fallback) => {
 const CONTACT  = opt("contact", "");           // an email or URL, required by Wikimedia
 const WIDTH    = Number(opt("width", 400));    // thumbnail width in pixels
 const ONLY     = opt("only", "");              // fetch a single id
+const SPECIES  = opt("species", "");           // "all", or a comma-separated list of animals
 const FORCE    = !!opt("force", false);        // re-fetch images already on disk
 const INLINE   = !!opt("inline", false);       // also emit images/images.js with data URIs
 const DRY      = !!opt("dry-run", false);
@@ -112,10 +116,34 @@ async function saveImage(id, thumbUrl){
 
 const exists = async p => { try { await access(p); return true; } catch { return false; } };
 
+/* ---------- what to fetch ---------- */
+const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+/* The animals live in index.html; read them from there rather than keeping a
+   second copy that can go stale. Ids must match the ones the page builds. */
+async function speciesMapping(which){
+  const page = await readFile(join(ROOT, "index.html"), "utf8");
+  const m = /const SPECIES = (\[[\s\S]*?\n\];)/.exec(page);
+  if(!m) throw new Error("could not find the SPECIES list in index.html");
+  const rows = JSON.parse(m[1]
+    .replace(/^\s*\/\/.*$/gm, "")      // the list is commented by group
+    .replace(/;\s*$/, "")
+    .replace(/,(\s*\])/g, "$1"));
+  const wanted = which === "all" || which === true ? null
+    : new Set(which.split(",").map(s => s.trim().toLowerCase()).filter(Boolean));
+  const out = {};
+  for(const [sci, common, , aliases] of rows){
+    if(wanted && !wanted.has(sci.toLowerCase()) && !wanted.has((common||"").toLowerCase()) &&
+       !(aliases||"").toLowerCase().split("|").some(a => wanted.has(a))) continue;
+    out["sp-" + slugify(sci)] = {title: sci, caption: common};
+  }
+  return out;
+}
+
 /* ---------- run ---------- */
-const mapping = JSON.parse(await readFile(MAP_FILE, "utf8")).images;
+const mapping = SPECIES ? await speciesMapping(SPECIES) : JSON.parse(await readFile(MAP_FILE, "utf8")).images;
 const ids = Object.keys(mapping).filter(id => !ONLY || id === ONLY);
-if(!ids.length){ console.error("No entry named " + ONLY + " in " + MAP_FILE); process.exit(1); }
+if(!ids.length){ console.error("Nothing matched " + (ONLY || SPECIES)); process.exit(1); }
 if(!DRY) await mkdir(OUT_DIR, { recursive: true });
 
 let credits = {};
@@ -125,7 +153,7 @@ let bytes = 0;
 
 for(const id of ids){
   const entry = mapping[id];
-  process.stdout.write(id.padEnd(18));
+  process.stdout.write(id.padEnd(26));
   try{
     let file = entry.file || null;
     if(!file){
@@ -196,6 +224,6 @@ if(review.length)
               '\n  Fix one by adding "file": "Some photo.jpg" to its entry in tools/milestone-images.json, then rerun with --force --only <id>.');
 if(failures.length){
   console.log("\nNo picture for:");
-  for(const f of failures) console.log("  " + f.id.padEnd(18) + f.reason);
+  for(const f of failures) console.log("  " + f.id.padEnd(26) + f.reason);
 }
 if(!sharp && !DRY) console.log("\n(Install sharp for smaller WebP files: npm i -D sharp)");

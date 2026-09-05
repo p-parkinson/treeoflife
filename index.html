@@ -17,6 +17,7 @@
   --b:#a8500f; --b-soft:#fbeade;
   --meet:#8a6000; --meet-soft:#fdf1d8;
   --warn:#a63a00;
+  --p1:#1f5fc4; --p2:#a8500f; --p3:#6b3fa0; --p4:#0f6d6a; --p5:#a3185f;
   --shadow:0 2px 3px rgba(30,43,35,.04), 0 10px 24px rgba(30,43,35,.07);
   --r-lg:22px; --r-md:14px;
   --display:"Fredoka",system-ui,"Segoe UI",sans-serif;
@@ -28,6 +29,7 @@
     --ink:#e9f1e9; --muted:#adbfb3; --faint:#94a89b; --line:#2c392f;
     --shared:#5ed08c; --shared-soft:#1d3326; --on-shared:#0f1a13;
     --warn:#ffab7a;
+    --p1:#7aabf6; --p2:#f2a06d; --p3:#b79af0; --p4:#5fc9c4; --p5:#f090bd;
     --a:#7aabf6; --a-soft:#1d2c40;
     --b:#f2a06d; --b-soft:#38271c;
     --meet:#f0c257; --meet-soft:#3a3018;
@@ -39,6 +41,7 @@
   --ink:#e9f1e9; --muted:#adbfb3; --faint:#94a89b; --line:#2c392f;
   --shared:#5ed08c; --shared-soft:#1d3326; --on-shared:#0f1a13;
   --warn:#ffab7a;
+  --p1:#7aabf6; --p2:#f2a06d; --p3:#b79af0; --p4:#5fc9c4; --p5:#f090bd;
   --a:#7aabf6; --a-soft:#1d2c40;
   --b:#f2a06d; --b-soft:#38271c;
   --meet:#f0c257; --meet-soft:#3a3018;
@@ -135,8 +138,8 @@ button.primary:hover{filter:brightness(1.06);background:var(--shared)}
 .verdict .when > div{min-width:150px}
 
 .card{margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden}
-.card > h3{margin:0;padding:16px 20px;font-size:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
-.card > h3 .tools{margin-left:auto;display:flex;gap:10px;align-items:center;font-family:var(--body);font-size:14px;font-weight:600;color:var(--muted)}
+.card > h3, .card > h2{margin:0;padding:16px 20px;font-size:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.card > h3 .tools, .card > h2 .tools{margin-left:auto;display:flex;gap:10px;align-items:center;font-family:var(--body);font-size:14px;font-weight:600;color:var(--muted)}
 .card .body{padding:18px 20px}
 .switch{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
 .switch input{width:22px;height:22px;accent-color:var(--shared);cursor:pointer}
@@ -149,7 +152,10 @@ button.primary:hover{filter:brightness(1.06);background:var(--shared)}
 
 .diagram-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .diagram-scroll svg{display:block;width:100%;max-width:900px;min-width:620px;height:auto;margin:0 auto}
-@media (max-width:660px){.diagram-scroll svg{min-width:0}}
+@media (max-width:660px){
+  .diagram-scroll svg{min-width:0}
+  #manyDiagram svg{width:auto;max-width:none}
+}
 .swipe-hint{margin:0;padding:0 20px 12px;color:var(--muted);font-size:14px}
 .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--muted);padding:0 20px 16px}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:7px;vertical-align:-1px}
@@ -200,6 +206,60 @@ table.lin .cn{color:var(--muted);font-size:13.5px}
 .tree-tools input:focus{border-color:var(--shared);background:var(--card)}
 .tree-tools button{padding:8px 14px;font-size:14.5px}
 
+/* ---------- the two views ---------- */
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tabs button{border-radius:999px;padding:9px 18px;font-weight:700;color:var(--muted);background:var(--card)}
+.tabs button[aria-selected="true"]{background:var(--shared);border-color:var(--shared);color:var(--on-shared)}
+.panel[hidden]{display:none}
+
+/* ---------- picking several animals ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;padding:0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:8px;background:var(--paper-2);border:2px solid var(--line);
+  border-radius:999px;padding:5px 6px 5px 14px;font-weight:700;min-height:40px}
+.chip .dot{width:12px;height:12px;border-radius:50%;flex:0 0 12px}
+.chip .sci{font-weight:400;font-style:italic;color:var(--muted);font-size:13px}
+.chip button{min-height:30px;width:30px;padding:0;border:0;background:none;color:var(--muted);font-size:19px;line-height:1;border-radius:50%}
+.chip button:hover{background:var(--line);color:var(--ink)}
+.chips-empty{color:var(--muted);margin:0 0 14px}
+.count-note{color:var(--muted);font-size:14px;margin:8px 0 0}
+
+/* ---------- export bar ---------- */
+.export{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:0 20px 16px}
+.export button{padding:8px 14px;font-size:14.5px;min-height:40px}
+.export label{font-size:14px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.export select{font:inherit;font-size:14px;padding:7px 9px;border-radius:10px;border:2px solid var(--line);
+  background:var(--card);color:var(--ink);min-height:40px}
+.export .note{font-size:13px;color:var(--faint)}
+
+/* ---------- picture-only mode (#...&bare=1) ---------- */
+body.bare header.top, body.bare .tabs, body.bare .picker, body.bare #explorer,
+body.bare footer, body.bare .export, body.bare .skip, body.bare .swipe-hint{display:none}
+body.bare .wrap{padding:10px}
+body.bare .card{border:0;box-shadow:none;margin:0}
+body.bare .card > h3{border:0;padding-bottom:0}
+
+/* ---------- print ---------- */
+@media print{
+  :root{--paper:#fff;--paper-2:#fff;--card:#fff;--ink:#111a14;--muted:#3f5147;--faint:#4a5c51;--line:#c9d6c9;
+        --shared:#186637;--shadow:none}
+  body{background:#fff}
+  header.top, .tabs, .picker, #explorer, footer, .export, .skip, .swipe-hint, .legend{display:none !important}
+  .wrap{max-width:none;padding:0 3mm}
+  .card{border:0;box-shadow:none;margin:0;break-inside:avoid}
+  .card > h3{border:0;padding:0 0 8px}
+  .verdict{border:1px solid var(--line);box-shadow:none}
+  details.full{display:none}
+  .diagram-scroll{overflow:visible}
+  .diagram-scroll svg{min-width:0;max-width:none;width:100%;height:auto}
+  *{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+}
+
+#treeAsList ul{margin:3px 0 3px 6px;padding-left:14px;border-left:2px solid var(--line);list-style:none}
+#treeAsList > ul{margin-left:0;padding-left:0;border-left:0}
+#treeAsList li{padding:2px 0}
+#treeAsList .sci{font-style:italic;color:var(--muted)}
+#treeAsList .cn{color:var(--faint);font-size:13px}
+
 footer{margin-top:30px;color:var(--muted);font-size:14.5px;line-height:1.65;max-width:70ch}
 footer strong{color:var(--ink)}
 footer a{color:var(--a);text-underline-offset:2px}
@@ -233,6 +293,13 @@ footer a{color:var(--a);text-underline-offset:2px}
 </header>
 
 <main id="main">
+
+<div class="tabs" role="tablist" aria-label="Two ways to look at the tree">
+  <button type="button" role="tab" id="tabTwo" aria-selected="true" aria-controls="viewTwo">Two animals</button>
+  <button type="button" role="tab" id="tabMany" aria-selected="false" aria-controls="viewMany" tabindex="-1">Family tree of up to five</button>
+</div>
+
+<div class="panel" id="viewTwo" role="tabpanel" aria-labelledby="tabTwo">
 
 <section class="picker" role="search" aria-label="Choose two animals">
   <div class="slots">
@@ -286,6 +353,56 @@ footer a{color:var(--a);text-underline-offset:2px}
   </details>
 </section>
 
+</div><!-- /viewTwo -->
+
+<div class="panel" id="viewMany" role="tabpanel" aria-labelledby="tabMany" hidden>
+
+<section class="picker" role="search" aria-label="Choose up to five animals">
+  <div class="slot a">
+    <label for="inMany">Add an animal</label>
+    <input id="inMany" type="text" autocomplete="off" spellcheck="false" placeholder="kangaroo, owl, honey bee..."
+           role="combobox" aria-expanded="false" aria-controls="sugMany" aria-haspopup="listbox" aria-autocomplete="list">
+    <div class="suggest" id="sugMany" role="listbox" tabindex="-1" aria-label="Suggestions"></div>
+    <p class="count-note" id="manyNote" role="status"></p>
+  </div>
+  <ul class="chips" id="chips" aria-label="Animals in this tree"></ul>
+  <div class="actions">
+    <button class="primary" id="manyGo">Draw the tree</button>
+    <button id="manyRand">Surprise me</button>
+    <button id="manyClear">Start again</button>
+  </div>
+</section>
+
+<section id="manyResult">
+  <p class="sr-only" id="manyAnnounce" role="status"></p>
+  <div class="card">
+    <h2 id="manyHead">How they are all connected</h2>
+    <div class="body diagram-scroll" id="manyDiagram"></div>
+    <p class="swipe-hint" id="manySwipeHint" hidden>The picture is wider than your screen &mdash; slide it sideways to see all of it.</p>
+    <p class="count-note" style="padding:0 20px 4px">A dashed line with a number means that many in-between groups are not shown.</p>
+    <div class="export">
+      <button id="btnPrint">Print or save as PDF</button>
+      <label for="paper">Paper
+        <select id="paper">
+          <option value="A4 portrait">A4 portrait</option>
+          <option value="A4 landscape">A4 landscape</option>
+          <option value="A3 portrait">A3 portrait</option>
+          <option value="A3 landscape">A3 landscape</option>
+        </select>
+      </label>
+      <button id="btnSvg">Download SVG</button>
+      <button id="btnPng">Download PNG</button>
+      <span class="note" id="exportNote"></span>
+    </div>
+  </div>
+  <details class="full">
+    <summary>Read this tree as a list</summary>
+    <div class="body" id="treeAsList"></div>
+  </details>
+</section>
+
+</div><!-- /viewMany -->
+
 <details class="full" id="explorer">
   <summary>Explore the whole tree <span class="tools" id="treeStat"></span></summary>
   <div class="tree-tools">
@@ -318,6 +435,13 @@ footer a{color:var(--a);text-underline-offset:2px}
 </footer>
 
 </div>
+
+<!-- Pictures are optional. After running:
+       node tools/fetch-images.mjs --contact you@example.org --species all --inline
+     uncomment the next line (or paste the file's contents here) and every animal
+     in the family-tree view gets a photo. See tools/README.md.
+<script src="images/images.js"></script>
+-->
 <script>
 /* =====================================================================
    1. DATA — the classification backbone
@@ -1277,9 +1401,11 @@ function setPick(slot, node, opts){
   if(sync) compare();
 }
 
-function wireSuggest(slot){
-  const input = $(slot === "a" ? "inA" : "inB");
-  const box = $(slot === "a" ? "sugA" : "sugB");
+/* One autocomplete, used by both views. `choose` fires on Enter or a click;
+   `settle` (optional) fires when the box loses focus, for the two-animal
+   fields that resolve whatever was typed. */
+function wireSuggest(inputId, boxId, handlers){
+  const input = $(inputId), box = $(boxId);
   let items = [], hi = -1;
   const close = () => {
     box.classList.remove("open"); box.innerHTML = ""; items = []; hi = -1;
@@ -1298,7 +1424,7 @@ function wireSuggest(slot){
     if(hi >= 0) input.setAttribute("aria-activedescendant", box.id + "-opt-" + hi);
     else input.removeAttribute("aria-activedescendant");
   };
-  const choose = i => { if(items[i]){ setPick(slot, items[i]); close(); } };
+  const choose = i => { if(items[i]){ handlers.choose(items[i]); close(); } };
   input.addEventListener("input", () => { items = search(input.value, 8); hi = -1; render(); });
   input.addEventListener("focus", () => { if(input.value.trim()){ items = search(input.value,8); render(); } });
   input.addEventListener("keydown", e => {
@@ -1307,7 +1433,7 @@ function wireSuggest(slot){
     else if(e.key === "Enter"){
       e.preventDefault();
       if(items.length) choose(hi >= 0 ? hi : 0);
-      else { setPick(slot, search(input.value,1)[0] || null); close(); }
+      else { const found = search(input.value,1)[0]; if(found) handlers.choose(found); close(); }
     } else if(e.key === "Escape") close();
   });
   /* Settle the box shortly after it loses focus - but only if the person has really
@@ -1318,10 +1444,7 @@ function wireSuggest(slot){
     setTimeout(() => {
       if(document.activeElement === input || input.value !== leftWith) return;
       close();
-      const v = input.value.trim();
-      if(!v){ picked[slot] = null; $(slot==="a"?"chA":"chB").textContent = ""; return; }
-      if(!picked[slot] || label(picked[slot]).toLowerCase() !== v.toLowerCase())
-        setPick(slot, search(v,1)[0] || null);
+      if(handlers.settle) handlers.settle(input.value.trim());
     }, 150);
   });
   box.addEventListener("mousedown", e => {
@@ -1329,7 +1452,18 @@ function wireSuggest(slot){
     e.preventDefault(); choose(+d.dataset.i);
   });
 }
-wireSuggest("a"); wireSuggest("b");
+
+["a","b"].forEach(slot => {
+  const input = $(slot === "a" ? "inA" : "inB");
+  wireSuggest(input.id, slot === "a" ? "sugA" : "sugB", {
+    choose: n => setPick(slot, n),
+    settle: v => {
+      if(!v){ picked[slot] = null; $(slot==="a"?"chA":"chB").textContent = ""; return; }
+      if(!picked[slot] || label(picked[slot]).toLowerCase() !== v.toLowerCase())
+        setPick(slot, search(v,1)[0] || null);
+    }
+  });
+});
 
 /* =====================================================================
    6. THE ANSWER
@@ -1389,7 +1523,7 @@ function compare(){
     ? label(a) + " and " + label(b) + " are the same animal."
     : label(a) + " and " + label(b) + ": " + closeness(m).toLowerCase() + ". They meet at " + label(m) +
       (when ? ", " + when : "") + ".";
-  location.replace("#a=" + encodeURIComponent(sciOf(a)) + "&b=" + encodeURIComponent(sciOf(b)));
+  setHash("#a=" + encodeURIComponent(sciOf(a)) + "&b=" + encodeURIComponent(sciOf(b)));
   [a,b].forEach(n => lineage(n).forEach(x => expanded.add(x.id)));
   renderTree();
 }
@@ -1411,8 +1545,10 @@ addEventListener("resize", () => {
 /* The wide diagram keeps a readable minimum width, so it can still scroll inside
    its own box on a mid-size screen. Say so, but only when it actually overflows. */
 function showSwipeHint(){
-  const box = $("diagram");
-  $("swipeHint").hidden = box.scrollWidth <= box.clientWidth + 1;
+  [["diagram","swipeHint"], ["manyDiagram","manySwipeHint"]].forEach(([boxId, hintId]) => {
+    const box = $(boxId);
+    $(hintId).hidden = box.scrollWidth <= box.clientWidth + 1;
+  });
   markScrollables();
 }
 
@@ -1420,7 +1556,9 @@ function showSwipeHint(){
    really does scroll, so no empty tab stops appear on a wide screen. */
 function markScrollables(){
   [[$("diagram"), "The picture of how the two animals are connected. Scroll sideways to see all of it."],
-   [$("linTable").parentElement, "The full classification table. Scroll sideways to see all of it."]
+   [$("manyDiagram"), "The family tree picture. Scroll sideways to see all of it."],
+   [$("linTable").parentElement, "The full classification table. Scroll sideways to see all of it."],
+   [$("treeAsList"), "The tree written out as a list. Scroll sideways to see all of it."]
   ].forEach(([el, lbl]) => {
     if(el.scrollWidth > el.clientWidth + 1){
       el.tabIndex = 0; el.setAttribute("role", "group"); el.setAttribute("aria-label", lbl);
@@ -1620,6 +1758,239 @@ function lineageTable(r, a, b){
 }
 
 /* =====================================================================
+   9. THE FAMILY TREE OF UP TO FIVE ANIMALS
+   ===================================================================== */
+const MAX_PICKS = 5;
+let bareMode = false;
+let lastHash = "";
+function setHash(h){ lastHash = h; location.replace(h); }
+const manyPicks = [];
+const ACCENTS = ["var(--p1)","var(--p2)","var(--p3)","var(--p4)","var(--p5)"];
+
+/* ---- the shape of the tree ----
+   Take every ancestor of every chosen animal, throw away the nodes that do not
+   branch and are not worth naming, and keep a count of what was thrown away. */
+function inducedTree(picksArr){
+  const marked = new Set();
+  picksArr.forEach(n => lineage(n).forEach(x => marked.add(x.id)));
+  const pickIds = new Set(picksArr.map(n => n.id));
+  const kidsOf = node => node.children.filter(c => marked.has(c.id));
+
+  /* walk down from the root while there is nothing to show: that path is the stem */
+  const stemPath = [ROOT];
+  let root = ROOT;
+  while(!pickIds.has(root.id)){
+    const kids = kidsOf(root);
+    if(kids.length !== 1) break;
+    root = kids[0];
+    stemPath.push(root);
+  }
+
+  function build(node, skipped){
+    const kids = kidsOf(node);
+    const worthShowing = node === root || pickIds.has(node.id) || kids.length !== 1 || MILESTONES.has(node.id);
+    if(!worthShowing) return build(kids[0], skipped + 1);
+    return {
+      node, skipped,
+      pick: pickIds.has(node.id),
+      children: kids.map(k => build(k, 0))
+    };
+  }
+  return {root: build(root, 0), stemPath};
+}
+
+/* The stem can be a dozen groups long (five mammals share a lot of history).
+   Keep the ends and a couple of famous names in between, and say how many
+   groups each gap stands for. */
+/* Which groups are worth naming on the way down, best first. */
+const STEM_PREFERRED = ["metazoa","vertebrata","mammalia","aves","sauropsida","insecta","arthropoda","mollusca",
+  "chordata","amniota","tetrapoda","amphibia","actinopterygii","primates","carnivora","teleostei","echinodermata",
+  "cnidaria","annelida","bilateria"];
+
+function capStem(path, maxShown){
+  if(path.length <= 1) return [];
+  const keep = new Set([path[0].id]);
+  const candidates = path.slice(1).filter(n => MILESTONES.has(n.id));
+  const room = Math.max(0, maxShown - 1);
+  candidates
+    .slice()
+    .sort((a, b) => {
+      const ia = STEM_PREFERRED.indexOf(a.id), ib = STEM_PREFERRED.indexOf(b.id);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    })
+    .slice(0, room)
+    .forEach(n => keep.add(n.id));
+
+  const out = []; let skipped = 0;
+  path.forEach(n => {
+    if(keep.has(n.id)){ out.push({node: n, skipped}); skipped = 0; }
+    else skipped++;
+  });
+  return out;
+}
+
+/* ---- drawing it: trunk down from the root, then a fan of branches ---- */
+function wrapLabel(text, maxChars){
+  const words = text.split(" "), lines = [];
+  let line = "";
+  for(const w of words){
+    if(!line) line = w;
+    else if((line + " " + w).length <= maxChars) line += " " + w;
+    else { lines.push(line); line = w; }
+    if(lines.length === 2) break;
+  }
+  if(lines.length < 2 && line) lines.push(line);
+  if(lines.length === 2 && line && lines[1] !== line){
+    lines[1] = lines[1].length > maxChars - 1 ? lines[1].slice(0, maxChars - 1) + "…" : lines[1];
+  }
+  return lines;
+}
+
+function drawFamilyTree(picksArr){
+  const {root, stemPath} = inducedTree(picksArr);
+  const stem = capStem(stemPath.slice(0, -1), 4);          // the last stem node is the tree's root
+  const accentOf = n => ACCENTS[picksArr.findIndex(p => p.id === n.id) % ACCENTS.length];
+
+  /* positions: leaves along the bottom, parents centred over their children */
+  const leaves = [];
+  (function measure(d, depth){
+    d.depth = depth;
+    d.children.forEach(c => measure(c, depth + 1));
+    if(!d.children.length){ d.leafIndex = leaves.length; leaves.push(d); }
+  })(root, 0);
+  const maxDepth = (function deepest(d){ return d.children.length ? Math.max(...d.children.map(deepest)) : d.depth; })(root);
+
+  const colW = 176, rowH = 86, leafBlock = 128;
+  const padX = 26, stemTop = 30, stemH = 48;
+  const W = Math.max(520, leaves.length * colW + padX * 2);
+  const treeTop = stemTop + stem.length * stemH + 26;
+  const H = treeTop + maxDepth * rowH + leafBlock;
+
+  const xOf = d => padX + (d.children.length
+    ? (xOf(d.children[0]) + xOf(d.children[d.children.length - 1])) / 2 - padX
+    : d.leafIndex * colW + colW / 2);
+  const yOf = d => d.children.length ? treeTop + d.depth * rowH : treeTop + maxDepth * rowH;
+
+  const p = [];
+  const SH = "var(--shared)", MUTED = "var(--muted)", FAINT = "var(--faint)", INK = "var(--ink)";
+  const text = (x, y, s, opts) => {
+    const o = opts || {};
+    p.push('<text x="' + x + '" y="' + y + '" text-anchor="' + (o.anchor || "middle") + '" fill="' + (o.fill || INK) +
+      '" font-size="' + (o.size || 13) + '"' + (o.weight ? ' font-weight="' + o.weight + '"' : '') +
+      (o.italic ? ' font-style="italic"' : '') + (o.family ? ' font-family="' + o.family + '"' : '') +
+      ' stroke="var(--card)" stroke-width="4.5" paint-order="stroke fill" stroke-linejoin="round">' + esc(s) + '</text>');
+  };
+  /* a label beside a node goes right unless it would fall off the picture */
+  const besideNode = (x, str, size) =>
+    (x + 16 + str.length * size * 0.6 < W - 6) ? {anchor: "start", dx: 16} : {anchor: "end", dx: -16};
+  const gapBadge = (x, y, n) => {
+    if(!n) return;
+    p.push('<circle cx="' + x + '" cy="' + y + '" r="10" fill="var(--card)" stroke="' + FAINT + '" stroke-width="1.5"/>');
+    text(x, y + 4, String(n), {size: 12, weight: 700, fill: MUTED});
+  };
+
+  /* the stem: shared history, drawn as a short chain into the top of the tree */
+  const rootX = xOf(root), rootY = yOf(root);
+  let prevY = null;
+  stem.forEach((e, i) => {
+    const y = stemTop + i * stemH;
+    if(prevY !== null) p.push('<line x1="' + rootX + '" y1="' + prevY + '" x2="' + rootX + '" y2="' + y +
+      '" stroke="' + SH + '" stroke-width="3.5" stroke-linecap="round"' + (e.skipped ? ' stroke-dasharray="2 7"' : '') + '/>');
+    if(e.skipped) gapBadge(rootX, (prevY + y) / 2, e.skipped);
+    p.push('<circle cx="' + rootX + '" cy="' + y + '" r="6" fill="var(--card)" stroke="' + SH + '" stroke-width="3"/>');
+    const side = besideNode(rootX, label(e.node), 14);
+    text(rootX + side.dx, y - 1, label(e.node), {anchor: side.anchor, size: 14, weight: 600, family: "Fredoka, system-ui, sans-serif"});
+    if(showsSci(e.node)) text(rootX + side.dx, y + 14, sciOf(e.node), {anchor: side.anchor, size: 12, fill: MUTED, italic: true});
+    prevY = y;
+  });
+  if(prevY !== null){
+    const gap = stem.length ? stemPath.length - 1 - stem.reduce((a, e) => a + 1 + e.skipped, 0) : 0;
+    p.push('<line x1="' + rootX + '" y1="' + prevY + '" x2="' + rootX + '" y2="' + rootY +
+      '" stroke="' + SH + '" stroke-width="3.5" stroke-linecap="round"' + (gap ? ' stroke-dasharray="2 7"' : '') + '/>');
+    if(gap) gapBadge(rootX, (prevY + rootY) / 2, gap);
+  }
+
+  /* every branch below the root */
+  (function branch(d){
+    const x = xOf(d), y = yOf(d);
+    d.children.forEach(c => {
+      const cx = xOf(c), cy = yOf(c), midY = y + rowH * 0.45;
+      const col = c.children.length ? SH : accentOf(c.node);
+      p.push('<path d="M ' + x + ' ' + y + ' V ' + midY + ' H ' + cx + ' V ' + cy + '" fill="none" stroke="' + col +
+        '" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"' + (c.skipped ? ' stroke-dasharray="2 7"' : '') + '/>');
+      if(c.skipped){
+        const labelTop = c.children.length ? cy - (wrapLabel(label(c.node), 24).length === 2 ? 46 : 31) : cy - 12;
+        const from = y + 26;
+        if(labelTop - from >= 20) gapBadge(cx, (from + labelTop) / 2, c.skipped);
+      }
+      branch(c);
+    });
+  })(root);
+
+  /* the named branch points */
+  (function labels(d){
+    const x = xOf(d), y = yOf(d);
+    if(d.children.length){
+      p.push('<circle cx="' + x + '" cy="' + y + '" r="7" fill="var(--card)" stroke="' + SH + '" stroke-width="3"/>');
+      if(d === root && stem.length){
+        const side = besideNode(x, label(d.node), 14);
+        text(x + side.dx, y - 1, label(d.node), {anchor: side.anchor, size: 14, weight: 600, family: "Fredoka, system-ui, sans-serif"});
+        if(showsSci(d.node)) text(x + side.dx, y + 14, sciOf(d.node), {anchor: side.anchor, size: 12, fill: MUTED, italic: true});
+      } else {
+        wrapLabel(label(d.node), 24).forEach((ln, i) =>
+          text(x, y - 16 + i * 15, ln, {size: 14, weight: 600, family: "Fredoka, system-ui, sans-serif"}));
+        if(showsSci(d.node)) text(x, y + 20, sciOf(d.node), {size: 12, fill: MUTED, italic: true});
+      }
+      d.children.forEach(labels);
+    }
+  })(root);
+
+  /* the animals themselves, with a picture where we have one */
+  leaves.forEach(d => {
+    const x = xOf(d), y = yOf(d), col = accentOf(d.node), n = d.node;
+    const pic = typeof TAXON_IMAGES !== "undefined" && TAXON_IMAGES[n.id];
+    const R = 30;
+    if(pic){
+      const cid = "clip-" + n.id;
+      p.push('<clipPath id="' + cid + '"><circle cx="' + x + '" cy="' + (y + R + 6) + '" r="' + R + '"/></clipPath>');
+      p.push('<image href="' + pic.src + '" x="' + (x - R) + '" y="' + (y + 6) + '" width="' + (R * 2) + '" height="' + (R * 2) +
+        '" preserveAspectRatio="xMidYMid slice" clip-path="url(#' + cid + ')"/>');
+      p.push('<circle cx="' + x + '" cy="' + (y + R + 6) + '" r="' + R + '" fill="none" stroke="' + col + '" stroke-width="3.5"/>');
+    } else {
+      p.push('<circle cx="' + x + '" cy="' + (y + R + 6) + '" r="' + R + '" fill="var(--card)" stroke="' + col + '" stroke-width="3.5"/>');
+      p.push('<circle cx="' + x + '" cy="' + (y + R + 6) + '" r="9" fill="' + col + '"/>');
+    }
+    let ty = y + R * 2 + 26;
+    wrapLabel(label(n), 18).forEach((ln, i) =>
+      text(x, ty + i * 17, ln, {size: 15, weight: 700, fill: col, family: "Fredoka, system-ui, sans-serif"}));
+    if(showsSci(n)) text(x, ty + (wrapLabel(label(n), 18).length) * 17, sciOf(n), {size: 12, fill: MUTED, italic: true});
+  });
+
+  const names = picksArr.map(label);
+  const desc = "A family tree of " + names.join(", ") + ". It starts at " + label(stemPath[0]) +
+    " and branches at " + describeBranches(root) + ".";
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H +
+    '" role="img" aria-labelledby="manyTitle manyDesc" id="familySvg">' +
+    '<title id="manyTitle">Family tree of ' + esc(names.join(", ")) + '</title>' +
+    '<desc id="manyDesc">' + esc(desc) + '</desc>' + p.join("") + '</svg>';
+}
+
+function describeBranches(d){
+  if(!d.children.length) return label(d.node);
+  if(d.children.length === 1) return describeBranches(d.children[0]);
+  return label(d.node) + ", which splits into " + d.children.map(describeBranches).join(" and ");
+}
+
+/* ---- the same tree as a nested list, for anyone not reading the picture ---- */
+function treeAsList(d){
+  const kids = d.children.length ? "<ul>" + d.children.map(treeAsList).join("") + "</ul>" : "";
+  const name = esc(label(d.node)) + (showsSci(d.node) ? ' <span class="sci">' + esc(sciOf(d.node)) + '</span>' : '') +
+    ' <span class="cn">' + esc(rankWord(d.node.rank)) + '</span>' +
+    (d.skipped ? ' <span class="cn">(' + d.skipped + ' more ' + (d.skipped === 1 ? "group" : "groups") + ' not shown)</span>' : '');
+  return "<li>" + name + kids + "</li>";
+}
+
+/* =====================================================================
    7. EXPLORING THE WHOLE TREE
    ===================================================================== */
 const treeEl = $("tree");
@@ -1746,27 +2117,197 @@ $("examples").addEventListener("click", e => {
   $("result").scrollIntoView({behavior:calmly(), block:"start"});
 });
 
-window.addEventListener("hashchange", () => {
-  const m = /a=([^&]*)&b=([^&]*)/.exec(location.hash || "");
-  if(!m) return;
-  const a = search(decodeURIComponent(m[1]),1)[0], b = search(decodeURIComponent(m[2]),1)[0];
-  if(a && b && (a !== picked.a || b !== picked.b)){
-    setPick("a", a, {sync:false}); setPick("b", b, {sync:false}); compare();
-  }
-});
-
-function fromHash(){
-  const m = /a=([^&]*)&b=([^&]*)/.exec(location.hash || "");
-  if(!m) return false;
-  const a = search(decodeURIComponent(m[1]),1)[0], b = search(decodeURIComponent(m[2]),1)[0];
-  if(!a || !b) return false;
-  setPick("a", a, {sync:false}); setPick("b", b, {sync:false});
-  compare();
-  return true;
+/* =====================================================================
+   10. THE FIVE-ANIMAL VIEW: PICKING, LINKS, PRINTING AND EXPORT
+   ===================================================================== */
+function renderChips(){
+  const list = $("chips");
+  list.innerHTML = manyPicks.map((n,i) =>
+    '<li class="chip"><span class="dot" aria-hidden="true" style="background:'+ACCENTS[i]+'"></span>' +
+      esc(label(n)) + (showsSci(n) ? ' <span class="sci">'+esc(sciOf(n))+'</span>' : '') +
+      '<button type="button" data-drop="'+n.id+'" aria-label="Remove '+esc(label(n))+'">&times;</button></li>').join("");
+  $("manyNote").textContent = manyPicks.length >= MAX_PICKS
+    ? "That is five, the most one picture can show. Remove one to swap it for another."
+    : manyPicks.length + " of " + MAX_PICKS + " chosen";
 }
 
+function drawMany(){
+  renderChips();
+  const box = $("manyResult");
+  if(!manyPicks.length){
+    box.hidden = true;
+    setHash("#tree=");
+    return;
+  }
+  box.hidden = false;
+  $("manyDiagram").innerHTML = drawFamilyTree(manyPicks);
+  const {root} = inducedTree(manyPicks);
+  $("treeAsList").innerHTML = "<ul>" + treeAsList(root) + "</ul>";
+  $("manyHead").textContent = manyPicks.length === 1
+    ? "Where " + label(manyPicks[0]) + " sits on the tree"
+    : "How these " + manyPicks.length + " animals are connected";
+  $("manyAnnounce").textContent = "Tree drawn for " + manyPicks.map(label).join(", ") + ".";
+  showSwipeHint();
+  setHash("#tree=" + manyPicks.map(n => encodeURIComponent(sciOf(n))).join(",") + (bareMode ? "&bare=1" : ""));
+  markScrollables();
+}
+
+function addPick(node){
+  if(!node) return;
+  if(manyPicks.some(n => n.id === node.id)){
+    $("manyNote").textContent = label(node) + " is already in the picture.";
+    $("inMany").value = "";
+    return;
+  }
+  if(manyPicks.length >= MAX_PICKS){
+    $("manyNote").textContent = "Remove one first - five is the most this picture can show.";
+    return;
+  }
+  manyPicks.push(node);
+  $("inMany").value = "";
+  drawMany();
+}
+wireSuggest("inMany", "sugMany", {choose: addPick});
+
+$("chips").addEventListener("click", e => {
+  const b = e.target.closest("[data-drop]"); if(!b) return;
+  const i = manyPicks.findIndex(n => n.id === b.dataset.drop);
+  if(i > -1) manyPicks.splice(i, 1);
+  drawMany();
+  $("inMany").focus();
+});
+$("manyGo").addEventListener("click", () => {
+  const typed = $("inMany").value.trim();
+  if(typed) addPick(search(typed, 1)[0]);
+  else drawMany();
+  $("manyDiagram").scrollIntoView({behavior: calmly(), block: "nearest"});
+});
+$("manyClear").addEventListener("click", () => { manyPicks.length = 0; drawMany(); $("inMany").focus(); });
+$("manyRand").addEventListener("click", () => {
+  manyPicks.length = 0;
+  while(manyPicks.length < MAX_PICKS){
+    const pick = allSpecies[Math.floor(Math.random() * allSpecies.length)];
+    if(!manyPicks.some(n => n.id === pick.id)) manyPicks.push(pick);
+  }
+  drawMany();
+});
+
+/* ---- the two views ---- */
+const tabs = [["tabTwo","viewTwo"],["tabMany","viewMany"]];
+function showView(which){
+  tabs.forEach(([tab, panel]) => {
+    const on = tab === which;
+    $(tab).setAttribute("aria-selected", on ? "true" : "false");
+    $(tab).tabIndex = on ? 0 : -1;
+    $(panel).hidden = !on;
+  });
+  if(which === "tabMany"){
+    if(!manyPicks.length && picked.a && picked.b){ manyPicks.push(picked.a, picked.b); }
+    drawMany();
+  } else if(picked.a && picked.b) compare();
+}
+tabs.forEach(([tab]) => $(tab).addEventListener("click", () => { showView(tab); $(tab).focus(); }));
+$("tabTwo").parentElement.addEventListener("keydown", e => {
+  if(e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+  e.preventDefault();
+  showView(document.activeElement.id === "tabTwo" ? "tabMany" : "tabTwo");
+  $(document.activeElement.id === "tabTwo" ? "tabMany" : "tabTwo").focus();
+});
+
+/* ---- printing: the browser's own PDF export, with the paper set from here ---- */
+const pageStyle = document.createElement("style");
+document.head.appendChild(pageStyle);
+function setPaper(size){ pageStyle.textContent = "@page{size:" + size + ";margin:12mm}"; }
+setPaper($("paper").value);
+$("paper").addEventListener("change", e => setPaper(e.target.value));
+$("btnPrint").addEventListener("click", () => window.print());
+
+/* ---- saving the picture ---- */
+/* Colours are CSS variables, which mean nothing outside this document, so they
+   are resolved to real values before the file leaves the page. */
+function svgForExport(){
+  const svg = $("manyDiagram").querySelector("svg");
+  if(!svg) return null;
+  const style = getComputedStyle(document.documentElement);
+  let out = new XMLSerializer().serializeToString(svg);
+  out = out.replace(/var\(--([\w-]+)\)/g, (_, name) => (style.getPropertyValue("--" + name) || "#000").trim());
+  const paper = (style.getPropertyValue("--card") || "#fff").trim();
+  out = out.replace(/(<svg[^>]*>)/, '$1<rect width="100%" height="100%" fill="' + paper + '"/>');
+  /* XMLSerializer usually adds the namespace itself; a second one is invalid XML
+     and the file silently fails to open anywhere. */
+  if(!/\sxmlns=/.test(out)) out = out.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ');
+  if(/xlink:href/.test(out) && !/xmlns:xlink=/.test(out))
+    out = out.replace("<svg ", '<svg xmlns:xlink="http://www.w3.org/1999/xlink" ');
+  return out;
+}
+function fileName(ext){
+  return "tree-of-life-" + manyPicks.map(n => slug(label(n))).join("-").slice(0, 60) + "." + ext;
+}
+function download(blob, name){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+$("btnSvg").addEventListener("click", () => {
+  const svg = svgForExport(); if(!svg) return;
+  download(new Blob([svg], {type: "image/svg+xml"}), fileName("svg"));
+  $("exportNote").textContent = "Saved as SVG.";
+});
+$("btnPng").addEventListener("click", () => {
+  const svg = svgForExport(); if(!svg) return;
+  const el = $("manyDiagram").querySelector("svg");
+  const w = +el.getAttribute("width"), h = +el.getAttribute("height"), scale = 2;
+  const img = new Image();
+  const url = URL.createObjectURL(new Blob([svg], {type: "image/svg+xml"}));
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = w * scale; canvas.height = h * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(blob => {
+      if(!blob){ $("exportNote").textContent = "The browser would not save this one - try Download SVG."; return; }
+      download(blob, fileName("png"));
+      $("exportNote").textContent = "Saved as PNG (system fonts).";
+    }, "image/png");
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); $("exportNote").textContent = "The browser would not save this one - try Download SVG."; };
+  img.src = url;
+});
+
+/* The address bar is the whole state: #a=&b= for the two-animal answer,
+   #tree=a,b,c for the family tree, &bare=1 for the picture on its own. */
+function applyHash(){
+  const params = new URLSearchParams((location.hash || "").replace(/^#/, ""));
+  bareMode = params.get("bare") === "1";
+  document.body.classList.toggle("bare", bareMode);
+  if(params.has("tree")){
+    const wanted = (params.get("tree") || "").split(",").map(s => s.trim()).filter(Boolean).slice(0, MAX_PICKS);
+    manyPicks.length = 0;
+    wanted.forEach(name => {
+      const found = search(name, 1)[0];
+      if(found && !manyPicks.some(n => n.id === found.id)) manyPicks.push(found);
+    });
+    showView("tabMany");
+    return true;
+  }
+  if(params.has("a") && params.has("b")){
+    const a = search(params.get("a"), 1)[0], b = search(params.get("b"), 1)[0];
+    if(a && b){
+      setPick("a", a, {sync:false}); setPick("b", b, {sync:false});
+      showView("tabTwo");
+      return true;
+    }
+  }
+  return false;
+}
+addEventListener("hashchange", () => { if(location.hash !== lastHash) applyHash(); });
+
 renderTree();
-if(!fromHash()){
+if(!applyHash()){
   setPick("a", search("Lion",1)[0], {sync:false});
   setPick("b", search("Brown bear",1)[0], {sync:false});
   compare();
