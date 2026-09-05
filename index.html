@@ -3,233 +3,279 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tree of Life — Common Ancestor Finder</title>
-<meta name="description" content="Search any two animals and see where they meet on the tree of life: their most recent common ancestor, both lineages, and an interactive taxonomic tree.">
+<title>Tree of Life</title>
+<meta name="description" content="Pick any two animals and see where their family trees join: their most recent common ancestor, how long ago they split, and the branches that connect them.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&display=swap">
 <style>
 :root{
-  --bg:#0d1117;
-  --bg-soft:#131a23;
-  --panel:#161d27;
-  --panel-2:#1b2431;
-  --line:#26303d;
-  --line-soft:#1f2833;
-  --text:#e6edf3;
-  --muted:#93a1b1;
-  --faint:#6b7a8c;
-  --a:#5ec8f2;
-  --b:#f0a35e;
-  --shared:#7ee08a;
-  --accent:#a78bfa;
-  --shadow:0 10px 30px rgba(0,0,0,.35);
-  --radius:14px;
-  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --paper:#f3f7ef; --paper-2:#e9f0e4; --card:#ffffff;
+  --ink:#1e2b23; --muted:#5f7367; --faint:#8a9c90; --line:#dde7d8;
+  --shared:#2e9e5f; --shared-soft:#e4f4e9;
+  --a:#2c6fd1; --a-soft:#e3edfb;
+  --b:#d9631f; --b-soft:#fbeade;
+  --meet:#c58205; --meet-soft:#fdf1d8;
+  --shadow:0 2px 3px rgba(30,43,35,.04), 0 10px 24px rgba(30,43,35,.07);
+  --r-lg:22px; --r-md:14px;
+  --display:"Fredoka",system-ui,"Segoe UI",sans-serif;
+  --body:"Nunito",system-ui,-apple-system,"Segoe UI",Helvetica,sans-serif;
 }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141c17; --paper-2:#1a241d; --card:#1c261f;
+    --ink:#e9f1e9; --muted:#a5b8ab; --faint:#7f9388; --line:#2c392f;
+    --shared:#5ed08c; --shared-soft:#1d3326;
+    --a:#7aabf6; --a-soft:#1d2c40;
+    --b:#f2a06d; --b-soft:#38271c;
+    --meet:#f0c257; --meet-soft:#3a3018;
+    --shadow:0 2px 3px rgba(0,0,0,.25), 0 10px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141c17; --paper-2:#1a241d; --card:#1c261f;
+  --ink:#e9f1e9; --muted:#a5b8ab; --faint:#7f9388; --line:#2c392f;
+  --shared:#5ed08c; --shared-soft:#1d3326;
+  --a:#7aabf6; --a-soft:#1d2c40;
+  --b:#f2a06d; --b-soft:#38271c;
+  --meet:#f0c257; --meet-soft:#3a3018;
+  --shadow:0 2px 3px rgba(0,0,0,.25), 0 10px 24px rgba(0,0,0,.35);
+}
+
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
-  background:
-    radial-gradient(1100px 600px at 12% -10%, #16303f 0%, transparent 60%),
-    radial-gradient(900px 500px at 95% 0%, #2a2140 0%, transparent 55%),
-    var(--bg);
-  color:var(--text);
-  font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  min-height:100vh;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.55;
   -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 80px}
-header.top{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:22px}
-h1{font-size:26px;letter-spacing:-.02em;margin:0;font-weight:650}
-h1 .glyph{color:var(--shared)}
-header.top p{margin:0;color:var(--muted);font-size:14px}
+.wrap{max-width:1000px;margin:0 auto;padding:26px 18px 70px}
+h1,h2,h3,.display{font-family:var(--display);font-weight:600;letter-spacing:.1px;text-wrap:balance}
 
-/* ---------- search ---------- */
-.search-card{
-  background:linear-gradient(180deg,var(--panel) 0%,var(--bg-soft) 100%);
-  border:1px solid var(--line);border-radius:var(--radius);
-  padding:18px;box-shadow:var(--shadow);
+/* ---------- header ---------- */
+header.top{display:flex;gap:14px;align-items:flex-start;margin-bottom:20px}
+header.top .mark{flex:0 0 auto;margin-top:2px}
+h1{font-size:31px;margin:0;line-height:1.1}
+header.top p{margin:6px 0 0;color:var(--muted);font-size:16.5px;max-width:56ch}
+
+/* ---------- pick two animals ---------- */
+.picker{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:20px;box-shadow:var(--shadow);
 }
-.slots{display:grid;grid-template-columns:1fr 44px 1fr;gap:10px;align-items:start}
-.vs{align-self:center;text-align:center;color:var(--faint);font-size:13px;letter-spacing:.14em;padding-top:26px}
+.slots{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:start}
+.plus{align-self:center;margin-top:24px;font-family:var(--display);font-size:20px;color:var(--faint)}
 .slot{position:relative}
-.slot label{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.slot label{display:block;font-size:14px;font-weight:700;margin-bottom:6px}
 .slot.a label{color:var(--a)}
 .slot.b label{color:var(--b)}
 .slot input{
-  width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);
-  background:var(--panel-2);color:var(--text);font-size:15px;outline:none;transition:border-color .15s, box-shadow .15s;
+  width:100%;padding:13px 15px;border-radius:var(--r-md);border:2px solid var(--line);
+  background:var(--paper-2);color:var(--ink);font:inherit;font-size:17px;outline:none;
+  transition:border-color .15s, background .15s;
 }
 .slot input::placeholder{color:var(--faint)}
-.slot.a input:focus{border-color:var(--a);box-shadow:0 0 0 3px rgba(94,200,242,.16)}
-.slot.b input:focus{border-color:var(--b);box-shadow:0 0 0 3px rgba(240,163,94,.16)}
-.chosen{margin-top:7px;font-size:13px;color:var(--muted);min-height:19px}
-.chosen em{font-style:italic;color:var(--text)}
-.chosen.none{color:#e5807f}
+.slot.a input:focus{border-color:var(--a);background:var(--card)}
+.slot.b input:focus{border-color:var(--b);background:var(--card)}
+.slot input:focus-visible{outline:none}
+.chosen{margin-top:7px;font-size:14px;color:var(--muted);min-height:20px}
+.chosen .sci{font-style:italic}
+.chosen.none{color:#c2410c;font-weight:600}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chosen.none{color:#f5a06a}}
 
 .suggest{
   position:absolute;z-index:40;left:0;right:0;top:100%;margin-top:6px;
-  background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
-  box-shadow:var(--shadow);max-height:290px;overflow:auto;display:none;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--shadow);max-height:300px;overflow:auto;display:none;
 }
 .suggest.open{display:block}
-.suggest div{padding:8px 11px;cursor:pointer;display:flex;gap:8px;align-items:baseline;border-bottom:1px solid var(--line-soft)}
+.suggest div{padding:9px 13px;cursor:pointer;display:flex;gap:9px;align-items:baseline;border-bottom:1px solid var(--line)}
 .suggest div:last-child{border-bottom:0}
-.suggest div.hi,.suggest div:hover{background:#22303f}
-.suggest .nm{font-weight:600}
-.suggest .sci{font-style:italic;color:var(--muted);font-size:13px}
-.suggest .grp{margin-left:auto;font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.suggest div.hi,.suggest div:hover{background:var(--paper-2)}
+.suggest .nm{font-weight:700}
+.suggest .sci{font-style:italic;color:var(--muted);font-size:14px}
+.suggest .grp{margin-left:auto;font-size:12px;color:var(--faint);white-space:nowrap}
 
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
-button{
-  font:inherit;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);
-  color:var(--text);padding:9px 14px;cursor:pointer;transition:background .15s,border-color .15s,transform .05s;
-}
-button:hover{background:#243141;border-color:#33445a}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;align-items:center}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:999px;border:2px solid var(--line);
+  background:var(--card);color:var(--ink);padding:10px 18px;transition:background .15s,border-color .15s,transform .06s}
+button:hover{background:var(--paper-2)}
 button:active{transform:translateY(1px)}
-button.primary{background:linear-gradient(180deg,#2f6f8f,#245a76);border-color:#3d84a6;font-weight:600}
-button.primary:hover{background:linear-gradient(180deg,#37809f,#2a6684)}
-.hint{color:var(--faint);font-size:12.5px;margin-left:auto}
-.examples{margin-top:12px;font-size:13px;color:var(--faint);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.examples button{padding:4px 10px;font-size:12.5px;border-radius:999px;color:var(--muted)}
+button:focus-visible{outline:3px solid var(--a);outline-offset:2px}
+button.primary{background:var(--shared);border-color:var(--shared);color:#fff;font-size:17px;padding:11px 22px}
+button.primary:hover{filter:brightness(1.06);background:var(--shared)}
+.examples{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14.5px;color:var(--muted)}
+.examples button{padding:6px 14px;font-size:14.5px;font-weight:600;color:var(--muted);border-width:1px}
 
-/* ---------- result ---------- */
-#result{margin-top:26px;display:none}
+/* ---------- the answer ---------- */
+#result{display:none;margin-top:24px}
 #result.show{display:block}
-.mrca{
-  border:1px solid #2b4a3a;border-radius:var(--radius);padding:18px 20px;
-  background:linear-gradient(180deg,rgba(126,224,138,.10),rgba(126,224,138,.03));
+.verdict{
+  background:var(--shared-soft);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:22px 24px;box-shadow:var(--shadow);
 }
-.mrca .lead{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--shared);margin-bottom:8px}
-.mrca h2{margin:0;font-size:27px;letter-spacing:-.01em}
-.mrca h2 .rank{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);vertical-align:middle;margin-left:10px;border:1px solid var(--line);padding:3px 8px;border-radius:999px}
-.mrca .sub{color:var(--muted);margin-top:8px}
-.mrca .facts{display:flex;flex-wrap:wrap;gap:22px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft)}
-.fact .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
-.fact .v{font-size:16px;margin-top:2px}
-.sci{font-style:italic}
+.badge{display:inline-flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--line);
+  border-radius:999px;padding:5px 14px;font-size:14px;font-weight:700;color:var(--shared)}
+.verdict h2{font-size:30px;margin:12px 0 2px;line-height:1.15}
+.verdict h2 .sci{font-family:var(--body);font-style:italic;font-weight:400;font-size:19px;color:var(--muted);white-space:nowrap}
+.verdict .story{font-size:17.5px;margin:10px 0 0;max-width:62ch}
+.verdict .when{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:16px;padding-top:15px;border-top:1px solid var(--line)}
+.verdict .when b{font-family:var(--display);font-weight:600;font-size:19px;display:block;line-height:1.25}
+.verdict .when span{font-size:13.5px;color:var(--muted)}
+.verdict .when > div{min-width:150px}
 
-.panel{margin-top:22px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.panel > h3{margin:0;padding:14px 18px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
-.panel > h3 .right{margin-left:auto;font-size:12px;letter-spacing:0;text-transform:none;color:var(--faint);font-weight:400}
-.panel .body{padding:16px 18px}
+.card{margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden}
+.card > h3{margin:0;padding:16px 20px;font-size:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.card > h3 .tools{margin-left:auto;display:flex;gap:10px;align-items:center;font-family:var(--body);font-size:14px;font-weight:600;color:var(--muted)}
+.card .body{padding:18px 20px}
+.switch{display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
+.switch input{width:16px;height:16px;accent-color:var(--shared);cursor:pointer}
+
 .diagram-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.diagram-scroll svg{width:100%;max-width:940px;min-width:620px;height:auto}
-svg{display:block;max-width:100%}
-svg text{font-family:inherit}
+.diagram-scroll svg{display:block;width:100%;max-width:900px;min-width:620px;height:auto;margin:0 auto}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--muted);padding:0 20px 16px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:7px;vertical-align:-1px}
 
-.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);padding:0 18px 14px}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+details.full{margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden}
+details.full > summary{padding:16px 20px;font-family:var(--display);font-size:17px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px}
+details.full > summary::-webkit-details-marker{display:none}
+details.full > summary::before{content:"+";font-size:20px;color:var(--muted);width:18px;text-align:center}
+details.full[open] > summary::before{content:"\2013"}
+details.full > summary:hover{background:var(--paper-2)}
+details.full .body{padding:0 20px 18px;overflow-x:auto}
 
-/* ---------- lineage table ---------- */
-table.lin{width:100%;border-collapse:collapse;font-size:14px}
-table.lin th{text-align:left;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:6px 10px;border-bottom:1px solid var(--line)}
-table.lin td{padding:5px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top}
-table.lin tr.shared td{background:rgba(126,224,138,.06)}
-table.lin tr.mrcarow td{background:rgba(126,224,138,.16);font-weight:600}
-table.lin td.rank{color:var(--faint);font-size:12px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;width:1%}
+table.lin{width:100%;border-collapse:collapse;font-size:15px}
+table.lin th{text-align:left;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
+table.lin td{padding:6px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table.lin tr.shared td{background:var(--shared-soft)}
+table.lin tr.meetrow td{background:var(--meet-soft);font-weight:700}
+table.lin td.rank{color:var(--faint);font-size:13px;white-space:nowrap;width:1%}
 table.lin td.col-a{color:var(--a)}
 table.lin td.col-b{color:var(--b)}
-table.lin .cn{color:var(--muted);font-size:12.5px}
+table.lin .sci{font-style:italic}
+table.lin .cn{color:var(--muted);font-size:13.5px}
 
-/* ---------- tree explorer ---------- */
-.tree{font-size:14px;max-height:560px;overflow:auto;padding:6px 4px 12px}
-.node{padding-left:16px;border-left:1px dotted var(--line);margin-left:9px}
+/* ---------- explorer ---------- */
+.tree{font-size:15px;max-height:520px;overflow:auto;padding:4px 2px 10px}
+.node{padding-left:15px;border-left:2px solid var(--line);margin-left:10px}
 .node.root{border-left:0;margin-left:0;padding-left:0}
-.row{display:flex;align-items:center;gap:7px;padding:2px 6px;border-radius:7px;cursor:default;line-height:1.55}
-.row:hover{background:#1b2530}
-.tw{width:16px;flex:0 0 16px;text-align:center;color:var(--faint);cursor:pointer;user-select:none;font-size:11px}
-.tw.leaf{cursor:default;opacity:.35}
-.row .nm{cursor:pointer}
+.row{display:flex;align-items:center;gap:8px;padding:3px 8px;border-radius:10px;line-height:1.5;flex-wrap:wrap}
+.row:hover{background:var(--paper-2)}
+.tw{width:18px;flex:0 0 18px;text-align:center;color:var(--muted);cursor:pointer;user-select:none;font-size:12px}
+.tw.leaf{cursor:default;opacity:.4}
+.row .nm{cursor:pointer;font-weight:700}
 .row .nm:hover{text-decoration:underline}
-.row .rk{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-.row .cn{color:var(--muted);font-size:12.5px}
-.row.is-a{background:rgba(94,200,242,.14);box-shadow:inset 2px 0 0 var(--a)}
-.row.is-b{background:rgba(240,163,94,.14);box-shadow:inset 2px 0 0 var(--b)}
-.row.is-mrca{background:rgba(126,224,138,.16);box-shadow:inset 2px 0 0 var(--shared)}
-.row.on-path .nm{color:#cfe9ff}
-.count{color:var(--faint);font-size:11.5px}
-.tree-tools{display:flex;gap:8px;flex-wrap:wrap;padding:12px 18px 0}
-.tree-tools input{flex:1;min-width:180px;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);outline:none}
-.tree-tools button{padding:7px 11px;font-size:13px}
+.row .sci{font-style:italic;color:var(--muted);font-size:13.5px}
+.row .rk{font-size:12.5px;color:var(--faint)}
+.row .count{font-size:12.5px;color:var(--faint)}
+.row.is-a{background:var(--a-soft);box-shadow:inset 3px 0 0 var(--a)}
+.row.is-b{background:var(--b-soft);box-shadow:inset 3px 0 0 var(--b)}
+.row.is-meet{background:var(--meet-soft);box-shadow:inset 3px 0 0 var(--meet)}
+.tree-tools{display:flex;gap:9px;flex-wrap:wrap;padding:14px 20px 0}
+.tree-tools input{flex:1;min-width:190px;padding:9px 13px;border-radius:var(--r-md);border:2px solid var(--line);background:var(--paper-2);color:var(--ink);font:inherit;outline:none}
+.tree-tools input:focus{border-color:var(--shared);background:var(--card)}
+.tree-tools button{padding:8px 14px;font-size:14.5px}
 
-footer{margin-top:34px;color:var(--faint);font-size:12.5px;line-height:1.7}
-footer a{color:var(--muted)}
-.empty{color:var(--muted);padding:8px 0}
-@media (max-width:720px){
-  .slots{grid-template-columns:1fr;gap:6px}
-  .vs{padding-top:0;text-align:left}
-  .mrca h2{font-size:22px}
+footer{margin-top:30px;color:var(--muted);font-size:14.5px;line-height:1.65;max-width:70ch}
+footer strong{color:var(--ink)}
+@media (max-width:700px){
+  h1{font-size:26px}
+  .slots{grid-template-columns:1fr}
+  .plus{margin-top:0}
+  .verdict h2{font-size:24px}
+  .verdict h2 .sci{display:block;white-space:normal}
 }
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
 </style>
 </head>
 <body>
 <div class="wrap">
+
 <header class="top">
-  <h1><span class="glyph">&#9095;</span> Tree of Life</h1>
-  <p>Type any two animals — see where their branches meet.</p>
+  <svg class="mark" width="42" height="42" viewBox="0 0 42 42" aria-hidden="true">
+    <path d="M21 39 V22" stroke="var(--shared)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <path d="M21 23 C21 16, 11 17, 11 11" stroke="var(--a)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <path d="M21 23 C21 16, 31 17, 31 11" stroke="var(--b)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <circle cx="11" cy="8" r="4" fill="var(--a)"/>
+    <circle cx="31" cy="8" r="4" fill="var(--b)"/>
+    <circle cx="21" cy="23" r="4.5" fill="var(--meet)"/>
+  </svg>
+  <div>
+    <h1>Tree of Life</h1>
+    <p>Every animal alive today is related to every other one. Pick two and see where their family trees join.</p>
+  </div>
 </header>
 
-<section class="search-card">
+<section class="picker">
   <div class="slots">
     <div class="slot a">
-      <label for="inA">Animal A</label>
-      <input id="inA" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. lion, octopus, honey bee&hellip;">
+      <label for="inA">First animal</label>
+      <input id="inA" type="text" autocomplete="off" spellcheck="false" placeholder="lion, octopus, honey bee...">
       <div class="suggest" id="sugA"></div>
       <div class="chosen" id="chA"></div>
     </div>
-    <div class="vs">VS</div>
+    <div class="plus">and</div>
     <div class="slot b">
-      <label for="inB">Animal B</label>
-      <input id="inB" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. blue whale, tuatara, tarantula&hellip;">
+      <label for="inB">Second animal</label>
+      <input id="inB" type="text" autocomplete="off" spellcheck="false" placeholder="blue whale, penguin, tarantula...">
       <div class="suggest" id="sugB"></div>
       <div class="chosen" id="chB"></div>
     </div>
   </div>
   <div class="actions">
-    <button class="primary" id="go">Find common ancestor</button>
+    <button class="primary" id="go">Find where they meet</button>
     <button id="rand">Surprise me</button>
-    <button id="swap" title="Swap A and B">Swap</button>
-    <span class="hint" id="stat"></span>
+    <button id="swap">Swap</button>
   </div>
   <div class="examples" id="examples"><span>Try:</span></div>
 </section>
 
 <section id="result">
-  <div class="mrca" id="mrcaCard"></div>
+  <div class="verdict" id="verdict"></div>
 
-  <div class="panel">
-    <h3>Where the branches meet <span class="right" id="diagNote"></span></h3>
+  <div class="card">
+    <h3>How they are connected
+      <span class="tools">
+        <label class="switch"><input type="checkbox" id="fullSteps"> Show every step</label>
+      </span>
+    </h3>
     <div class="body diagram-scroll" id="diagram"></div>
     <div class="legend">
-      <span><i style="background:var(--shared)"></i>shared ancestry</span>
-      <span><i style="background:var(--a)"></i><span id="legA">Animal A</span></span>
-      <span><i style="background:var(--b)"></i><span id="legB">Animal B</span></span>
+      <span><i style="background:var(--shared)"></i>shared ancestors</span>
+      <span><i style="background:var(--meet)"></i>where they meet</span>
+      <span><i style="background:var(--a)"></i><span id="legA">first animal</span></span>
+      <span><i style="background:var(--b)"></i><span id="legB">second animal</span></span>
     </div>
   </div>
 
-  <div class="panel">
-    <h3>Full lineages <span class="right">rank by rank, from the root of life</span></h3>
-    <div class="body" style="overflow-x:auto"><table class="lin" id="linTable"></table></div>
-  </div>
+  <details class="full">
+    <summary>See the full scientific classification</summary>
+    <div class="body"><table class="lin" id="linTable"></table></div>
+  </details>
 </section>
 
-<section class="panel" id="explorer">
-  <h3>Browse the tree <span class="right" id="treeStat"></span></h3>
+<section class="card" id="explorer">
+  <h3>Explore the whole tree <span class="tools" id="treeStat"></span></h3>
   <div class="tree-tools">
-    <input id="treeFilter" type="text" placeholder="Filter the tree (name or common name)&hellip;" autocomplete="off" spellcheck="false">
-    <button id="expandPath">Reveal selection</button>
-    <button id="collapseAll">Collapse all</button>
+    <input id="treeFilter" type="text" placeholder="Search the tree..." autocomplete="off" spellcheck="false">
+    <button id="expandPath">Show my two animals</button>
+    <button id="collapseAll">Close all</button>
   </div>
   <div class="body"><div class="tree" id="tree"></div></div>
 </section>
 
 <footer>
-  <p><strong>How the common ancestor is found:</strong> every animal in the built-in dataset hangs off a shared classification tree
-  (a modern, clade-based backbone). Both lineages are traced back to the root and the deepest node they share is their
-  most recent common ancestor (MRCA).</p>
-  <p>Divergence ages are rough, rounded consensus estimates for the crown group and are shown only for major clades &mdash; treat them as
-  orders of magnitude, not measurements. Classification follows widely used modern phylogeny (so, for example, birds sit inside
-  the reptiles and whales inside the even-toed ungulates), which is why some groupings differ from older textbooks.</p>
+  <p><strong>How this works.</strong> Every animal here sits on one big family tree. To find a common ancestor,
+  both animals are traced back up the tree until the two paths land on the same branch. That branch is the most
+  recent ancestor they share &mdash; the last animal that was a great-great-great-(and so on)-grandparent of both.</p>
+  <p>The dates are rough estimates from fossils and DNA, so treat them as "roughly this long ago" rather than exact
+  numbers. The tree follows how scientists group animals today, which has a few surprises in it: birds count as
+  dinosaurs, whales sit inside the hoofed animals, and termites are a kind of cockroach.</p>
 </footer>
+
 </div>
 <script>
 /* =====================================================================
@@ -996,12 +1042,12 @@ const SPECIES = [
 ["Ephemera danica","Green drake","ephemeroptera","mayfly"]
 ];
 
+
 /* =====================================================================
    2. BUILD THE TREE
    ===================================================================== */
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const nodes = new Map();
-
 function addNode(o){ nodes.set(o.id, Object.assign({children:[]}, o)); return nodes.get(o.id); }
 
 CLADES.forEach(([id,name,rank,common,parent,mya]) =>
@@ -1011,17 +1057,13 @@ SPECIES.forEach(([name,common,parent,aliases]) => {
   const genusName = name.split(" ")[0];
   const genusId = "genus-" + slug(genusName);
   if(!nodes.has(genusId)) addNode({id:genusId,name:genusName,rank:"genus",common:"",parent,mya:null,species:false});
-  addNode({
-    id:"sp-"+slug(name), name, rank:"species", common,
-    parent:genusId, mya:null, species:true,
-    aliases:(aliases||"").split("|").filter(Boolean)
-  });
+  addNode({id:"sp-"+slug(name), name, rank:"species", common, parent:genusId, mya:null, species:true,
+           aliases:(aliases||"").split("|").filter(Boolean)});
 });
 
-// wire parents -> children, and validate
 const orphans = [];
 for(const n of nodes.values()){
-  if(n.parent === null || n.parent === undefined) continue;
+  if(!n.parent) continue;
   const p = nodes.get(n.parent);
   if(!p){ orphans.push(n.id + " -> " + n.parent); continue; }
   p.children.push(n);
@@ -1029,11 +1071,9 @@ for(const n of nodes.values()){
 if(orphans.length) console.warn("Taxa with a missing parent:", orphans);
 
 const ROOT = nodes.get("life");
-const rankOrder = ["root","domain","clade","kingdom","phylum","subphylum","class","subclass","superorder","order","suborder","infraorder","parvorder","superfamily","family","subfamily","tribe","genus","species"];
 const sortKey = n => (n.species ? "zz" : "") + (n.common || n.name).toLowerCase();
 for(const n of nodes.values()) n.children.sort((a,b)=> sortKey(a).localeCompare(sortKey(b)));
 
-// cached lineage: root -> node
 const lineageCache = new Map();
 function lineage(node){
   if(lineageCache.has(node.id)) return lineageCache.get(node.id);
@@ -1046,20 +1086,17 @@ function descendantSpecies(node){
   if(node._ds !== undefined) return node._ds;
   let n = node.species ? 1 : 0;
   for(const c of node.children) n += descendantSpecies(c);
-  node._ds = n;
-  return n;
+  return (node._ds = n);
 }
 descendantSpecies(ROOT);
 
-/* the most recent common ancestor of two nodes */
+/* the most recent common ancestor of two taxa */
 function mrca(a,b){
   const la = lineage(a), lb = lineage(b);
   let i = 0;
   while(i < la.length && i < lb.length && la[i] === lb[i]) i++;
   return {node: la[i-1], shared: la.slice(0,i), tailA: la.slice(i), tailB: lb.slice(i)};
 }
-
-/* the closest named ancestor that has an age estimate */
 function nearestAge(node){
   for(const n of lineage(node).slice().reverse()) if(n.mya) return n;
   return null;
@@ -1070,29 +1107,28 @@ function nearestAge(node){
    ===================================================================== */
 const searchIndex = [];
 for(const n of nodes.values()){
-  const terms = new Set();
-  terms.add(n.name.toLowerCase());
-  if(n.common) n.common.toLowerCase().split(/\s*[,&]\s*|\s+(?:and|incl\.)\s+/).forEach(t=>terms.add(t.trim()));
-  if(n.common) terms.add(n.common.toLowerCase());
+  const terms = new Set([n.name.toLowerCase()]);
+  if(n.common){
+    terms.add(n.common.toLowerCase());
+    n.common.toLowerCase().split(/\s*[,&]\s*|\s+(?:and|incl\.)\s+/).forEach(t=>terms.add(t.trim()));
+  }
   (n.aliases||[]).forEach(a=>terms.add(a.toLowerCase()));
   if(n.species) terms.add(n.name.split(" ")[1].toLowerCase());
   searchIndex.push({node:n, terms:[...terms].filter(Boolean)});
 }
-
 function groupLabel(node){
   const ids = lineage(node).map(n=>n.id);
-  const groups = [["mammalia","Mammal"],["aves","Bird"],["squamata","Reptile"],["testudines","Reptile"],
-    ["crocodylia","Reptile"],["rhynchocephalia","Reptile"],["amphibia","Amphibian"],["chondrichthyes","Fish"],
-    ["actinopterygii","Fish"],["sarcopterygii","Fish"],["cyclostomata","Fish"],["insecta","Insect"],
-    ["arachnida","Arachnid"],["malacostraca","Crustacean"],["arthropoda","Arthropod"],["mollusca","Mollusc"],
-    ["echinodermata","Echinoderm"],["annelida","Worm"],["nematoda","Worm"],["platyhelminthes","Worm"],
-    ["cnidaria","Cnidarian"],["porifera","Sponge"],["chordata","Chordate"],["metazoa","Animal"]];
-  for(const [id,label] of groups) if(ids.includes(id)) return label;
-  return "Life";
+  const groups = [["mammalia","mammal"],["aves","bird"],["squamata","reptile"],["testudines","reptile"],
+    ["crocodylia","reptile"],["rhynchocephalia","reptile"],["amphibia","amphibian"],["chondrichthyes","fish"],
+    ["actinopterygii","fish"],["sarcopterygii","fish"],["cyclostomata","fish"],["insecta","insect"],
+    ["arachnida","spider or scorpion"],["malacostraca","crustacean"],["arthropoda","arthropod"],["mollusca","mollusc"],
+    ["echinodermata","echinoderm"],["annelida","worm"],["nematoda","worm"],["platyhelminthes","worm"],
+    ["cnidaria","jellyfish or coral"],["porifera","sponge"],["chordata","chordate"],["metazoa","animal"]];
+  for(const [id,l] of groups) if(ids.includes(id)) return l;
+  return "life";
 }
-
 function search(q, limit){
-  q = q.trim().toLowerCase();
+  q = (q||"").trim().toLowerCase();
   if(!q) return [];
   const out = [];
   for(const entry of searchIndex){
@@ -1116,72 +1152,115 @@ function search(q, limit){
 }
 
 /* =====================================================================
-   4. UI PLUMBING
+   4. PLAIN ENGLISH
+   ===================================================================== */
+/* The famous, recognisable groups. Everything else is hidden unless
+   "show every step" is on, so a lineage reads as milestones, not Latin. */
+const MILESTONES = new Set(["life","metazoa","bilateria","chordata","vertebrata",
+  "gnathostomata","chondrichthyes","actinopterygii","teleostei","sarcopterygii","tetrapoda","amphibia","anura",
+  "caudata","amniota","mammalia","monotremata","marsupialia","placentalia","primates","hominidae","rodentia",
+  "lagomorpha","chiroptera","carnivora","felidae","canidae","ursidae","mustelidae","pinnipedia","artiodactyla",
+  "cetacea","perissodactyla","proboscidea","xenarthra","sauropsida","testudines","squamata","serpentes",
+  "crocodylia","aves","passeriformes","psittaciformes","arthropoda","arachnida","araneae","scorpiones","insecta",
+  "coleoptera","lepidoptera","hymenoptera","diptera","odonata","malacostraca","decapoda","mollusca","cephalopoda",
+  "gastropoda","bivalvia","annelida","nematoda","platyhelminthes","echinodermata","cnidaria","porifera","ctenophora"]);
+
+const RANK_WORDS = {root:"the very start", domain:"domain", kingdom:"kingdom", phylum:"phylum",
+  class:"class", order:"order", family:"family", genus:"genus", species:"species"};
+const rankWord = r => RANK_WORDS[r] || "group";
+
+function agePhrase(mya){
+  if(!mya) return null;
+  if(mya >= 1000) return "about " + (mya/1000).toFixed(1).replace(/\.0$/,"") + " billion years ago";
+  return "about " + mya.toLocaleString() + " million years ago";
+}
+function whatWasHappening(mya){
+  if(!mya) return "";
+  if(mya >= 900) return "That is so long ago that most life was still microscopic.";
+  if(mya >= 600) return "Back then, every animal on Earth lived in the sea.";
+  if(mya >= 450) return "Back then, animals still lived in the sea and the land was bare rock.";
+  if(mya >= 360) return "That is around the time the first animals were crawling out onto land.";
+  if(mya >= 235) return "That is before the first dinosaurs appeared.";
+  if(mya >= 66)  return "Dinosaurs were walking around at that time.";
+  if(mya >= 20)  return "That is after the asteroid strike that finished off the big dinosaurs.";
+  if(mya >= 5)   return "In evolution's terms that is fairly recent.";
+  return "In evolution's terms that is extremely recent.";
+}
+function closeness(m){
+  const byRank = {species:"The same animal", genus:"Very close cousins", subfamily:"Close cousins",
+    family:"Close cousins", tribe:"Close cousins"};
+  if(byRank[m.rank]) return byRank[m.rank];
+  const age = m.mya || (nearestAge(m) ? nearestAge(m).mya : null);
+  if(!age) return "Related";
+  if(age <= 20) return "Very close cousins";
+  if(age <= 80) return "Close cousins";
+  if(age <= 250) return "Distant cousins";
+  if(age <= 500) return "Very distant cousins";
+  return "Super-distant relatives";
+}
+
+/* =====================================================================
+   5. PICKING TWO ANIMALS
    ===================================================================== */
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const nameHTML = n => n.species ? '<span class="sci">'+esc(n.name)+'</span>' : esc(n.name);
-const label = n => n.common || n.name;
+const label = n => n.common || n.name;                       // what a person calls it
+const sciOf = n => n.name;                                   // what a scientist calls it
+const showsSci = n => !n.common || n.common !== n.name;
 const picked = {a:null, b:null};
+let nextSlot = "a";
 
 const speciesCount = [...nodes.values()].filter(n=>n.species).length;
-$("treeStat").textContent = nodes.size.toLocaleString() + " taxa · " + speciesCount + " species";
-$("stat").textContent = speciesCount + " animals in the dataset";
+$("treeStat").textContent = speciesCount + " animals";
 
-function setPick(slot, node, {sync=true} = {}){
+function setPick(slot, node, opts){
+  const sync = !opts || opts.sync !== false;
   picked[slot] = node;
   const input = $(slot === "a" ? "inA" : "inB");
   const chosen = $(slot === "a" ? "chA" : "chB");
   if(node){
     input.value = label(node);
     chosen.className = "chosen";
-    chosen.innerHTML = (node.species ? "<em>"+esc(node.name)+"</em>" : "<strong>"+esc(node.name)+"</strong>")
-      + " · " + esc(node.rank) + (node.species ? "" : (node.common ? " · " + esc(node.common) : ""));
+    chosen.innerHTML = (showsSci(node) ? '<span class="sci">'+esc(sciOf(node))+'</span> &middot; ' : "") + esc(rankWord(node.rank));
   } else {
     chosen.className = "chosen none";
-    chosen.textContent = input.value.trim() ? "No match — try another name" : "";
+    chosen.textContent = input.value.trim() ? "Sorry, that one is not in the tree yet - try another animal" : "";
   }
   if(sync) compare();
 }
 
-/* ---- autocomplete ---- */
 function wireSuggest(slot){
   const input = $(slot === "a" ? "inA" : "inB");
   const box = $(slot === "a" ? "sugA" : "sugB");
   let items = [], hi = -1;
-
   const close = () => { box.classList.remove("open"); box.innerHTML = ""; items = []; hi = -1; };
   const render = () => {
     if(!items.length) return close();
     box.innerHTML = items.map((n,i) =>
       '<div data-i="'+i+'"'+(i===hi?' class="hi"':'')+'>' +
         '<span class="nm">'+esc(label(n))+'</span>' +
-        (n.common ? '<span class="sci">'+esc(n.name)+'</span>' : '<span class="sci">'+esc(n.rank)+'</span>') +
-        '<span class="grp">'+esc(groupLabel(n))+'</span>' +
-      '</div>').join("");
+        (showsSci(n) ? '<span class="sci">'+esc(sciOf(n))+'</span>' : '') +
+        '<span class="grp">'+esc(groupLabel(n))+'</span></div>').join("");
     box.classList.add("open");
   };
   const choose = i => { if(items[i]){ setPick(slot, items[i]); close(); } };
-
-  input.addEventListener("input", () => { items = search(input.value, 10); hi = -1; render(); });
-  input.addEventListener("focus", () => { if(input.value.trim()){ items = search(input.value,10); render(); } });
+  input.addEventListener("input", () => { items = search(input.value, 8); hi = -1; render(); });
+  input.addEventListener("focus", () => { if(input.value.trim()){ items = search(input.value,8); render(); } });
   input.addEventListener("keydown", e => {
     if(e.key === "ArrowDown"){ e.preventDefault(); hi = Math.min(items.length-1, hi+1); render(); }
     else if(e.key === "ArrowUp"){ e.preventDefault(); hi = Math.max(0, hi-1); render(); }
     else if(e.key === "Enter"){
       e.preventDefault();
       if(items.length) choose(hi >= 0 ? hi : 0);
-      else { const r = search(input.value,1); setPick(slot, r[0] || null); close(); }
-    }
-    else if(e.key === "Escape") close();
+      else { setPick(slot, search(input.value,1)[0] || null); close(); }
+    } else if(e.key === "Escape") close();
   });
   input.addEventListener("blur", () => setTimeout(() => {
     close();
     const v = input.value.trim();
-    if(!v){ picked[slot] = null; $(slot==="a"?"chA":"chB").textContent=""; return; }
-    if(!picked[slot] || label(picked[slot]).toLowerCase() !== v.toLowerCase()){
-      const r = search(v,1); setPick(slot, r[0] || null);
-    }
+    if(!v){ picked[slot] = null; $(slot==="a"?"chA":"chB").textContent = ""; return; }
+    if(!picked[slot] || label(picked[slot]).toLowerCase() !== v.toLowerCase())
+      setPick(slot, search(v,1)[0] || null);
   }, 150));
   box.addEventListener("mousedown", e => {
     const d = e.target.closest("[data-i]"); if(!d) return;
@@ -1191,166 +1270,197 @@ function wireSuggest(slot){
 wireSuggest("a"); wireSuggest("b");
 
 /* =====================================================================
-   5. RESULTS
+   6. THE ANSWER
    ===================================================================== */
-function ageText(n){ return n.mya ? "~" + (n.mya >= 1000 ? (n.mya/1000).toFixed(1) + " billion" : n.mya + " million") + " years ago" : null; }
+/* Keep the famous groups, hide the rest, and remember how many were hidden. */
+function condense(list, isTail){
+  const keepAll = isTail && list.length <= 4;
+  const kept = []; let skipped = 0;
+  list.forEach((n,i) => {
+    if(keepAll || MILESTONES.has(n.id) || i === list.length - 1){ kept.push({node:n, skipped}); skipped = 0; }
+    else skipped++;
+  });
+  return kept;
+}
 
 function compare(){
   const a = picked.a, b = picked.b;
   if(!a || !b){ $("result").classList.remove("show"); paintTree(); return; }
-  const r = mrca(a,b);
-  const m = r.node;
-  const same = a === b;
-  const nested = !same && (r.tailA.length === 0 || r.tailB.length === 0);
+  const r = mrca(a,b), m = r.node;
+  const same = a === b, nested = !same && (!r.tailA.length || !r.tailB.length);
+  const age = m.mya, when = agePhrase(age);
 
-  // headline card
-  const age = ageText(m) || (nearestAge(m) ? "younger than " + ageText(nearestAge(m)).replace("~","~") : null);
-  const stepsA = r.tailA.length, stepsB = r.tailB.length;
-  $("mrcaCard").innerHTML =
-    '<div class="lead">' + (same ? "Same animal" : "Most recent common ancestor") + '</div>' +
-    '<h2>' + nameHTML(m) + '<span class="rank">' + esc(m.rank) + '</span></h2>' +
-    '<div class="sub">' +
-      (m.common ? esc(m.common) + " — " : "") +
-      esc(label(a)) + " and " + esc(label(b)) +
-      (same ? " are the same taxon." :
-       nested ? " are on the same branch: one is a descendant of the other." :
-       " last shared an ancestor in " + esc(m.name) + ".") +
-    '</div>' +
-    '<div class="facts">' +
-      '<div class="fact"><div class="k">Shared ancestry</div><div class="v">' + r.shared.length + ' taxa, root → ' + esc(m.name) + '</div></div>' +
-      '<div class="fact"><div class="k">Steps to ' + esc(label(a)) + '</div><div class="v">' + stepsA + '</div></div>' +
-      '<div class="fact"><div class="k">Steps to ' + esc(label(b)) + '</div><div class="v">' + stepsB + '</div></div>' +
-      (m.mya ? '<div class="fact"><div class="k">Split (approx.)</div><div class="v">' + esc(ageText(m)) + '</div></div>'
-             : (nearestAge(m) ? '<div class="fact"><div class="k">Split (approx.)</div><div class="v">less than ' + esc(ageText(nearestAge(m)).replace("~","")) + '</div></div>' : '')) +
+  let story;
+  if(same){
+    story = "Those are the same animal, so every ancestor they have is shared.";
+  } else if(nested){
+    const inner = r.tailA.length ? a : b, outer = r.tailA.length ? b : a;
+    story = "A " + label(inner).toLowerCase() + " is one kind of " + label(outer).toLowerCase() +
+            ", so one sits inside the other on the tree rather than on a separate branch.";
+  } else {
+    story = "Go back " + (when ? when.replace(" ago","") : "far enough") + " and you reach a single animal that is an ancestor of both the " +
+            label(a).toLowerCase() + " and the " + label(b).toLowerCase() + ". It belongs to the group scientists call " +
+            sciOf(m) + (m.common ? " — the " + m.common.toLowerCase() : "") + ". " + whatWasHappening(age);
+  }
+
+  const older = !age && nearestAge(m) ? nearestAge(m) : null;
+  $("verdict").innerHTML =
+    '<span class="badge">' + esc(closeness(m)) + '</span>' +
+    '<h2>' + esc(label(m)) + (showsSci(m) ? ' <span class="sci">' + esc(sciOf(m)) + '</span>' : '') + '</h2>' +
+    '<p class="story">' + esc(story) + '</p>' +
+    '<div class="when">' +
+      '<div><b>' + esc(when ? when.replace("about ","") : (older ? "less than " + agePhrase(older.mya).replace("about ","") : "unknown")) + '</b>' +
+        '<span>when their branches split</span></div>' +
+      (RANK_WORDS[m.rank] && m.rank !== "root"
+        ? '<div><b>' + esc(rankWord(m.rank)) + '</b><span>the rank scientists give it</span></div>' : '') +
+      '<div><b>' + descendantSpecies(m).toLocaleString() + '</b><span>animals in this tree belong to it</span></div>' +
     '</div>';
 
   $("legA").textContent = label(a);
   $("legB").textContent = label(b);
-  $("diagNote").textContent = r.shared.length + " shared steps, then " + stepsA + " / " + stepsB + " apart";
-  $("diagram").innerHTML = drawDiagram(r, a, b);
+  $("diagram").innerHTML = drawDiagram(r, $("fullSteps").checked);
   $("linTable").innerHTML = lineageTable(r, a, b);
   $("result").classList.add("show");
 
-  location.replace("#a=" + encodeURIComponent(a.name) + "&b=" + encodeURIComponent(b.name));
+  location.replace("#a=" + encodeURIComponent(sciOf(a)) + "&b=" + encodeURIComponent(sciOf(b)));
   [a,b].forEach(n => lineage(n).forEach(x => expanded.add(x.id)));
   renderTree();
 }
 
-/* ---- SVG lineage diagram ---- */
-function drawDiagram(r, a, b){
-  const W = 940, rowH = 34, top = 26, bottom = 24;
-  const xA = 330, xB = 610, cx = (xA + xB) / 2;
-  const rows = r.shared.length + Math.max(r.tailA.length, r.tailB.length);
+/* ---- the picture ---- */
+function star(cx, cy, r){
+  let d = "";
+  for(let i=0;i<10;i++){
+    const rad = i % 2 ? r * 0.45 : r;
+    const ang = -Math.PI/2 + i * Math.PI/5;
+    d += (i ? "L" : "M") + (cx + rad*Math.cos(ang)).toFixed(1) + " " + (cy + rad*Math.sin(ang)).toFixed(1) + " ";
+  }
+  return d + "Z";
+}
+
+function drawDiagram(r, full){
+  const trunk = full ? r.shared.map(n=>({node:n,skipped:0})) : condense(r.shared, false);
+  const tailA = full ? r.tailA.map(n=>({node:n,skipped:0})) : condense(r.tailA, true);
+  const tailB = full ? r.tailB.map(n=>({node:n,skipped:0})) : condense(r.tailB, true);
+
+  const W = 900, rowH = full ? 36 : 56, top = full ? 26 : 34, bottom = 30;
+  const xA = 285, xB = 615, cx = (xA + xB) / 2;
+  const rows = trunk.length + Math.max(tailA.length, tailB.length);
   const H = top + rows * rowH + bottom;
   const y = i => top + i * rowH;
   const p = [];
-  const line = (x1,y1,x2,y2,col,w) => p.push('<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'" stroke-width="'+(w||2)+'" stroke-linecap="round"/>');
-  const dot = (x,yy,col,rad,fill) => p.push('<circle cx="'+x+'" cy="'+yy+'" r="'+rad+'" fill="'+(fill||"#0d1117")+'" stroke="'+col+'" stroke-width="2"/>');
-  const txt = (x,yy,s,anchor,cls,col) => p.push('<text x="'+x+'" y="'+(yy+4)+'" text-anchor="'+anchor+'" fill="'+col+'" font-size="13"'+(cls?' font-style="italic"':'')+'>'+s+'</text>');
-  const chip = (x,yy,s,anchor,col) => p.push('<text x="'+x+'" y="'+(yy+4)+'" text-anchor="'+anchor+'" fill="'+col+'" font-size="10" letter-spacing="1">'+esc(s.toUpperCase())+'</text>');
+  const seg = (x1,y1,x2,y2,col,w,dashed) => p.push('<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+
+      '" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round"'+(dashed?' stroke-dasharray="2 7"':'')+'/>');
+  const gap = (x,yy,n,anchor,dx) => p.push('<text x="'+(x+dx)+'" y="'+(yy+4)+'" text-anchor="'+anchor+
+      '" fill="var(--faint)" font-size="12.5">+'+n+' more '+(n===1?"group":"groups")+'</text>');
 
-  const SH = "#7ee08a", CA = "#5ec8f2", CB = "#f0a35e", MUTED = "#93a1b1", FAINT = "#6b7a8c";
-  const mrcaIdx = r.shared.length - 1;
+  /* one taxon's label: two friendly lines, or one compact line in full mode */
+  const nodeLabel = (n, x, yy, anchor, col, big) => {
+    if(full){
+      p.push('<text x="'+x+'" y="'+(yy+4)+'" text-anchor="'+anchor+'" fill="'+col+'" font-size="13.5"'+
+        (big?' font-weight="700"':'')+(n.species?' font-style="italic"':'')+'>'+esc(sciOf(n))+
+        '<tspan fill="var(--faint)" font-size="12" font-style="normal" font-weight="400" dx="8">'+esc(rankWord(n.rank))+'</tspan></text>');
+      return;
+    }
+    p.push('<text x="'+x+'" y="'+(yy-2)+'" text-anchor="'+anchor+'" fill="'+col+'" font-size="'+(big?16:15)+
+      '" font-weight="'+(big?700:600)+'" font-family="Fredoka, system-ui, sans-serif">'+esc(label(n))+'</text>');
+    const sub = (showsSci(n) ? sciOf(n) + " · " : "") + rankWord(n.rank);
+    p.push('<text x="'+x+'" y="'+(yy+15)+'" text-anchor="'+anchor+'" fill="var(--muted)" font-size="12.5"'+
+      (showsSci(n)?' font-style="italic"':'')+'>'+esc(sub)+'</text>');
+  };
 
-  // shared trunk
-  if(r.shared.length > 1) line(cx, y(0), cx, y(mrcaIdx), SH, 3);
-  r.shared.forEach((n,i) => {
-    const isM = i === mrcaIdx;
-    dot(cx, y(i), SH, isM ? 8 : 5, isM ? "rgba(126,224,138,.25)" : "#0d1117");
-    const tx = cx + (isM ? 18 : 14);
-    p.push('<text x="'+tx+'" y="'+(y(i)+4)+'" fill="'+(isM ? "#e6edf3" : MUTED)+'" font-size="'+(isM?14:13)+'"'+(isM?' font-weight="700"':'')+
-      (n.species?' font-style="italic"':'')+'>'+esc(n.name)+
-      '<tspan fill="'+FAINT+'" font-size="10" font-weight="400" font-style="normal" letter-spacing="1" dx="8">'+esc(n.rank.toUpperCase())+'</tspan>'+
-      (n.common ? '<tspan fill="'+FAINT+'" font-size="11" font-weight="400" font-style="normal" dx="8">'+esc(n.common)+'</tspan>' : '')+
-      '</text>');
-    if(n.mya) chip(cx - 16, y(i), "~" + (n.mya>=1000 ? (n.mya/1000)+" Ga" : n.mya + " Ma"), "end", FAINT);
+  /* shared trunk, top to the meeting point */
+  const meetIdx = trunk.length - 1;
+  trunk.forEach((e,i) => {
+    const yy = y(i), meet = i === meetIdx;
+    if(i > 0) seg(cx, y(i-1), cx, yy, "var(--shared)", 4, e.skipped > 0);
+    if(e.skipped > 0) gap(cx, (y(i-1)+yy)/2, e.skipped, "start", 16);
+    if(!meet){
+      p.push('<circle cx="'+cx+'" cy="'+yy+'" r="7" fill="var(--card)" stroke="var(--shared)" stroke-width="3"/>');
+      nodeLabel(e.node, cx + 20, yy, "start", "var(--ink)", false);
+      if(e.node.mya && !full)
+        p.push('<text x="'+(cx-20)+'" y="'+(yy+4)+'" text-anchor="end" fill="var(--faint)" font-size="12.5">'+
+          esc(agePhrase(e.node.mya).replace("about ",""))+'</text>');
+    } else {
+      p.push('<circle cx="'+cx+'" cy="'+yy+'" r="13" fill="var(--meet)"/>');
+      p.push('<path d="'+star(cx, yy, 7)+'" fill="var(--card)"/>');
+      nodeLabel(e.node, cx + 26, yy, "start", "var(--ink)", true);
+      p.push('<text x="'+(cx-26)+'" y="'+(yy-2)+'" text-anchor="end" fill="var(--meet)" font-size="13.5" font-weight="700">they meet here</text>');
+      if(e.node.mya)
+        p.push('<text x="'+(cx-26)+'" y="'+(yy+15)+'" text-anchor="end" fill="var(--muted)" font-size="12.5">'+
+          esc(agePhrase(e.node.mya))+'</text>');
+    }
   });
 
-  // branches
+  /* the two branches below it */
   const branch = (tail, x, col, anchor, dx) => {
     if(!tail.length) return;
-    const y0 = y(mrcaIdx), y1 = y(mrcaIdx + 1);
-    p.push('<path d="M '+cx+' '+y0+' C '+cx+' '+((y0+y1)/2)+', '+x+' '+((y0+y1)/2)+', '+x+' '+y1+'" fill="none" stroke="'+col+'" stroke-width="2.5"/>');
-    if(tail.length > 1) line(x, y1, x, y(mrcaIdx + tail.length), col, 2.5);
-    tail.forEach((n,j) => {
-      const yy = y(mrcaIdx + 1 + j), leaf = j === tail.length - 1;
-      dot(x, yy, col, leaf ? 7 : 4.5, leaf ? col : "#0d1117");
-      const rankTag = dxv => '<tspan fill="'+FAINT+'" font-size="10" font-weight="400" font-style="normal" letter-spacing="1"'+dxv+'>'+esc(n.rank.toUpperCase())+'</tspan>';
-      const nameTag = dxv => '<tspan'+(n.species?' font-style="italic"':'')+dxv+'>'+esc(n.name)+'</tspan>';
-      const content = anchor === "end" ? rankTag('') + nameTag(' dx="8"') : nameTag('') + rankTag(' dx="8"');
-      p.push('<text x="'+(x+dx)+'" y="'+(yy+4)+'" text-anchor="'+anchor+'" fill="'+(leaf ? "#e6edf3" : MUTED)+'" font-size="'+(leaf?14:13)+'"'+(leaf?' font-weight="700"':'')+'>'+content+'</text>');
-      if(leaf && n.common)
-        p.push('<text x="'+(x+dx)+'" y="'+(yy+21)+'" text-anchor="'+anchor+'" fill="'+col+'" font-size="12">'+esc(n.common)+'</text>');
+    const y0 = y(meetIdx), y1 = y(meetIdx + 1);
+    p.push('<path d="M '+cx+' '+y0+' C '+cx+' '+((y0+y1)/2)+', '+x+' '+((y0+y1)/2)+', '+x+' '+y1+
+           '" fill="none" stroke="'+col+'" stroke-width="3.5" stroke-linecap="round"/>');
+    tail.forEach((e,j) => {
+      const yy = y(meetIdx + 1 + j), leaf = j === tail.length - 1;
+      if(j > 0){
+        seg(x, y(meetIdx + j), x, yy, col, 3.5, e.skipped > 0);
+        if(e.skipped > 0) gap(x, (y(meetIdx + j) + yy)/2, e.skipped, anchor, dx);
+      }
+      p.push('<circle cx="'+x+'" cy="'+yy+'" r="'+(leaf?9:6)+'" fill="'+(leaf?col:"var(--card)")+'" stroke="'+col+'" stroke-width="3"/>');
+      nodeLabel(e.node, x + dx, yy, anchor, leaf ? col : "var(--ink)", leaf);
     });
   };
-  branch(r.tailA, xA, CA, "end", -14);
-  branch(r.tailB, xB, CB, "start", 14);
+  branch(tailA, xA, "var(--a)", "end", -18);
+  branch(tailB, xB, "var(--b)", "start", 18);
 
-  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="Lineage diagram">' + p.join("") + '</svg>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+
+    '" role="img" aria-label="Diagram of the two family trees meeting">'+p.join("")+'</svg>';
 }
 
-/* ---- side-by-side lineage table ---- */
+/* ---- the full classification, for anyone who wants it ---- */
 function lineageTable(r, a, b){
-  const rowsOut = [];
-  rowsOut.push('<tr><th>Rank</th><th>Shared ancestry</th><th>'+esc(label(a))+'</th><th>'+esc(label(b))+'</th></tr>');
+  const nm = n => (showsSci(n) ? '<span class="sci">'+esc(sciOf(n))+'</span>' : esc(n.name)) +
+                  (n.common ? ' <span class="cn">'+esc(n.common)+'</span>' : '');
+  const out = ['<tr><th>Kind of group</th><th>Shared by both</th><th>'+esc(label(a))+'</th><th>'+esc(label(b))+'</th></tr>'];
   r.shared.forEach((n,i) => {
-    const isM = i === r.shared.length - 1;
-    rowsOut.push('<tr class="'+(isM?"mrcarow":"shared")+'">' +
-      '<td class="rank">'+esc(n.rank)+'</td>' +
-      '<td>'+nameHTML(n)+(n.common?' <span class="cn">'+esc(n.common)+'</span>':'')+(isM?' <span class="cn">← MRCA</span>':'')+'</td>' +
-      '<td></td><td></td></tr>');
+    const meet = i === r.shared.length - 1;
+    out.push('<tr class="'+(meet?"meetrow":"shared")+'"><td class="rank">'+esc(rankWord(n.rank))+'</td>' +
+      '<td>'+nm(n)+(meet?' &#9733;':'')+'</td><td></td><td></td></tr>');
   });
-  const cell = n => n ? nameHTML(n) + ' <span class="cn">' + esc(n.rank) + (n.common ? " · " + esc(n.common) : "") + '</span>' : "";
-  const len = Math.max(r.tailA.length, r.tailB.length);
-  for(let i=0;i<len;i++){
-    rowsOut.push('<tr><td class="rank"></td><td></td>' +
-      '<td class="col-a">'+cell(r.tailA[i])+'</td>' +
-      '<td class="col-b">'+cell(r.tailB[i])+'</td></tr>');
-  }
-  return rowsOut.join("");
+  const cell = n => n ? nm(n) + ' <span class="cn">'+esc(rankWord(n.rank))+'</span>' : "";
+  for(let i=0;i<Math.max(r.tailA.length, r.tailB.length);i++)
+    out.push('<tr><td class="rank"></td><td></td><td class="col-a">'+cell(r.tailA[i])+
+             '</td><td class="col-b">'+cell(r.tailB[i])+'</td></tr>');
+  return out.join("");
 }
 
 /* =====================================================================
-   6. TREE EXPLORER
+   7. EXPLORING THE WHOLE TREE
    ===================================================================== */
 const treeEl = $("tree");
 const expanded = new Set(["life","eukaryota","opisthokonta","holozoa","metazoa","bilateria","deuterostomia","chordata","vertebrata"]);
-let filterMatches = null;   // Set of ids to show, or null for "show everything"
-let nextSlot = "a";  // which slot a click in the tree fills next
+let filterMatches = null;
 
-function nodeRowHTML(n){
-  const kids = filterMatches ? n.children.filter(c=>filterMatches.has(c.id)) : n.children;
-  const open = expanded.has(n.id) || (filterMatches && filterMatches.has(n.id) && kids.length);
-  return '<div class="row" data-id="'+n.id+'">' +
-      '<span class="tw'+(kids.length?"":" leaf")+'" data-tw="'+n.id+'">'+(kids.length ? (open?"▾":"▸") : "•")+'</span>' +
-      '<span class="nm" data-pick="'+n.id+'">'+nameHTML(n)+'</span>' +
-      '<span class="rk">'+esc(n.rank)+'</span>' +
-      (n.common ? '<span class="cn">'+esc(n.common)+'</span>' : '') +
-      (!n.species && n.children.length ? '<span class="count">'+descendantSpecies(n)+'</span>' : '') +
-    '</div>';
-}
 function renderNode(n, isRoot){
   const kids = filterMatches ? n.children.filter(c=>filterMatches.has(c.id)) : n.children;
-  const open = expanded.has(n.id) || (filterMatches && filterMatches.has(n.id) && kids.length);
-  let html = '<div class="node'+(isRoot?" root":"")+'" data-node="'+n.id+'">' + nodeRowHTML(n);
-  if(open && kids.length) html += kids.map(c=>renderNode(c,false)).join("");
+  const open = kids.length && (expanded.has(n.id) || (filterMatches && filterMatches.has(n.id)));
+  let html = '<div class="node'+(isRoot?" root":"")+'">' +
+    '<div class="row" data-id="'+n.id+'">' +
+      '<span class="tw'+(kids.length?"":" leaf")+'" data-tw="'+n.id+'">'+(kids.length ? (open?"▾":"▸") : "•")+'</span>' +
+      '<span class="nm" data-pick="'+n.id+'">'+esc(label(n))+'</span>' +
+      (showsSci(n) ? '<span class="sci">'+esc(sciOf(n))+'</span>' : '') +
+      '<span class="rk">'+esc(rankWord(n.rank))+'</span>' +
+      (!n.species && n.children.length ? '<span class="count">'+descendantSpecies(n)+' animals</span>' : '') +
+    '</div>';
+  if(open) html += kids.map(c=>renderNode(c,false)).join("");
   return html + '</div>';
 }
-function renderTree(){
-  treeEl.innerHTML = renderNode(ROOT, true);
-  paintTree();
-}
+function renderTree(){ treeEl.innerHTML = renderNode(ROOT, true); paintTree(); }
 function paintTree(){
   const r = (picked.a && picked.b) ? mrca(picked.a, picked.b) : null;
-  const path = new Set();
-  if(picked.a) lineage(picked.a).forEach(n=>path.add(n.id));
-  if(picked.b) lineage(picked.b).forEach(n=>path.add(n.id));
   treeEl.querySelectorAll(".row").forEach(row => {
     const id = row.dataset.id;
-    row.classList.toggle("on-path", path.has(id));
     row.classList.toggle("is-a", !!picked.a && picked.a.id === id);
     row.classList.toggle("is-b", !!picked.b && picked.b.id === id);
-    row.classList.toggle("is-mrca", !!r && r.node.id === id);
+    row.classList.toggle("is-meet", !!r && r.node.id === id);
   });
 }
 treeEl.addEventListener("click", e => {
@@ -1369,14 +1479,13 @@ treeEl.addEventListener("click", e => {
     setPick(slot, n);
   }
 });
-
 $("treeFilter").addEventListener("input", e => {
   const q = e.target.value.trim().toLowerCase();
   if(!q){ filterMatches = null; renderTree(); return; }
   const keep = new Set();
   for(const n of nodes.values()){
     const hay = (n.name + " " + n.common + " " + (n.aliases||[]).join(" ")).toLowerCase();
-    if(hay.includes(q)) lineage(n).forEach(x=>keep.add(x.id));
+    if(hay.includes(q)) lineage(n).forEach(x => keep.add(x.id));
   }
   filterMatches = keep.size ? keep : new Set([ROOT.id]);
   renderTree();
@@ -1384,8 +1493,8 @@ $("treeFilter").addEventListener("input", e => {
 $("expandPath").addEventListener("click", () => {
   [picked.a, picked.b].filter(Boolean).forEach(n => lineage(n).forEach(x => expanded.add(x.id)));
   renderTree();
-  const r = (picked.a && picked.b) ? mrca(picked.a,picked.b) : null;
-  const target = treeEl.querySelector('.row[data-id="'+(r ? r.node.id : (picked.a||ROOT).id)+'"]');
+  const r = (picked.a && picked.b) ? mrca(picked.a, picked.b) : null;
+  const target = treeEl.querySelector('.row[data-id="' + (r ? r.node.id : (picked.a || ROOT).id) + '"]');
   if(target) target.scrollIntoView({block:"center", behavior:"smooth"});
 });
 $("collapseAll").addEventListener("click", () => {
@@ -1395,34 +1504,35 @@ $("collapseAll").addEventListener("click", () => {
 });
 
 /* =====================================================================
-   7. CONTROLS, EXAMPLES, DEEP LINKS
+   8. BUTTONS, EXAMPLES AND LINKS
    ===================================================================== */
 $("go").addEventListener("click", () => {
   ["a","b"].forEach(s => {
-    const input = $(s==="a"?"inA":"inB").value.trim();
-    if(input && (!picked[s] || label(picked[s]).toLowerCase() !== input.toLowerCase()))
-      setPick(s, search(input,1)[0] || null, {sync:false});
+    const typed = $(s==="a"?"inA":"inB").value.trim();
+    if(typed && (!picked[s] || label(picked[s]).toLowerCase() !== typed.toLowerCase()))
+      setPick(s, search(typed,1)[0] || null, {sync:false});
   });
   compare();
 });
 $("swap").addEventListener("click", () => {
-  const t = picked.a;
+  const keep = picked.a;
   setPick("a", picked.b, {sync:false});
-  setPick("b", t, {sync:false});
+  setPick("b", keep, {sync:false});
   compare();
 });
+$("fullSteps").addEventListener("change", () => { if(picked.a && picked.b) compare(); });
+
 const allSpecies = [...nodes.values()].filter(n=>n.species);
 $("rand").addEventListener("click", () => {
-  const pickRand = () => allSpecies[Math.floor(Math.random()*allSpecies.length)];
-  let a = pickRand(), b = pickRand();
-  while(b === a) b = pickRand();
+  const pick = () => allSpecies[Math.floor(Math.random()*allSpecies.length)];
+  let a = pick(), b = pick();
+  while(b === a) b = pick();
   setPick("a", a, {sync:false}); setPick("b", b, {sync:false});
   compare();
 });
 
-const EXAMPLES = [["Human","Octopus"],["Lion","Domestic cat"],["Blue whale","Hippopotamus"],
-  ["Orca","Great white shark"],["Emperor penguin","Nile crocodile"],["Western honey bee","Common earthworm"],
-  ["Human","Common carp"],["Kangaroo","Grey wolf"]];
+const EXAMPLES = [["Human","Octopus"],["Lion","Cat"],["Blue whale","Hippo"],["Penguin","Crocodile"],
+  ["Dog","Bear"],["Butterfly","Spider"],["Human","Chicken"],["Kangaroo","Wolf"]];
 $("examples").innerHTML += EXAMPLES.map(([x,y]) =>
   '<button data-ex="'+esc(x)+'|'+esc(y)+'">'+esc(x)+' &amp; '+esc(y)+'</button>').join("");
 $("examples").addEventListener("click", e => {
@@ -1432,6 +1542,15 @@ $("examples").addEventListener("click", e => {
   setPick("b", search(y,1)[0], {sync:false});
   compare();
   $("result").scrollIntoView({behavior:"smooth", block:"start"});
+});
+
+window.addEventListener("hashchange", () => {
+  const m = /a=([^&]*)&b=([^&]*)/.exec(location.hash || "");
+  if(!m) return;
+  const a = search(decodeURIComponent(m[1]),1)[0], b = search(decodeURIComponent(m[2]),1)[0];
+  if(a && b && (a !== picked.a || b !== picked.b)){
+    setPick("a", a, {sync:false}); setPick("b", b, {sync:false}); compare();
+  }
 });
 
 function fromHash(){
@@ -1446,10 +1565,11 @@ function fromHash(){
 
 renderTree();
 if(!fromHash()){
-  setPick("a", search("Human",1)[0], {sync:false});
-  setPick("b", search("Octopus",1)[0], {sync:false});
+  setPick("a", search("Lion",1)[0], {sync:false});
+  setPick("b", search("Brown bear",1)[0], {sync:false});
   compare();
 }
 </script>
 </body>
 </html>
+
