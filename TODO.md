@@ -129,9 +129,10 @@ all, and it gives HEIC decoding a legitimate route in if anyone wants it.
 - [ ] **Turn on GitHub Pages, once.** Settings → Pages → Source: **GitHub Actions**. Until that is
   done the `pages` job fails and the rest of the workflow is unaffected. The footer URLs and any
   worksheet links only resolve after this.
-- [ ] **The workflow has never run.** It is written against this repo's layout but was committed
-  from an environment with no access to Actions. Expect to fix something on the first run —
-  most likely the Chromium install step or the Pages permissions.
+- [ ] **The workflow's build and pages jobs have never run.** The `check` job ran on PR #4 and
+  passed; `build` and `pages` only run on merge to `main`, so the vendoring, the cache stamp and
+  the Pages deploy are still unexercised. Expect to fix something on the first merge — most likely
+  the Pages permissions.
 - [ ] **Attach the single file to a release.** The build uploads it as a workflow artifact, which
   expires and needs a GitHub login to download. A release asset on a tag would give teachers a
   plain, permanent link.

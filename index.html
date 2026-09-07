@@ -519,8 +519,18 @@ let lang = "en";
 function t(id, vars){
   const value = (STRINGS[lang] && STRINGS[lang][id] !== undefined && STRINGS[lang][id] !== "")
     ? STRINGS[lang][id] : (STRINGS.en ? STRINGS.en[id] : undefined);
-  if(value === undefined){ console.warn("No text for " + id); return id; }
+  if(value === undefined){ console.warn("No text for " + id); return humanise(id); }
   return typeof value === "function" ? value(vars || {}) : value;
+}
+
+/* A last resort, and it should never be reached: tools/check.mjs fails if the
+   app asks for an id English does not define. It exists because the one way it
+   *can* happen in the wild is a stale data/strings.<lang>.js next to a fresh
+   index.html - a browser cache, or a half-finished deploy - and a classroom
+   should see clumsy English rather than "ui.choosePhoto". */
+function humanise(id){
+  const words = id.replace(/^[a-z0-9]+\./, "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 /* the names people use for a taxon, in the current language, best first */
@@ -547,9 +557,16 @@ function applyStrings(){
      rebuilding here too - doing it at any single call site gets forgotten, as
      it was: the style names stayed English after a language change. */
   if(typeof renderStyleOptions === "function"){ renderStyleOptions(); renderPaperOptions(); }
-  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
-  document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
-  document.querySelectorAll("[data-i18n-al]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAl)); });
+  /* Where an id is unknown, the English written into the markup is better than
+     anything we could invent, so leave it be. */
+  const known = id => (STRINGS[lang] && STRINGS[lang][id] !== undefined) ||
+                      (STRINGS.en && STRINGS.en[id] !== undefined);
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    if(known(el.dataset.i18n)) el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+    if(known(el.dataset.i18nPh)) el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll("[data-i18n-al]").forEach(el => {
+    if(known(el.dataset.i18nAl)) el.setAttribute("aria-label", t(el.dataset.i18nAl)); });
   const note = t("foot.translation");
   $("transNote").textContent = note;
   $("transNote").hidden = !note;
@@ -1913,15 +1930,15 @@ function renderWordsPanel(){
         ' value="' + esc(figState.names[n.id] || "") + '">' +
         '<div class="photo-row">' +
           (photo ? '<img class="photo-thumb" src="' + photo + '" alt="">' : '') +
-          '<label class="photo-pick"><span>' + esc(t(photo ? "ui.photoReplace" : "ui.photoChoose")) + '</span>' +
+          '<label class="photo-pick"><span>' + esc(t(photo ? "ui.replacePhoto" : "ui.choosePhoto")) + '</span>' +
             '<input type="file" accept="image/*" data-photo-for="' + n.id + '"></label>' +
           (photo && photoWorking[n.id]
-            ? '<label class="photo-move">' + esc(t("ui.photoOffset")) +
+            ? '<label class="photo-move">' + esc(t("ui.movePhoto")) +
               '<input type="range" min="0" max="1" step="0.05" value="' + (figState.photoOffsets[n.id] ?? 0.5) +
               '" data-photo-move="' + n.id + '"></label>' : '') +
           (photo && photoBig[n.id] && typeof Cropper === "function"
-            ? '<button type="button" data-photo-crop="' + n.id + '">' + esc(t("ui.photoAdjust")) + '</button>' : '') +
-          (photo ? '<button type="button" data-photo-drop="' + n.id + '">' + esc(t("ui.photoRemove")) + '</button>' : '') +
+            ? '<button type="button" data-photo-crop="' + n.id + '">' + esc(t("ui.adjustFraming")) + '</button>' : '') +
+          (photo ? '<button type="button" data-photo-drop="' + n.id + '">' + esc(t("ui.removePhoto")) + '</button>' : '') +
         '</div></div>');
   });
   rows.push('<p class="photo-note">' + esc(t("ui.photoPrivacy")) + '</p>');

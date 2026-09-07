@@ -137,6 +137,11 @@ console.log("\nevery language renders with no missing text");
     });
     report(wrong.length === 0, code + ": dropdowns built in code say what t() says",
       wrong.slice(0, 2).join(" | "));
+    /* A raw id on screen - "ui.choosePhoto" where a label belongs - is what a
+       stale data file looks like to a reader. It reached a live test once. */
+    const raw = await page.evaluate(() => [...new Set(
+      (document.body.innerText.match(/\b(ui|ph|a11y|foot|story|fig|diag|pick|verdict|table|age|many|announce|lang|crop|style|paper)\.[a-zA-Z]+\b/g) || []))]);
+    report(raw.length === 0, code + ": no string id is showing where text should be", raw.slice(0, 3).join(", "));
     await ctx.close();
   }
 }

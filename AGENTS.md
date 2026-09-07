@@ -61,6 +61,23 @@ This is the rule most easily broken, so it is checked: **no user-visible English
   fall back — the check script prints the coverage. Draft translations must say so in their header
   and in `foot.translation`, which the page shows to the reader.
 
+## Splitting the data out has a deployment cost
+
+`index.html` and `data/*.js` change together but a browser caches them separately, by URL. A
+returning visitor can therefore run new markup against an old string file, and the page shows raw
+ids — `ui.choosePhoto` where a label belongs. This is not hypothetical; it happened in a live test.
+
+- **Deploys stamp the data scripts.** `tools/stamp-assets.mjs` adds `?v=<commit>` to every
+  `<script src="data/...">` in the copy being published, so the URL changes whenever the content
+  does. The CI build does this; anything served straight from a checkout does not, so a returning
+  visitor there may need a hard refresh.
+- **The single file is immune** — it inlines everything, so there is nothing to go stale.
+- **A missing id degrades to English, never to an id.** `applyStrings()` leaves the English written
+  in the markup alone when it does not recognise an id, and `t()` falls back to a humanised version
+  of the id for text built in code. That is why ids are named verb-first: `ui.choosePhoto` reads as
+  "Choose photo" when everything else has failed. `tools/check.mjs` fails if any id reaches the
+  screen, in any language.
+
 ## Network, and what happens without it
 
 Three requests, none of them required. Anything added here needs a row in this table and a check
