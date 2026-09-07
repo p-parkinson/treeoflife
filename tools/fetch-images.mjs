@@ -5,7 +5,7 @@
  *   node tools/fetch-images.mjs --contact you@example.org
  *
  * With --species it does the same for the animals themselves, reading the list
- * straight out of index.html so the two can never drift apart.
+ * straight out of data/taxonomy.js so the two can never drift apart.
  *
  * For every entry in tools/milestone-images.json it:
  *   1. asks English Wikipedia for the page's lead image (or uses an explicit
@@ -119,12 +119,12 @@ const exists = async p => { try { await access(p); return true; } catch { return
 /* ---------- what to fetch ---------- */
 const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-/* The animals live in index.html; read them from there rather than keeping a
-   second copy that can go stale. Ids must match the ones the page builds. */
+/* The animals live in data/taxonomy.js; read them from there rather than keeping
+   a second copy that can go stale. Ids must match the ones the page builds. */
 async function speciesMapping(which){
-  const page = await readFile(join(ROOT, "index.html"), "utf8");
+  const page = await readFile(join(ROOT, "data", "taxonomy.js"), "utf8");
   const m = /const SPECIES = (\[[\s\S]*?\n\];)/.exec(page);
-  if(!m) throw new Error("could not find the SPECIES list in index.html");
+  if(!m) throw new Error("could not find the SPECIES list in data/taxonomy.js");
   const rows = JSON.parse(m[1]
     .replace(/^\s*\/\/.*$/gm, "")      // the list is commented by group
     .replace(/;\s*$/, "")

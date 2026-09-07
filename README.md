@@ -4,14 +4,28 @@ A single-page app for exploring the animal tree of life, written for curious 10�
 pick any two animals and it shows **where their family trees join** — the most recent ancestor they
 share, roughly when the two branches split, and what was happening on Earth at the time.
 
-Everything lives in **`index.html`** — no build step, no dependencies, no server.
-Open the file in a browser, or serve the folder anywhere static (GitHub Pages works as-is).
+No dependencies, no build step needed to run it, no server, and nothing fetched at runtime.
+Open `index.html`, or serve the folder anywhere static (GitHub Pages works as-is).
 
 ```
 open index.html            # macOS
 xdg-open index.html        # Linux
 python3 -m http.server     # or serve it
 ```
+
+```
+index.html            the app: markup, styles, code
+data/taxonomy.js      1,050 taxa and 343 animals
+data/strings.en.js    every word of the interface (the reference copy)
+data/strings.fr.js    French interface — draft
+data/names.fr.js      French names for groups and animals — draft
+data/strings.es.js    Spanish interface — draft
+data/names.es.js      Spanish names for groups and animals — draft
+tools/                image fetcher, single-file build, the check script
+```
+
+Want one file for a USB stick, an email or an Artifact? `node tools/build-single.mjs` inlines
+everything into `dist/tree-of-life.html` (~190 KB).
 
 ## What it does
 
@@ -32,6 +46,13 @@ python3 -m http.server     # or serve it
 - **Shareable links** — the URL hash carries the pair, e.g. `index.html#a=Panthera%20leo&b=Octopus%20vulgaris`.
 - **Two layouts.** On a laptop or tablet the two lineages fork left and right; on a phone the same
   tree is redrawn as an indented list so the names get the full width. It switches on rotation.
+- **Light or dark**, chosen in the header: *Auto* follows the device, *Light* and *Dark* override it and
+  the choice is remembered. Printing always uses the light palette whichever is on screen.
+- **English, French or Spanish** (the two translations are first drafts, and say so on the page).
+  The language picker sits beside the colours; `#…&lang=es` puts it in a link. Animal and group
+  names are translated too. Typing searches **only** the language on screen (plus scientific
+  names, and English where a name is missing), so *pieuvre* finds nothing in the Spanish version —
+  while a link written in any language still resolves for everyone.
 - Plus *Surprise me*, *Swap*, and one-click example pairs.
 
 ## The family tree of up to five animals
@@ -45,13 +66,28 @@ shown, so the compression is visible rather than silent.
 Branches are ordered by the tree, not by the order you typed them, which is what keeps the
 lines from crossing.
 
+### Making it yours
+
+- **Five picture styles**, chosen next to the figure: *Match the page*, *High contrast*,
+  *Field guide*, *Chalkboard* and *Bright poster*. They change the figure only — the app around it
+  stays put — and each fixed palette is checked to clear 4.5:1 on its own paper, so the
+  high-contrast and chalkboard versions are as legible as the default.
+- **Name the animals.** A teacher demonstrating with the class pet can label a leaf *Mr Whiskers*;
+  the picture then shows the given name, with the animal's usual name and its scientific name
+  underneath.
+- **A title and a footer.** The title defaults to *From Mr Whiskers to Miss Kaur* (or *How A, B and
+  C are related*), with the meeting point as a subtitle; the footer defaults to the site address.
+  Both can be overwritten or cleared.
+
 **Every picture is a URL**, so it can be linked, bookmarked, put in a worksheet or screenshotted
 by any tool:
 
 ```
 index.html#tree=lion,brown+bear,honey+bee,octopus,emperor+penguin
-index.html#tree=Panthera+leo,Ursus+arctos          # scientific names work too
-index.html#tree=lion,emu&bare=1                    # just the picture: no header, no controls
+index.html#tree=Panthera+leo,Ursus+arctos                        # scientific names work too
+index.html#tree=domestic+cat,human&names=Mr+Whiskers&style=guide # named, in the field-guide style
+index.html#tree=lion,emu&title=Our+trip&footer=Class+3B          # your own words on the picture
+index.html#tree=lion,emu&bare=1                                  # just the picture, no controls
 ```
 
 **Getting it out of the browser:**
@@ -111,6 +147,22 @@ by default, and everything in it is reachable another way.
 `tools/fetch-images.mjs` collects one photo per milestone group from Wikimedia Commons, with the
 credits each licence requires — run on your machine, results committed, so the app still makes no
 network calls. See [tools/README.md](tools/README.md).
+
+## Contributing
+
+[AGENTS.md](AGENTS.md) is the short version of what to keep true: one file, no dependencies, no
+network at runtime, one layout engine, and an accessibility bar that is checked rather than
+hoped for. `CLAUDE.md` just points at it.
+
+```bash
+npm i -D playwright axe-core && npx playwright install chromium
+node tools/check.mjs        # axe on both views x light/dark x desktop/phone, figure fit,
+                           # small-screen reflow, and figure-style contrast
+```
+
+[docs/multilingual.md](docs/multilingual.md) explains how the translation works and how to add
+the next language — including how to pull animal names from Wikidata rather than by hand.
+[TODO.md](TODO.md) is the honest list of what is outstanding, deferred or blocked.
 
 ## The data
 
