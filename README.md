@@ -4,14 +4,26 @@ A single-page app for exploring the animal tree of life, written for curious 10�
 pick any two animals and it shows **where their family trees join** — the most recent ancestor they
 share, roughly when the two branches split, and what was happening on Earth at the time.
 
-Everything lives in **`index.html`** — no build step, no dependencies, no server.
-Open the file in a browser, or serve the folder anywhere static (GitHub Pages works as-is).
+No dependencies, no build step needed to run it, no server, and nothing fetched at runtime.
+Open `index.html`, or serve the folder anywhere static (GitHub Pages works as-is).
 
 ```
 open index.html            # macOS
 xdg-open index.html        # Linux
 python3 -m http.server     # or serve it
 ```
+
+```
+index.html            the app: markup, styles, code
+data/taxonomy.js      1,050 taxa and 343 animals
+data/strings.en.js    every word of the interface (the reference copy)
+data/strings.fr.js    French interface — draft
+data/names.fr.js      French names for groups and animals — draft
+tools/                image fetcher, single-file build, the check script
+```
+
+Want one file for a USB stick, an email or an Artifact? `node tools/build-single.mjs` inlines
+everything into `dist/tree-of-life.html` (~190 KB).
 
 ## What it does
 
@@ -34,6 +46,10 @@ python3 -m http.server     # or serve it
   tree is redrawn as an indented list so the names get the full width. It switches on rotation.
 - **Light or dark**, chosen in the header: *Auto* follows the device, *Light* and *Dark* override it and
   the choice is remembered. Printing always uses the light palette whichever is on screen.
+- **English or French** (French is a first draft, and says so on the page). The language picker sits
+  beside the colours; `#…&lang=fr` puts it in a link. Animal and group names are translated too,
+  and every language's names are searchable whichever one you are reading in — so a French child
+  can type *pieuvre* and an English link to the same page still works.
 - Plus *Surprise me*, *Swap*, and one-click example pairs.
 
 ## The family tree of up to five animals
@@ -141,8 +157,8 @@ node tools/check.mjs        # axe on both views x light/dark x desktop/phone, fi
                            # small-screen reflow, and figure-style contrast
 ```
 
-[docs/multilingual.md](docs/multilingual.md) sketches how another language would be added, and
-what it would really cost.
+[docs/multilingual.md](docs/multilingual.md) explains how the translation works and how to add
+the next language — including how to pull animal names from Wikidata rather than by hand.
 
 ## The data
 

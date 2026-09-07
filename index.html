@@ -304,7 +304,7 @@ footer a{color:var(--a);text-underline-offset:2px}
 </style>
 </head>
 <body>
-<a class="skip" href="#result">Skip to the answer</a>
+<a class="skip" href="#result" data-i18n="ui.skip">Skip to the answer</a>
 <div class="wrap">
 
 <header class="top">
@@ -317,50 +317,52 @@ footer a{color:var(--a);text-underline-offset:2px}
     <circle cx="21" cy="23" r="4.5" fill="var(--meet)"/>
   </svg>
   <div>
-    <h1>Tree of Life</h1>
-    <p>Every animal alive today is related to every other one. Pick two and see where their family trees join.</p>
+    <h1 data-i18n="ui.title">Tree of Life</h1>
+    <p data-i18n="ui.strap">Every animal alive today is related to every other one. Pick two and see where their family trees join.</p>
   </div>
-  <div class="theme" role="group" aria-label="Page colours">
-    <span id="themeLabel">Colours</span>
-    <button type="button" data-theme-btn="auto" aria-pressed="true">Auto</button>
-    <button type="button" data-theme-btn="light" aria-pressed="false">Light</button>
-    <button type="button" data-theme-btn="dark" aria-pressed="false">Dark</button>
+  <div class="theme" role="group" data-i18n-al="a11y.colours" aria-label="Page colours">
+    <label class="sr-only" for="lang" data-i18n="ui.language">Language</label>
+    <select id="lang"></select>
+    <span id="themeLabel" data-i18n="ui.colours">Colours</span>
+    <button type="button" data-theme-btn="auto" aria-pressed="true" data-i18n="ui.auto">Auto</button>
+    <button type="button" data-theme-btn="light" aria-pressed="false" data-i18n="ui.light">Light</button>
+    <button type="button" data-theme-btn="dark" aria-pressed="false" data-i18n="ui.dark">Dark</button>
   </div>
 </header>
 
 <main id="main">
 
-<div class="tabs" role="tablist" aria-label="Two ways to look at the tree">
-  <button type="button" role="tab" id="tabTwo" aria-selected="true" aria-controls="viewTwo">Two animals</button>
-  <button type="button" role="tab" id="tabMany" aria-selected="false" aria-controls="viewMany" tabindex="-1">Family tree of up to five</button>
+<div class="tabs" role="tablist" data-i18n-al="a11y.tabs" aria-label="Two ways to look at the tree">
+  <button type="button" role="tab" id="tabTwo" aria-selected="true" aria-controls="viewTwo" data-i18n="ui.tabTwo">Two animals</button>
+  <button type="button" role="tab" id="tabMany" aria-selected="false" aria-controls="viewMany" tabindex="-1" data-i18n="ui.tabMany">Family tree of up to five</button>
 </div>
 
 <div class="panel" id="viewTwo" role="tabpanel" aria-labelledby="tabTwo">
 
-<section class="picker" role="search" aria-label="Choose two animals">
+<section class="picker" role="search" data-i18n-al="a11y.pickTwo" aria-label="Choose two animals">
   <div class="slots">
     <div class="slot a">
-      <label for="inA">First animal</label>
-      <input id="inA" type="text" autocomplete="off" spellcheck="false" placeholder="lion, octopus, honey bee..."
+      <label for="inA" data-i18n="ui.firstAnimal">First animal</label>
+      <input id="inA" type="text" autocomplete="off" spellcheck="false" placeholder="lion, octopus, honey bee..." data-i18n-ph="ph.firstAnimal"
              role="combobox" aria-expanded="false" aria-controls="sugA" aria-haspopup="listbox" aria-autocomplete="list">
-      <div class="suggest" id="sugA" role="listbox" tabindex="-1" aria-label="Suggestions for the first animal"></div>
+      <div class="suggest" id="sugA" role="listbox" tabindex="-1" data-i18n-al="a11y.suggestFirst" aria-label="Suggestions for the first animal"></div>
       <div class="chosen" id="chA" role="status"></div>
     </div>
-    <div class="plus">and</div>
+    <div class="plus" data-i18n="ui.and">and</div>
     <div class="slot b">
-      <label for="inB">Second animal</label>
-      <input id="inB" type="text" autocomplete="off" spellcheck="false" placeholder="blue whale, penguin, tarantula..."
+      <label for="inB" data-i18n="ui.secondAnimal">Second animal</label>
+      <input id="inB" type="text" autocomplete="off" spellcheck="false" placeholder="blue whale, penguin, tarantula..." data-i18n-ph="ph.secondAnimal"
              role="combobox" aria-expanded="false" aria-controls="sugB" aria-haspopup="listbox" aria-autocomplete="list">
-      <div class="suggest" id="sugB" role="listbox" tabindex="-1" aria-label="Suggestions for the second animal"></div>
+      <div class="suggest" id="sugB" role="listbox" tabindex="-1" data-i18n-al="a11y.suggestSecond" aria-label="Suggestions for the second animal"></div>
       <div class="chosen" id="chB" role="status"></div>
     </div>
   </div>
   <div class="actions">
-    <button class="primary" id="go">Find where they meet</button>
-    <button id="rand">Surprise me</button>
-    <button id="swap">Swap</button>
+    <button class="primary" id="go" data-i18n="ui.find">Find where they meet</button>
+    <button id="rand" data-i18n="ui.surprise">Surprise me</button>
+    <button id="swap" data-i18n="ui.swap">Swap</button>
   </div>
-  <div class="examples" id="examples"><span>Try:</span></div>
+  <div class="examples" id="examples"><span data-i18n="ui.try">Try:</span></div>
 </section>
 
 <section id="result" aria-labelledby="verdictHead">
@@ -368,23 +370,23 @@ footer a{color:var(--a);text-underline-offset:2px}
   <div class="verdict" id="verdict"></div>
 
   <div class="card">
-    <h3>How they are connected
+    <h3><span data-i18n="ui.connected">How they are connected</span>
       <span class="tools">
-        <label class="switch"><input type="checkbox" id="fullSteps"> Show every step</label>
+        <label class="switch"><input type="checkbox" id="fullSteps"> <span data-i18n="ui.showEverything">Show every step</span></label>
       </span>
     </h3>
     <div class="body diagram-scroll" id="diagram"></div>
-    <p class="swipe-hint" id="swipeHint" hidden>The picture is wider than your screen &mdash; slide it sideways to see all of it.</p>
+    <p class="swipe-hint" id="swipeHint" data-i18n="ui.swipe" hidden>The picture is wider than your screen &mdash; slide it sideways to see all of it.</p>
     <div class="legend">
-      <span><i aria-hidden="true" style="background:var(--shared)"></i>shared ancestors</span>
-      <span><i aria-hidden="true" style="background:var(--meet)"></i>where they meet</span>
+      <span><i aria-hidden="true" style="background:var(--shared)"></i><span data-i18n="ui.legendShared">shared ancestors</span></span>
+      <span><i aria-hidden="true" style="background:var(--meet)"></i><span data-i18n="ui.legendMeet">where they meet</span></span>
       <span><i aria-hidden="true" style="background:var(--a)"></i><span id="legA">first animal</span></span>
       <span><i aria-hidden="true" style="background:var(--b)"></i><span id="legB">second animal</span></span>
     </div>
   </div>
 
   <details class="full">
-    <summary>See the full scientific classification</summary>
+    <summary data-i18n="ui.fullClassification">See the full scientific classification</summary>
     <div class="body"><table class="lin" id="linTable"></table></div>
   </details>
 </section>
@@ -393,23 +395,23 @@ footer a{color:var(--a);text-underline-offset:2px}
 
 <div class="panel" id="viewMany" role="tabpanel" aria-labelledby="tabMany" hidden>
 
-<section class="picker" role="search" aria-label="Choose up to five animals">
+<section class="picker" role="search" data-i18n-al="a11y.pickMany" aria-label="Choose up to five animals">
   <div class="slot a">
-    <label for="inMany">Add an animal</label>
-    <input id="inMany" type="text" autocomplete="off" spellcheck="false" placeholder="kangaroo, owl, honey bee..."
+    <label for="inMany" data-i18n="ui.addAnimal">Add an animal</label>
+    <input id="inMany" type="text" autocomplete="off" spellcheck="false" placeholder="kangaroo, owl, honey bee..." data-i18n-ph="ph.addAnimal"
            role="combobox" aria-expanded="false" aria-controls="sugMany" aria-haspopup="listbox" aria-autocomplete="list">
-    <div class="suggest" id="sugMany" role="listbox" tabindex="-1" aria-label="Suggestions"></div>
+    <div class="suggest" id="sugMany" role="listbox" tabindex="-1" data-i18n-al="a11y.suggest" aria-label="Suggestions"></div>
     <p class="count-note" id="manyNote" role="status"></p>
   </div>
-  <ul class="chips" id="chips" aria-label="Animals in this tree"></ul>
+  <ul class="chips" id="chips" data-i18n-al="a11y.chips" aria-label="Animals in this tree"></ul>
   <details class="full inset" id="figWords">
-    <summary>Names and titles for the picture (optional)</summary>
+    <summary data-i18n="ui.figWords">Names and titles for the picture (optional)</summary>
     <div class="body" id="figWordsBody"></div>
   </details>
   <div class="actions">
-    <button class="primary" id="manyGo">Draw the tree</button>
-    <button id="manyRand">Surprise me</button>
-    <button id="manyClear">Start again</button>
+    <button class="primary" id="manyGo" data-i18n="ui.drawTree">Draw the tree</button>
+    <button id="manyRand" data-i18n="ui.surprise">Surprise me</button>
+    <button id="manyClear" data-i18n="ui.startAgain">Start again</button>
   </div>
 </section>
 
@@ -417,14 +419,14 @@ footer a{color:var(--a);text-underline-offset:2px}
   <p class="sr-only" id="manyAnnounce" role="status"></p>
   <div class="card">
     <h2 id="manyHead"><span id="manyHeadText">How they are all connected</span>
-      <span class="tools"><label for="figStyle">Picture style</label>
+      <span class="tools"><label for="figStyle" data-i18n="ui.figStyle">Picture style</label>
         <select id="figStyle"></select></span></h2>
     <div class="body diagram-scroll" id="manyDiagram"></div>
-    <p class="swipe-hint" id="manySwipeHint" hidden>The picture is wider than your screen &mdash; slide it sideways to see all of it.</p>
-    <p class="count-note" style="padding:0 20px 4px">A dashed line with a number means that many in-between groups are not shown.</p>
+    <p class="swipe-hint" id="manySwipeHint" data-i18n="ui.swipe" hidden>The picture is wider than your screen &mdash; slide it sideways to see all of it.</p>
+    <p class="count-note" style="padding:0 20px 4px" data-i18n="ui.dashedNote">A dashed line with a number means that many in-between groups are not shown.</p>
     <div class="export">
-      <button id="btnPrint">Print or save as PDF</button>
-      <label for="paper">Paper
+      <button id="btnPrint" data-i18n="ui.print">Print or save as PDF</button>
+      <label for="paper"><span data-i18n="ui.paper">Paper</span>
         <select id="paper">
           <option value="A4 portrait">A4 portrait</option>
           <option value="A4 landscape">A4 landscape</option>
@@ -432,13 +434,13 @@ footer a{color:var(--a);text-underline-offset:2px}
           <option value="A3 landscape">A3 landscape</option>
         </select>
       </label>
-      <button id="btnSvg">Download SVG</button>
-      <button id="btnPng">Download PNG</button>
+      <button id="btnSvg" data-i18n="ui.downloadSvg">Download SVG</button>
+      <button id="btnPng" data-i18n="ui.downloadPng">Download PNG</button>
       <span class="note" id="exportNote"></span>
     </div>
   </div>
   <details class="full">
-    <summary>Read this tree as a list</summary>
+    <summary data-i18n="ui.treeAsList">Read this tree as a list</summary>
     <div class="body" id="treeAsList"></div>
   </details>
 </section>
@@ -446,38 +448,47 @@ footer a{color:var(--a);text-underline-offset:2px}
 </div><!-- /viewMany -->
 
 <details class="full" id="explorer">
-  <summary>Explore the whole tree <span class="tools" id="treeStat"></span></summary>
+  <summary><span data-i18n="ui.explore">Explore the whole tree</span> <span class="tools" id="treeStat"></span></summary>
   <div class="tree-tools">
-    <label class="sr-only" for="treeFilter">Search the tree</label>
-    <input id="treeFilter" type="text" placeholder="Search the tree..." autocomplete="off" spellcheck="false">
-    <button id="expandPath">Show my two animals</button>
-    <button id="collapseAll">Close all</button>
+    <label class="sr-only" for="treeFilter" data-i18n="ui.searchTree">Search the tree</label>
+    <input id="treeFilter" type="text" placeholder="Search the tree..." data-i18n-ph="ph.searchTree" autocomplete="off" spellcheck="false">
+    <button id="expandPath" data-i18n="ui.showMine">Show my two animals</button>
+    <button id="collapseAll" data-i18n="ui.closeAll">Close all</button>
   </div>
-  <div class="body"><div class="tree" id="tree" tabindex="0" role="group" aria-label="The whole tree of life, group by group"></div></div>
+  <div class="body"><div class="tree" id="tree" tabindex="0" role="group" data-i18n-al="a11y.wholeTree" aria-label="The whole tree of life, group by group"></div></div>
 </details>
 
 </main>
 
 <footer>
-  <p><strong>How this works.</strong> Every animal here sits on one big family tree. To find a common ancestor,
+  <p><strong data-i18n="foot.howHead">How this works.</strong> <span data-i18n="foot.how">Every animal here sits on one big family tree. To find a common ancestor,
   both animals are traced back up the tree until the two paths land on the same branch. That branch is the most
-  recent ancestor they share &mdash; the last animal that was a great-great-great-(and so on)-grandparent of both.</p>
-  <p>The dates are rough estimates from fossils and DNA, so treat them as "roughly this long ago" rather than exact
+  recent ancestor they share &mdash; the last animal that was a great-great-great-(and so on)-grandparent of both.</span></p>
+
+  <p data-i18n="foot.dates">The dates are rough estimates from fossils and DNA, so treat them as "roughly this long ago" rather than exact
   numbers. The tree follows how scientists group animals today, which has a few surprises in it: birds count as
   dinosaurs, whales sit inside the hoofed animals, and termites are a kind of cockroach.</p>
 
-  <p><strong>Where this comes from.</strong> The 343 animals, the groups they sit in and the dates were compiled by
+  <p><strong data-i18n="foot.sourcesHead">Where this comes from.</strong> <span data-i18n="foot.sources">The 343 animals, the groups they sit in and the dates were compiled by
   hand for this page, following the modern published picture of how animals are related. It is a teaching model, not
   a copy of any one database, and nothing here is looked up live. If you need the authoritative version &mdash; for a
-  project, a label or a lesson plan &mdash; use
+  project, a label or a lesson plan &mdash; use</span>
   <a href="https://tree.opentreeoflife.org">Open Tree of Life</a>,
-  <a href="https://www.gbif.org">GBIF</a> or
-  <a href="https://www.ncbi.nlm.nih.gov/taxonomy">NCBI Taxonomy</a> for classification, and
-  <a href="https://timetree.org">TimeTree</a> for divergence dates.</p>
+  <a href="https://www.gbif.org">GBIF</a> <span data-i18n="ui.or">or</span>
+  <a href="https://www.ncbi.nlm.nih.gov/taxonomy">NCBI Taxonomy</a>
+  <span data-i18n="foot.sourcesTail">for classification, and</span>
+  <a href="https://timetree.org">TimeTree</a>
+  <span data-i18n="foot.sourcesTail2">for divergence dates.</span></p>
+
+  <p id="transNote" class="trans-note" hidden></p>
 </footer>
 
 </div>
 
+<script src="data/taxonomy.js"></script>
+<script src="data/strings.en.js"></script>
+<script src="data/strings.fr.js"></script>
+<script src="data/names.fr.js"></script>
 <!-- Pictures are optional. After running:
        node tools/fetch-images.mjs --contact you@example.org --species all --inline
      uncomment the next line (or paste the file's contents here) and every animal
@@ -486,769 +497,56 @@ footer a{color:var(--a);text-underline-offset:2px}
 -->
 <script>
 /* =====================================================================
-   1. DATA — the classification backbone
-   Each entry: [id, scientific name, rank, common name, parent id, approx crown age in Mya]
-   Ages are rounded consensus estimates; null where not shown.
+   0. LANGUAGE
+   Interface text comes from data/strings.<lang>.js; names for animals and
+   groups from data/names.<lang>.js. Both fall back to English, and English
+   falls back to the scientific name, so a partial translation is still
+   usable rather than broken. See AGENTS.md before adding a string.
    ===================================================================== */
-const CLADES = [
-["life","Biota","root","Life",null,4000],
-["eukaryota","Eukaryota","domain","Eukaryotes",  "life",1800],
-["opisthokonta","Opisthokonta","clade","Animals & fungi","eukaryota",1100],
-["holozoa","Holozoa","clade","Animals & their closest relatives","opisthokonta",950],
-["metazoa","Animalia","kingdom","Animals","holozoa",800],
+const STRINGS = window.TOL_STRINGS || {en: {}};
+const LOCAL_NAMES = window.TOL_NAMES || {};
+const LANGS = Object.keys(STRINGS).filter(code => STRINGS[code]["lang.name"]);
+let lang = "en";
 
-["porifera","Porifera","phylum","Sponges","metazoa",700],
-["ctenophora","Ctenophora","phylum","Comb jellies","metazoa",600],
-["placozoa","Placozoa","phylum","Placozoans","metazoa",null],
-["cnidaria","Cnidaria","phylum","Jellyfish, corals & anemones","metazoa",690],
-["anthozoa","Anthozoa","class","Corals & sea anemones","cnidaria",null],
-["scyphozoa","Scyphozoa","class","True jellyfish","cnidaria",null],
-["hydrozoa","Hydrozoa","class","Hydroids & siphonophores","cnidaria",null],
-["cubozoa","Cubozoa","class","Box jellyfish","cnidaria",null],
+function t(id, vars){
+  const value = (STRINGS[lang] && STRINGS[lang][id] !== undefined && STRINGS[lang][id] !== "")
+    ? STRINGS[lang][id] : (STRINGS.en ? STRINGS.en[id] : undefined);
+  if(value === undefined){ console.warn("No text for " + id); return id; }
+  return typeof value === "function" ? value(vars || {}) : value;
+}
 
-["bilateria","Bilateria","clade","Bilaterally symmetric animals","metazoa",650],
-["protostomia","Protostomia","clade","Protostomes","bilateria",620],
-["ecdysozoa","Ecdysozoa","clade","Moulting animals","protostomia",600],
-["nematoda","Nematoda","phylum","Roundworms","ecdysozoa",null],
-["tardigrada","Tardigrada","phylum","Water bears","ecdysozoa",null],
-["onychophora","Onychophora","phylum","Velvet worms","ecdysozoa",null],
-["arthropoda","Arthropoda","phylum","Arthropods","ecdysozoa",550],
+/* the names people use for a taxon, in the current language, best first */
+function localNames(node){
+  const table = LOCAL_NAMES[lang];
+  const entry = table && table[node.id];
+  if(!entry) return [];
+  return Array.isArray(entry) ? entry : [entry];
+}
 
-["chelicerata","Chelicerata","subphylum","Chelicerates","arthropoda",510],
-["arachnida","Arachnida","class","Arachnids","chelicerata",440],
-["araneae","Araneae","order","Spiders","arachnida",300],
-["theraphosidae","Theraphosidae","family","Tarantulas","araneae",null],
-["salticidae","Salticidae","family","Jumping spiders","araneae",null],
-["araneidae","Araneidae","family","Orb-weaver spiders","araneae",null],
-["sicariidae","Sicariidae","family","Recluse spiders","araneae",null],
-["theridiidae","Theridiidae","family","Cobweb spiders","araneae",null],
-["scorpiones","Scorpiones","order","Scorpions","arachnida",null],
-["acari","Acari","clade","Mites & ticks","arachnida",null],
-["ixodidae","Ixodidae","family","Hard ticks","acari",null],
-["xiphosura","Xiphosura","order","Horseshoe crabs","chelicerata",null],
+function pickLanguage(code){
+  lang = STRINGS[code] ? code : "en";
+  document.documentElement.lang = lang;
+  try{ localStorage.setItem("tol-lang", lang); }catch(e){}
+  applyStrings();
+  relabelTree();
+  redrawEverything();
+}
 
-["myriapoda","Myriapoda","subphylum","Myriapods","arthropoda",440],
-["chilopoda","Chilopoda","class","Centipedes","myriapoda",null],
-["diplopoda","Diplopoda","class","Millipedes","myriapoda",null],
-
-["pancrustacea","Pancrustacea","clade","Crustaceans & insects","arthropoda",530],
-["malacostraca","Malacostraca","class","Crabs, lobsters, shrimp & kin","pancrustacea",450],
-["decapoda","Decapoda","order","Decapods","malacostraca",430],
-["brachyura","Brachyura","infraorder","True crabs","decapoda",null],
-["astacidea","Astacidea","infraorder","Lobsters & crayfish","decapoda",null],
-["caridea","Caridea","infraorder","Shrimp","decapoda",null],
-["isopoda","Isopoda","order","Isopods","malacostraca",null],
-["branchiopoda","Branchiopoda","class","Branchiopods","pancrustacea",null],
-["maxillopoda","Thecostraca","class","Barnacles & kin","pancrustacea",null],
-["hexapoda","Hexapoda","subphylum","Six-legged arthropods","pancrustacea",450],
-["insecta","Insecta","class","Insects","hexapoda",410],
-["odonata","Odonata","order","Dragonflies & damselflies","insecta",250],
-["ephemeroptera","Ephemeroptera","order","Mayflies","insecta",null],
-["polyneoptera","Polyneoptera","clade","Orthopteroid insects","insecta",330],
-["orthoptera","Orthoptera","order","Grasshoppers, crickets & katydids","polyneoptera",250],
-["acrididae","Acrididae","family","Short-horned grasshoppers & locusts","orthoptera",null],
-["gryllidae","Gryllidae","family","Crickets","orthoptera",null],
-["blattodea","Blattodea","order","Cockroaches & termites","polyneoptera",200],
-["isoptera","Termitoidae","infraorder","Termites","blattodea",null],
-["mantodea","Mantodea","order","Mantises","polyneoptera",null],
-["phasmatodea","Phasmatodea","order","Stick & leaf insects","polyneoptera",null],
-["dermaptera","Dermaptera","order","Earwigs","polyneoptera",null],
-["hemiptera","Hemiptera","order","True bugs","insecta",300],
-["cicadidae","Cicadidae","family","Cicadas","hemiptera",null],
-["aphididae","Aphididae","family","Aphids","hemiptera",null],
-["holometabola","Holometabola","clade","Insects with complete metamorphosis","insecta",350],
-["coleoptera","Coleoptera","order","Beetles","holometabola",300],
-["coccinellidae","Coccinellidae","family","Ladybirds","coleoptera",null],
-["scarabaeidae","Scarabaeidae","family","Scarab beetles","coleoptera",null],
-["lampyridae","Lampyridae","family","Fireflies","coleoptera",null],
-["curculionidae","Curculionidae","family","Weevils","coleoptera",null],
-["hymenoptera","Hymenoptera","order","Ants, bees & wasps","holometabola",280],
-["formicidae","Formicidae","family","Ants","hymenoptera",140],
-["apidae","Apidae","family","Bees","hymenoptera",100],
-["vespidae","Vespidae","family","Wasps & hornets","hymenoptera",null],
-["lepidoptera","Lepidoptera","order","Butterflies & moths","holometabola",240],
-["papilionidae","Papilionidae","family","Swallowtail butterflies","lepidoptera",null],
-["nymphalidae","Nymphalidae","family","Brush-footed butterflies","lepidoptera",null],
-["pieridae","Pieridae","family","Whites & sulphurs","lepidoptera",null],
-["saturniidae","Saturniidae","family","Giant silk moths","lepidoptera",null],
-["sphingidae","Sphingidae","family","Hawk moths","lepidoptera",null],
-["bombycidae","Bombycidae","family","Silkworm moths","lepidoptera",null],
-["diptera","Diptera","order","Flies & mosquitoes","holometabola",240],
-["culicidae","Culicidae","family","Mosquitoes","diptera",null],
-["drosophilidae","Drosophilidae","family","Vinegar flies","diptera",null],
-["muscidae","Muscidae","family","House flies","diptera",null],
-["siphonaptera","Siphonaptera","order","Fleas","holometabola",null],
-
-["spiralia","Spiralia","clade","Spiralians","protostomia",580],
-["platyhelminthes","Platyhelminthes","phylum","Flatworms","spiralia",null],
-["cestoda","Cestoda","class","Tapeworms","platyhelminthes",null],
-["turbellaria","Turbellaria","class","Planarians & kin","platyhelminthes",null],
-["annelida","Annelida","phylum","Segmented worms","spiralia",540],
-["clitellata","Clitellata","class","Earthworms & leeches","annelida",null],
-["polychaeta","Polychaeta","class","Bristle worms","annelida",null],
-["mollusca","Mollusca","phylum","Molluscs","spiralia",550],
-["cephalopoda","Cephalopoda","class","Cephalopods","mollusca",480],
-["octopoda","Octopoda","order","Octopuses","cephalopoda",null],
-["teuthida","Teuthida","order","Squid","cephalopoda",null],
-["sepiida","Sepiida","order","Cuttlefish","cephalopoda",null],
-["nautilida","Nautilida","order","Nautiluses","cephalopoda",null],
-["gastropoda","Gastropoda","class","Snails & slugs","mollusca",480],
-["bivalvia","Bivalvia","class","Bivalves","mollusca",480],
-["ostreidae","Ostreidae","family","True oysters","bivalvia",null],
-["pectinidae","Pectinidae","family","Scallops","bivalvia",null],
-["mytilidae","Mytilidae","family","Mussels","bivalvia",null],
-["polyplacophora","Polyplacophora","class","Chitons","mollusca",null],
-["bryozoa","Bryozoa","phylum","Moss animals","spiralia",null],
-["brachiopoda","Brachiopoda","phylum","Lamp shells","spiralia",null],
-["rotifera","Rotifera","phylum","Rotifers","spiralia",null],
-
-["deuterostomia","Deuterostomia","clade","Deuterostomes","bilateria",620],
-["echinodermata","Echinodermata","phylum","Echinoderms","deuterostomia",500],
-["asteroidea","Asteroidea","class","Sea stars","echinodermata",null],
-["echinoidea","Echinoidea","class","Sea urchins & sand dollars","echinodermata",null],
-["holothuroidea","Holothuroidea","class","Sea cucumbers","echinodermata",null],
-["ophiuroidea","Ophiuroidea","class","Brittle stars","echinodermata",null],
-["hemichordata","Hemichordata","phylum","Acorn worms","deuterostomia",null],
-["chordata","Chordata","phylum","Chordates","deuterostomia",550],
-["tunicata","Tunicata","subphylum","Sea squirts & salps","chordata",null],
-["cephalochordata","Cephalochordata","subphylum","Lancelets","chordata",null],
-["vertebrata","Vertebrata","subphylum","Vertebrates","chordata",530],
-["cyclostomata","Cyclostomata","clade","Jawless fishes","vertebrata",470],
-["petromyzontida","Petromyzontida","class","Lampreys","cyclostomata",null],
-["myxini","Myxini","class","Hagfishes","cyclostomata",null],
-["gnathostomata","Gnathostomata","clade","Jawed vertebrates","vertebrata",460],
-
-["chondrichthyes","Chondrichthyes","class","Cartilaginous fishes","gnathostomata",420],
-["holocephali","Holocephali","subclass","Chimaeras","chondrichthyes",null],
-["elasmobranchii","Elasmobranchii","subclass","Sharks & rays","chondrichthyes",300],
-["selachii","Selachimorpha","clade","Sharks","elasmobranchii",250],
-["lamniformes","Lamniformes","order","Mackerel sharks","selachii",null],
-["lamnidae","Lamnidae","family","Mackerel sharks","lamniformes",null],
-["carcharhiniformes","Carcharhiniformes","order","Ground sharks","selachii",null],
-["carcharhinidae","Carcharhinidae","family","Requiem sharks","carcharhiniformes",null],
-["sphyrnidae","Sphyrnidae","family","Hammerhead sharks","carcharhiniformes",null],
-["orectolobiformes","Orectolobiformes","order","Carpet sharks","selachii",null],
-["squaliformes","Squaliformes","order","Dogfish sharks","selachii",null],
-["batoidea","Batoidea","clade","Rays & skates","elasmobranchii",200],
-["myliobatiformes","Myliobatiformes","order","Stingrays","batoidea",null],
-["rajiformes","Rajiformes","order","Skates","batoidea",null],
-
-["osteichthyes","Osteichthyes","clade","Bony vertebrates","gnathostomata",435],
-["actinopterygii","Actinopterygii","class","Ray-finned fishes","osteichthyes",400],
-["chondrostei","Chondrostei","clade","Sturgeons & paddlefishes","actinopterygii",null],
-["acipenseriformes","Acipenseriformes","order","Sturgeons & paddlefishes","chondrostei",null],
-["neopterygii","Neopterygii","clade","Neopterygians","actinopterygii",360],
-["holostei","Holostei","clade","Gars & bowfin","neopterygii",null],
-["teleostei","Teleostei","clade","Teleost fishes","neopterygii",310],
-["elopomorpha","Elopomorpha","clade","Eels & tarpons","teleostei",null],
-["anguilliformes","Anguilliformes","order","Eels","elopomorpha",null],
-["osteoglossomorpha","Osteoglossomorpha","clade","Bony-tongued fishes","teleostei",null],
-["clupeiformes","Clupeiformes","order","Herrings, sardines & anchovies","teleostei",null],
-["ostariophysi","Ostariophysi","clade","Carps, catfishes & kin","teleostei",250],
-["cypriniformes","Cypriniformes","order","Carps & minnows","ostariophysi",null],
-["cyprinidae","Cyprinidae","family","Carps & minnows","cypriniformes",null],
-["characiformes","Characiformes","order","Characins & piranhas","ostariophysi",null],
-["siluriformes","Siluriformes","order","Catfishes","ostariophysi",null],
-["euteleostei","Euteleostei","clade","Euteleosts","teleostei",240],
-["salmoniformes","Salmoniformes","order","Salmon & trout","euteleostei",null],
-["salmonidae","Salmonidae","family","Salmonids","salmoniformes",null],
-["esociformes","Esociformes","order","Pikes","euteleostei",null],
-["acanthomorpha","Acanthomorpha","clade","Spiny-rayed fishes","euteleostei",150],
-["gadiformes","Gadiformes","order","Cods","acanthomorpha",null],
-["lophiiformes","Lophiiformes","order","Anglerfishes","acanthomorpha",null],
-["syngnathiformes","Syngnathiformes","order","Seahorses & pipefishes","acanthomorpha",null],
-["tetraodontiformes","Tetraodontiformes","order","Pufferfishes & kin","acanthomorpha",null],
-["pleuronectiformes","Pleuronectiformes","order","Flatfishes","acanthomorpha",null],
-["cichliformes","Cichliformes","order","Cichlids","acanthomorpha",null],
-["gobiiformes","Gobiiformes","order","Gobies","acanthomorpha",null],
-["scombriformes","Scombriformes","order","Tunas & mackerels","acanthomorpha",null],
-["scombridae","Scombridae","family","Mackerels & tunas","scombriformes",null],
-["perciformes","Perciformes","order","Perch-like fishes","acanthomorpha",null],
-["percidae","Percidae","family","Perches","perciformes",null],
-["scorpaenidae","Scorpaenidae","family","Scorpionfishes","perciformes",null],
-["labriformes","Labriformes","order","Wrasses","acanthomorpha",null],
-["acanthuriformes","Acanthuriformes","order","Surgeonfishes & kin","acanthomorpha",null],
-["pomacentridae","Pomacentridae","family","Damselfishes & clownfishes","acanthuriformes",null],
-
-["sarcopterygii","Sarcopterygii","class","Lobe-finned vertebrates","osteichthyes",420],
-["actinistia","Actinistia","clade","Coelacanths","sarcopterygii",null],
-["dipnoi","Dipnoi","clade","Lungfishes","sarcopterygii",null],
-["tetrapoda","Tetrapoda","clade","Four-limbed vertebrates","sarcopterygii",355],
-["amphibia","Amphibia","class","Amphibians","tetrapoda",330],
-["anura","Anura","order","Frogs & toads","amphibia",200],
-["ranidae","Ranidae","family","True frogs","anura",null],
-["bufonidae","Bufonidae","family","True toads","anura",null],
-["hylidae","Hylidae","family","Tree frogs","anura",null],
-["dendrobatidae","Dendrobatidae","family","Poison dart frogs","anura",null],
-["pipidae","Pipidae","family","Tongueless frogs","anura",null],
-["caudata","Caudata","order","Salamanders & newts","amphibia",200],
-["salamandridae","Salamandridae","family","Newts & true salamanders","caudata",null],
-["ambystomatidae","Ambystomatidae","family","Mole salamanders","caudata",null],
-["gymnophiona","Gymnophiona","order","Caecilians","amphibia",null],
-
-["amniota","Amniota","clade","Amniotes","tetrapoda",320],
-["sauropsida","Reptilia","class","Reptiles (incl. birds)","amniota",300],
-["testudines","Testudines","order","Turtles & tortoises","sauropsida",210],
-["cheloniidae","Cheloniidae","family","Sea turtles","testudines",null],
-["testudinidae","Testudinidae","family","Tortoises","testudines",null],
-["emydidae","Emydidae","family","Pond turtles","testudines",null],
-["chelydridae","Chelydridae","family","Snapping turtles","testudines",null],
-["lepidosauria","Lepidosauria","clade","Lizards, snakes & tuatara","sauropsida",250],
-["rhynchocephalia","Rhynchocephalia","order","Tuatara","lepidosauria",null],
-["squamata","Squamata","order","Lizards & snakes","lepidosauria",190],
-["iguania","Iguania","clade","Iguanians","squamata",null],
-["iguanidae","Iguanidae","family","Iguanas","iguania",null],
-["chamaeleonidae","Chamaeleonidae","family","Chameleons","iguania",null],
-["agamidae","Agamidae","family","Agamas & dragons","iguania",null],
-["gekkota","Gekkota","clade","Geckos","squamata",null],
-["gekkonidae","Gekkonidae","family","Geckos","gekkota",null],
-["scincidae","Scincidae","family","Skinks","squamata",null],
-["varanidae","Varanidae","family","Monitor lizards","squamata",null],
-["helodermatidae","Helodermatidae","family","Gila monsters & beaded lizards","squamata",null],
-["lacertidae","Lacertidae","family","Wall lizards","squamata",null],
-["serpentes","Serpentes","clade","Snakes","squamata",130],
-["pythonidae","Pythonidae","family","Pythons","serpentes",null],
-["boidae","Boidae","family","Boas","serpentes",null],
-["colubridae","Colubridae","family","Colubrid snakes","serpentes",null],
-["viperidae","Viperidae","family","Vipers & pit vipers","serpentes",null],
-["elapidae","Elapidae","family","Cobras, mambas & sea snakes","serpentes",null],
-["archosauria","Archosauria","clade","Archosaurs","sauropsida",250],
-["crocodylia","Crocodylia","order","Crocodilians","archosauria",95],
-["crocodylidae","Crocodylidae","family","Crocodiles","crocodylia",null],
-["alligatoridae","Alligatoridae","family","Alligators & caimans","crocodylia",null],
-["dinosauria","Dinosauria","clade","Dinosaurs","archosauria",240],
-["aves","Aves","class","Birds","dinosauria",110],
-["palaeognathae","Palaeognathae","clade","Ratites & tinamous","aves",100],
-["struthioniformes","Struthioniformes","order","Ostriches","palaeognathae",null],
-["casuariiformes","Casuariiformes","order","Emus & cassowaries","palaeognathae",null],
-["apterygiformes","Apterygiformes","order","Kiwis","palaeognathae",null],
-["rheiformes","Rheiformes","order","Rheas","palaeognathae",null],
-["neognathae","Neognathae","clade","Neognath birds","aves",100],
-["galloanserae","Galloanserae","clade","Fowl","neognathae",90],
-["galliformes","Galliformes","order","Landfowl","galloanserae",null],
-["phasianidae","Phasianidae","family","Pheasants, chickens & turkeys","galliformes",null],
-["anseriformes","Anseriformes","order","Waterfowl","galloanserae",null],
-["anatidae","Anatidae","family","Ducks, geese & swans","anseriformes",null],
-["neoaves","Neoaves","clade","Modern birds","neognathae",70],
-["columbiformes","Columbiformes","order","Pigeons & doves","neoaves",null],
-["apodiformes","Apodiformes","order","Swifts & hummingbirds","neoaves",null],
-["trochilidae","Trochilidae","family","Hummingbirds","apodiformes",null],
-["gruiformes","Gruiformes","order","Cranes & rails","neoaves",null],
-["charadriiformes","Charadriiformes","order","Shorebirds, gulls & auks","neoaves",null],
-["laridae","Laridae","family","Gulls & terns","charadriiformes",null],
-["alcidae","Alcidae","family","Auks & puffins","charadriiformes",null],
-["sphenisciformes","Sphenisciformes","order","Penguins","neoaves",60],
-["procellariiformes","Procellariiformes","order","Albatrosses & petrels","neoaves",null],
-["ciconiiformes","Ciconiiformes","order","Storks","neoaves",null],
-["pelecaniformes","Pelecaniformes","order","Pelicans, herons & ibises","neoaves",null],
-["phoenicopteriformes","Phoenicopteriformes","order","Flamingos","neoaves",null],
-["accipitriformes","Accipitriformes","order","Hawks, eagles & vultures","neoaves",null],
-["accipitridae","Accipitridae","family","Hawks & eagles","accipitriformes",null],
-["strigiformes","Strigiformes","order","Owls","neoaves",null],
-["strigidae","Strigidae","family","True owls","strigiformes",null],
-["tytonidae","Tytonidae","family","Barn owls","strigiformes",null],
-["coraciiformes","Coraciiformes","order","Kingfishers & bee-eaters","neoaves",null],
-["piciformes","Piciformes","order","Woodpeckers & toucans","neoaves",null],
-["picidae","Picidae","family","Woodpeckers","piciformes",null],
-["ramphastidae","Ramphastidae","family","Toucans","piciformes",null],
-["falconiformes","Falconiformes","order","Falcons","neoaves",null],
-["psittaciformes","Psittaciformes","order","Parrots","neoaves",60],
-["psittacidae","Psittacidae","family","African & New World parrots","psittaciformes",null],
-["cacatuidae","Cacatuidae","family","Cockatoos","psittaciformes",null],
-["passeriformes","Passeriformes","order","Perching birds","neoaves",55],
-["corvidae","Corvidae","family","Crows & jays","passeriformes",null],
-["paridae","Paridae","family","Tits & chickadees","passeriformes",null],
-["hirundinidae","Hirundinidae","family","Swallows","passeriformes",null],
-["turdidae","Turdidae","family","Thrushes","passeriformes",null],
-["muscicapidae","Muscicapidae","family","Old World flycatchers & chats","passeriformes",null],
-["passeridae","Passeridae","family","Old World sparrows","passeriformes",null],
-["fringillidae","Fringillidae","family","Finches","passeriformes",null],
-["icteridae","Icteridae","family","New World blackbirds","passeriformes",null],
-["sturnidae","Sturnidae","family","Starlings","passeriformes",null],
-["paradisaeidae","Paradisaeidae","family","Birds-of-paradise","passeriformes",null],
-
-["mammalia","Mammalia","class","Mammals","amniota",180],
-["monotremata","Monotremata","order","Egg-laying mammals","mammalia",60],
-["ornithorhynchidae","Ornithorhynchidae","family","Platypus","monotremata",null],
-["tachyglossidae","Tachyglossidae","family","Echidnas","monotremata",null],
-["theria","Theria","clade","Live-bearing mammals","mammalia",160],
-["marsupialia","Marsupialia","clade","Marsupials","theria",80],
-["diprotodontia","Diprotodontia","order","Kangaroos, koalas & possums","marsupialia",null],
-["macropodidae","Macropodidae","family","Kangaroos & wallabies","diprotodontia",null],
-["phascolarctidae","Phascolarctidae","family","Koala","diprotodontia",null],
-["vombatidae","Vombatidae","family","Wombats","diprotodontia",null],
-["dasyuromorphia","Dasyuromorphia","order","Carnivorous marsupials","marsupialia",null],
-["didelphimorphia","Didelphimorphia","order","Opossums","marsupialia",null],
-["peramelemorphia","Peramelemorphia","order","Bandicoots & bilbies","marsupialia",null],
-["placentalia","Placentalia","clade","Placental mammals","theria",100],
-["atlantogenata","Atlantogenata","clade","Afrotherians & xenarthrans","placentalia",98],
-["afrotheria","Afrotheria","clade","Afrotherians","atlantogenata",90],
-["proboscidea","Proboscidea","order","Elephants","afrotheria",null],
-["elephantidae","Elephantidae","family","Elephants","proboscidea",null],
-["sirenia","Sirenia","order","Manatees & dugongs","afrotheria",null],
-["hyracoidea","Hyracoidea","order","Hyraxes","afrotheria",null],
-["tubulidentata","Tubulidentata","order","Aardvark","afrotheria",null],
-["afrosoricida","Afrosoricida","order","Tenrecs & golden moles","afrotheria",null],
-["macroscelidea","Macroscelidea","order","Elephant shrews","afrotheria",null],
-["xenarthra","Xenarthra","clade","Sloths, anteaters & armadillos","atlantogenata",70],
-["pilosa","Pilosa","order","Sloths & anteaters","xenarthra",null],
-["cingulata","Cingulata","order","Armadillos","xenarthra",null],
-["boreoeutheria","Boreoeutheria","clade","Boreoeutherians","placentalia",95],
-["laurasiatheria","Laurasiatheria","clade","Laurasiatherians","boreoeutheria",85],
-["eulipotyphla","Eulipotyphla","order","Hedgehogs, shrews & moles","laurasiatheria",null],
-["erinaceidae","Erinaceidae","family","Hedgehogs","eulipotyphla",null],
-["talpidae","Talpidae","family","Moles","eulipotyphla",null],
-["soricidae","Soricidae","family","Shrews","eulipotyphla",null],
-["chiroptera","Chiroptera","order","Bats","laurasiatheria",60],
-["pteropodidae","Pteropodidae","family","Fruit bats","chiroptera",null],
-["vespertilionidae","Vespertilionidae","family","Vesper bats","chiroptera",null],
-["phyllostomidae","Phyllostomidae","family","Leaf-nosed bats","chiroptera",null],
-["ferae","Ferae","clade","Carnivorans & pangolins","laurasiatheria",78],
-["pholidota","Pholidota","order","Pangolins","ferae",null],
-["carnivora","Carnivora","order","Carnivorans","ferae",55],
-["feliformia","Feliformia","suborder","Cat-like carnivorans","carnivora",50],
-["felidae","Felidae","family","Cats","feliformia",11],
-["pantherinae","Pantherinae","subfamily","Big cats","felidae",null],
-["felinae","Felinae","subfamily","Small cats","felidae",null],
-["hyaenidae","Hyaenidae","family","Hyenas","feliformia",null],
-["herpestidae","Herpestidae","family","Mongooses","feliformia",null],
-["viverridae","Viverridae","family","Civets & genets","feliformia",null],
-["caniformia","Caniformia","suborder","Dog-like carnivorans","carnivora",48],
-["canidae","Canidae","family","Dogs, wolves & foxes","caniformia",11],
-["ursidae","Ursidae","family","Bears","caniformia",20],
-["mustelidae","Mustelidae","family","Weasels, otters & badgers","caniformia",null],
-["procyonidae","Procyonidae","family","Raccoons & coatis","caniformia",null],
-["mephitidae","Mephitidae","family","Skunks","caniformia",null],
-["ailuridae","Ailuridae","family","Red panda","caniformia",null],
-["pinnipedia","Pinnipedia","clade","Seals, sea lions & walruses","caniformia",30],
-["otariidae","Otariidae","family","Eared seals & sea lions","pinnipedia",null],
-["phocidae","Phocidae","family","True seals","pinnipedia",null],
-["odobenidae","Odobenidae","family","Walrus","pinnipedia",null],
-["perissodactyla","Perissodactyla","order","Odd-toed ungulates","laurasiatheria",56],
-["equidae","Equidae","family","Horses, zebras & asses","perissodactyla",null],
-["rhinocerotidae","Rhinocerotidae","family","Rhinoceroses","perissodactyla",null],
-["tapiridae","Tapiridae","family","Tapirs","perissodactyla",null],
-["artiodactyla","Artiodactyla","order","Even-toed ungulates & whales","laurasiatheria",64],
-["suidae","Suidae","family","Pigs","artiodactyla",null],
-["tayassuidae","Tayassuidae","family","Peccaries","artiodactyla",null],
-["camelidae","Camelidae","family","Camels & llamas","artiodactyla",null],
-["ruminantia","Ruminantia","suborder","Ruminants","artiodactyla",50],
-["bovidae","Bovidae","family","Cattle, sheep, goats & antelope","ruminantia",20],
-["bovinae","Bovinae","subfamily","Cattle, bison & buffalo","bovidae",null],
-["caprinae","Caprinae","subfamily","Sheep & goats","bovidae",null],
-["antilopinae","Antilopinae","subfamily","Gazelles & antelope","bovidae",null],
-["cervidae","Cervidae","family","Deer","ruminantia",null],
-["giraffidae","Giraffidae","family","Giraffes & okapi","ruminantia",null],
-["antilocapridae","Antilocapridae","family","Pronghorn","ruminantia",null],
-["whippomorpha","Whippomorpha","clade","Hippos & whales","artiodactyla",55],
-["hippopotamidae","Hippopotamidae","family","Hippopotamuses","whippomorpha",null],
-["cetacea","Cetacea","infraorder","Whales, dolphins & porpoises","whippomorpha",35],
-["mysticeti","Mysticeti","parvorder","Baleen whales","cetacea",25],
-["balaenopteridae","Balaenopteridae","family","Rorquals","mysticeti",null],
-["odontoceti","Odontoceti","parvorder","Toothed whales","cetacea",30],
-["delphinidae","Delphinidae","family","Oceanic dolphins","odontoceti",null],
-["physeteridae","Physeteridae","family","Sperm whales","odontoceti",null],
-["monodontidae","Monodontidae","family","Narwhal & beluga","odontoceti",null],
-["euarchontoglires","Euarchontoglires","clade","Primates, rodents & kin","boreoeutheria",90],
-["glires","Glires","clade","Rodents & lagomorphs","euarchontoglires",82],
-["rodentia","Rodentia","order","Rodents","glires",70],
-["muridae","Muridae","family","Mice & rats","rodentia",null],
-["cricetidae","Cricetidae","family","Hamsters, voles & New World mice","rodentia",null],
-["sciuridae","Sciuridae","family","Squirrels & marmots","rodentia",null],
-["castoridae","Castoridae","family","Beavers","rodentia",null],
-["caviidae","Caviidae","family","Guinea pigs & capybaras","rodentia",null],
-["hystricidae","Hystricidae","family","Old World porcupines","rodentia",null],
-["lagomorpha","Lagomorpha","order","Rabbits, hares & pikas","glires",50],
-["leporidae","Leporidae","family","Rabbits & hares","lagomorpha",null],
-["euarchonta","Euarchonta","clade","Primates & kin","euarchontoglires",88],
-["scandentia","Scandentia","order","Treeshrews","euarchonta",null],
-["dermoptera","Dermoptera","order","Colugos","euarchonta",null],
-["primates","Primates","order","Primates","euarchonta",74],
-["strepsirrhini","Strepsirrhini","suborder","Lemurs & lorises","primates",60],
-["lemuridae","Lemuridae","family","Lemurs","strepsirrhini",null],
-["lorisidae","Lorisidae","family","Lorises","strepsirrhini",null],
-["daubentoniidae","Daubentoniidae","family","Aye-aye","strepsirrhini",null],
-["haplorhini","Haplorhini","suborder","Tarsiers & simians","primates",65],
-["tarsiiformes","Tarsiiformes","infraorder","Tarsiers","haplorhini",null],
-["simiiformes","Simiiformes","infraorder","Monkeys & apes","haplorhini",43],
-["platyrrhini","Platyrrhini","parvorder","New World monkeys","simiiformes",25],
-["cebidae","Cebidae","family","Capuchins & marmosets","platyrrhini",null],
-["atelidae","Atelidae","family","Howler & spider monkeys","platyrrhini",null],
-["catarrhini","Catarrhini","parvorder","Old World monkeys & apes","simiiformes",30],
-["cercopithecidae","Cercopithecidae","family","Old World monkeys","catarrhini",18],
-["hominoidea","Hominoidea","superfamily","Apes","catarrhini",20],
-["hylobatidae","Hylobatidae","family","Gibbons","hominoidea",null],
-["hominidae","Hominidae","family","Great apes","hominoidea",15],
-["ponginae","Ponginae","subfamily","Orangutans","hominidae",null],
-["homininae","Homininae","subfamily","African great apes","hominidae",9],
-["hominini","Hominini","tribe","Humans & chimpanzees","homininae",7]
-];
-
-/* Each entry: [scientific name, common name, parent clade id, "alias|alias"]
-   Genus nodes are generated automatically from the first word of the name. */
-const SPECIES = [
-// --- primates ---
-["Homo sapiens","Human","hominini","person|people|man|humans|homo"],
-["Pan troglodytes","Chimpanzee","hominini","chimp"],
-["Pan paniscus","Bonobo","hominini","pygmy chimpanzee"],
-["Gorilla gorilla","Western gorilla","homininae","gorilla|silverback"],
-["Pongo abelii","Sumatran orangutan","ponginae","orangutan|orang-utan"],
-["Hylobates lar","Lar gibbon","hylobatidae","gibbon"],
-["Macaca mulatta","Rhesus macaque","cercopithecidae","macaque|rhesus monkey|monkey"],
-["Papio anubis","Olive baboon","cercopithecidae","baboon"],
-["Mandrillus sphinx","Mandrill","cercopithecidae",""],
-["Chlorocebus pygerythrus","Vervet monkey","cercopithecidae",""],
-["Colobus guereza","Mantled guereza","cercopithecidae","colobus monkey"],
-["Cebus capucinus","White-faced capuchin","cebidae","capuchin"],
-["Callithrix jacchus","Common marmoset","cebidae","marmoset"],
-["Saimiri sciureus","Squirrel monkey","cebidae",""],
-["Ateles geoffroyi","Geoffroy's spider monkey","atelidae","spider monkey"],
-["Alouatta palliata","Mantled howler","atelidae","howler monkey"],
-["Lemur catta","Ring-tailed lemur","lemuridae","lemur"],
-["Daubentonia madagascariensis","Aye-aye","daubentoniidae",""],
-["Nycticebus coucang","Sunda slow loris","lorisidae","loris|slow loris"],
-["Carlito syrichta","Philippine tarsier","tarsiiformes","tarsier"],
-// --- rodents & rabbits ---
-["Mus musculus","House mouse","muridae","mouse|mice"],
-["Rattus norvegicus","Brown rat","muridae","rat"],
-["Mesocricetus auratus","Golden hamster","cricetidae","hamster"],
-["Microtus arvalis","Common vole","cricetidae","vole"],
-["Sciurus carolinensis","Eastern grey squirrel","sciuridae","squirrel"],
-["Marmota monax","Groundhog","sciuridae","woodchuck|marmot"],
-["Castor canadensis","North American beaver","castoridae","beaver"],
-["Cavia porcellus","Guinea pig","caviidae","cavy"],
-["Hydrochoerus hydrochaeris","Capybara","caviidae",""],
-["Hystrix cristata","Crested porcupine","hystricidae","porcupine"],
-["Oryctolagus cuniculus","European rabbit","leporidae","rabbit|bunny"],
-["Lepus europaeus","European hare","leporidae","hare|jackrabbit"],
-// --- carnivorans ---
-["Panthera leo","Lion","pantherinae","lions"],
-["Panthera tigris","Tiger","pantherinae",""],
-["Panthera onca","Jaguar","pantherinae",""],
-["Panthera pardus","Leopard","pantherinae",""],
-["Panthera uncia","Snow leopard","pantherinae",""],
-["Neofelis nebulosa","Clouded leopard","pantherinae",""],
-["Felis catus","Domestic cat","felinae","cat|house cat|kitten"],
-["Felis silvestris","European wildcat","felinae","wildcat"],
-["Lynx lynx","Eurasian lynx","felinae","lynx"],
-["Puma concolor","Puma","felinae","cougar|mountain lion"],
-["Acinonyx jubatus","Cheetah","felinae",""],
-["Crocuta crocuta","Spotted hyena","hyaenidae","hyena|hyaena"],
-["Suricata suricatta","Meerkat","herpestidae",""],
-["Herpestes edwardsii","Indian grey mongoose","herpestidae","mongoose"],
-["Civettictis civetta","African civet","viverridae","civet"],
-["Canis lupus","Grey wolf","canidae","wolf"],
-["Canis familiaris","Domestic dog","canidae","dog|puppy|hound"],
-["Canis latrans","Coyote","canidae",""],
-["Vulpes vulpes","Red fox","canidae","fox"],
-["Lycaon pictus","African wild dog","canidae","painted dog"],
-["Ursus arctos","Brown bear","ursidae","grizzly|grizzly bear|bear"],
-["Ursus maritimus","Polar bear","ursidae",""],
-["Ursus americanus","American black bear","ursidae","black bear"],
-["Ailuropoda melanoleuca","Giant panda","ursidae","panda"],
-["Ailurus fulgens","Red panda","ailuridae",""],
-["Mustela nivalis","Least weasel","mustelidae","weasel"],
-["Lutra lutra","Eurasian otter","mustelidae","otter"],
-["Enhydra lutris","Sea otter","mustelidae",""],
-["Meles meles","European badger","mustelidae","badger"],
-["Gulo gulo","Wolverine","mustelidae",""],
-["Procyon lotor","Raccoon","procyonidae","racoon"],
-["Mephitis mephitis","Striped skunk","mephitidae","skunk"],
-["Zalophus californianus","California sea lion","otariidae","sea lion"],
-["Phoca vitulina","Harbour seal","phocidae","seal|harbor seal"],
-["Mirounga leonina","Southern elephant seal","phocidae","elephant seal"],
-["Odobenus rosmarus","Walrus","odobenidae",""],
-// --- hoofed mammals & whales ---
-["Equus caballus","Horse","equidae","pony|mare|stallion"],
-["Equus quagga","Plains zebra","equidae","zebra"],
-["Equus asinus","Donkey","equidae","ass|burro|mule"],
-["Ceratotherium simum","White rhinoceros","rhinocerotidae","rhino|rhinoceros"],
-["Tapirus terrestris","South American tapir","tapiridae","tapir"],
-["Sus scrofa","Wild boar","suidae","pig|hog|swine|boar"],
-["Camelus dromedarius","Dromedary","camelidae","camel"],
-["Lama glama","Llama","camelidae",""],
-["Vicugna pacos","Alpaca","camelidae",""],
-["Bos taurus","Cattle","bovinae","cow|bull|ox|cattle|calf"],
-["Bison bison","American bison","bovinae","bison|buffalo"],
-["Syncerus caffer","African buffalo","bovinae","cape buffalo"],
-["Ovis aries","Sheep","caprinae","lamb|ram|ewe"],
-["Capra hircus","Domestic goat","caprinae","goat"],
-["Ovibos moschatus","Muskox","caprinae",""],
-["Gazella dorcas","Dorcas gazelle","antilopinae","gazelle"],
-["Antidorcas marsupialis","Springbok","antilopinae",""],
-["Connochaetes taurinus","Blue wildebeest","bovidae","wildebeest|gnu"],
-["Cervus elaphus","Red deer","cervidae","deer|stag|hart"],
-["Odocoileus virginianus","White-tailed deer","cervidae",""],
-["Alces alces","Moose","cervidae","elk"],
-["Rangifer tarandus","Reindeer","cervidae","caribou"],
-["Giraffa camelopardalis","Giraffe","giraffidae",""],
-["Okapia johnstoni","Okapi","giraffidae",""],
-["Antilocapra americana","Pronghorn","antilocapridae",""],
-["Hippopotamus amphibius","Hippopotamus","hippopotamidae","hippo"],
-["Balaenoptera musculus","Blue whale","balaenopteridae","whale"],
-["Megaptera novaeangliae","Humpback whale","balaenopteridae","humpback"],
-["Physeter macrocephalus","Sperm whale","physeteridae",""],
-["Tursiops truncatus","Bottlenose dolphin","delphinidae","dolphin"],
-["Orcinus orca","Orca","delphinidae","killer whale"],
-["Monodon monoceros","Narwhal","monodontidae",""],
-["Delphinapterus leucas","Beluga","monodontidae","beluga whale"],
-// --- bats, insectivores, pangolins ---
-["Pteropus vampyrus","Large flying fox","pteropodidae","flying fox|fruit bat"],
-["Myotis lucifugus","Little brown bat","vespertilionidae","bat"],
-["Desmodus rotundus","Vampire bat","phyllostomidae",""],
-["Erinaceus europaeus","European hedgehog","erinaceidae","hedgehog"],
-["Talpa europaea","European mole","talpidae","mole"],
-["Sorex araneus","Common shrew","soricidae","shrew"],
-["Manis javanica","Sunda pangolin","pholidota","pangolin|scaly anteater"],
-// --- afrotherians & xenarthrans ---
-["Loxodonta africana","African bush elephant","elephantidae","elephant"],
-["Elephas maximus","Asian elephant","elephantidae",""],
-["Trichechus manatus","West Indian manatee","sirenia","manatee|sea cow"],
-["Dugong dugon","Dugong","sirenia",""],
-["Procavia capensis","Rock hyrax","hyracoidea","hyrax"],
-["Orycteropus afer","Aardvark","tubulidentata",""],
-["Tenrec ecaudatus","Tailless tenrec","afrosoricida","tenrec"],
-["Macroscelides proboscideus","Round-eared elephant shrew","macroscelidea","elephant shrew|sengi"],
-["Choloepus hoffmanni","Hoffmann's two-toed sloth","pilosa","sloth"],
-["Bradypus variegatus","Brown-throated sloth","pilosa","three-toed sloth"],
-["Myrmecophaga tridactyla","Giant anteater","pilosa","anteater"],
-["Dasypus novemcinctus","Nine-banded armadillo","cingulata","armadillo"],
-// --- marsupials & monotremes ---
-["Macropus giganteus","Eastern grey kangaroo","macropodidae","kangaroo|roo"],
-["Wallabia bicolor","Swamp wallaby","macropodidae","wallaby"],
-["Phascolarctos cinereus","Koala","phascolarctidae","koala bear"],
-["Vombatus ursinus","Common wombat","vombatidae","wombat"],
-["Sarcophilus harrisii","Tasmanian devil","dasyuromorphia",""],
-["Didelphis virginiana","Virginia opossum","didelphimorphia","opossum|possum"],
-["Macrotis lagotis","Greater bilby","peramelemorphia","bilby|bandicoot"],
-["Ornithorhynchus anatinus","Platypus","ornithorhynchidae","duck-billed platypus"],
-["Tachyglossus aculeatus","Short-beaked echidna","tachyglossidae","echidna|spiny anteater"],
-// --- birds ---
-["Struthio camelus","Ostrich","struthioniformes",""],
-["Dromaius novaehollandiae","Emu","casuariiformes",""],
-["Casuarius casuarius","Southern cassowary","casuariiformes","cassowary"],
-["Apteryx mantelli","North Island brown kiwi","apterygiformes","kiwi"],
-["Rhea americana","Greater rhea","rheiformes","rhea"],
-["Gallus gallus","Red junglefowl","phasianidae","chicken|hen|rooster|cockerel"],
-["Meleagris gallopavo","Wild turkey","phasianidae","turkey"],
-["Pavo cristatus","Indian peafowl","phasianidae","peacock|peahen"],
-["Phasianus colchicus","Common pheasant","phasianidae","pheasant"],
-["Coturnix coturnix","Common quail","phasianidae","quail"],
-["Anas platyrhynchos","Mallard","anatidae","duck|drake"],
-["Anser anser","Greylag goose","anatidae","goose"],
-["Cygnus olor","Mute swan","anatidae","swan"],
-["Columba livia","Rock dove","columbiformes","pigeon|dove"],
-["Archilochus colubris","Ruby-throated hummingbird","trochilidae","hummingbird"],
-["Apus apus","Common swift","apodiformes","swift"],
-["Grus grus","Common crane","gruiformes","crane"],
-["Larus argentatus","European herring gull","laridae","seagull|gull"],
-["Fratercula arctica","Atlantic puffin","alcidae","puffin"],
-["Aptenodytes forsteri","Emperor penguin","sphenisciformes","penguin"],
-["Spheniscus demersus","African penguin","sphenisciformes",""],
-["Diomedea exulans","Wandering albatross","procellariiformes","albatross"],
-["Ciconia ciconia","White stork","ciconiiformes","stork"],
-["Pelecanus onocrotalus","Great white pelican","pelecaniformes","pelican"],
-["Ardea cinerea","Grey heron","pelecaniformes","heron"],
-["Phoenicopterus roseus","Greater flamingo","phoenicopteriformes","flamingo"],
-["Haliaeetus leucocephalus","Bald eagle","accipitridae","eagle"],
-["Aquila chrysaetos","Golden eagle","accipitridae",""],
-["Buteo jamaicensis","Red-tailed hawk","accipitridae","hawk|buzzard"],
-["Gyps fulvus","Griffon vulture","accipitridae","vulture"],
-["Bubo bubo","Eurasian eagle-owl","strigidae","owl"],
-["Tyto alba","Barn owl","tytonidae",""],
-["Alcedo atthis","Common kingfisher","coraciiformes","kingfisher"],
-["Dendrocopos major","Great spotted woodpecker","picidae","woodpecker"],
-["Ramphastos toco","Toco toucan","ramphastidae","toucan"],
-["Falco peregrinus","Peregrine falcon","falconiformes","falcon"],
-["Ara macao","Scarlet macaw","psittacidae","macaw|parrot"],
-["Cacatua galerita","Sulphur-crested cockatoo","cacatuidae","cockatoo"],
-["Melopsittacus undulatus","Budgerigar","psittacidae","budgie|parakeet"],
-["Corvus corax","Common raven","corvidae","raven"],
-["Corvus brachyrhynchos","American crow","corvidae","crow"],
-["Pica pica","Eurasian magpie","corvidae","magpie"],
-["Cyanocitta cristata","Blue jay","corvidae","jay"],
-["Parus major","Great tit","paridae","tit|chickadee"],
-["Hirundo rustica","Barn swallow","hirundinidae","swallow"],
-["Turdus migratorius","American robin","turdidae","robin|thrush"],
-["Erithacus rubecula","European robin","muscicapidae",""],
-["Passer domesticus","House sparrow","passeridae","sparrow"],
-["Fringilla coelebs","Common chaffinch","fringillidae","finch|chaffinch"],
-["Sturnus vulgaris","Common starling","sturnidae","starling"],
-["Paradisaea raggiana","Raggiana bird-of-paradise","paradisaeidae","bird of paradise"],
-// --- reptiles ---
-["Chelonia mydas","Green sea turtle","cheloniidae","sea turtle|turtle"],
-["Chelonoidis niger","Galapagos tortoise","testudinidae","giant tortoise|tortoise"],
-["Testudo hermanni","Hermann's tortoise","testudinidae",""],
-["Trachemys scripta","Pond slider","emydidae","red-eared slider|terrapin"],
-["Chelydra serpentina","Common snapping turtle","chelydridae","snapping turtle"],
-["Sphenodon punctatus","Tuatara","rhynchocephalia",""],
-["Iguana iguana","Green iguana","iguanidae","iguana"],
-["Chamaeleo chamaeleon","Common chameleon","chamaeleonidae","chameleon"],
-["Pogona vitticeps","Central bearded dragon","agamidae","bearded dragon"],
-["Gekko gecko","Tokay gecko","gekkonidae","gecko"],
-["Tiliqua scincoides","Blue-tongued skink","scincidae","skink"],
-["Varanus komodoensis","Komodo dragon","varanidae","monitor lizard"],
-["Heloderma suspectum","Gila monster","helodermatidae",""],
-["Podarcis muralis","Common wall lizard","lacertidae","lizard"],
-["Python bivittatus","Burmese python","pythonidae","python"],
-["Boa constrictor","Boa constrictor","boidae","boa"],
-["Eunectes murinus","Green anaconda","boidae","anaconda"],
-["Natrix natrix","Grass snake","colubridae","snake"],
-["Crotalus atrox","Western diamondback rattlesnake","viperidae","rattlesnake"],
-["Vipera berus","Common European adder","viperidae","adder|viper"],
-["Naja naja","Indian cobra","elapidae","cobra"],
-["Dendroaspis polylepis","Black mamba","elapidae","mamba"],
-["Crocodylus niloticus","Nile crocodile","crocodylidae","crocodile|croc"],
-["Alligator mississippiensis","American alligator","alligatoridae","alligator|gator"],
-["Caiman crocodilus","Spectacled caiman","alligatoridae","caiman"],
-// --- amphibians ---
-["Rana temporaria","Common frog","ranidae","frog"],
-["Lithobates catesbeianus","American bullfrog","ranidae","bullfrog"],
-["Bufo bufo","Common toad","bufonidae","toad"],
-["Hyla arborea","European tree frog","hylidae","tree frog"],
-["Dendrobates tinctorius","Dyeing poison dart frog","dendrobatidae","poison dart frog|poison arrow frog"],
-["Xenopus laevis","African clawed frog","pipidae",""],
-["Salamandra salamandra","Fire salamander","salamandridae","salamander"],
-["Triturus cristatus","Great crested newt","salamandridae","newt"],
-["Ambystoma mexicanum","Axolotl","ambystomatidae",""],
-["Siphonops annulatus","Ringed caecilian","gymnophiona","caecilian"],
-// --- fishes ---
-["Latimeria chalumnae","Coelacanth","actinistia",""],
-["Neoceratodus forsteri","Australian lungfish","dipnoi","lungfish"],
-["Danio rerio","Zebrafish","cyprinidae",""],
-["Cyprinus carpio","Common carp","cyprinidae","carp|koi"],
-["Carassius auratus","Goldfish","cyprinidae",""],
-["Pygocentrus nattereri","Red-bellied piranha","characiformes","piranha"],
-["Silurus glanis","Wels catfish","siluriformes","catfish"],
-["Salmo salar","Atlantic salmon","salmonidae","salmon"],
-["Oncorhynchus mykiss","Rainbow trout","salmonidae","trout"],
-["Esox lucius","Northern pike","esociformes","pike"],
-["Gadus morhua","Atlantic cod","gadiformes","cod"],
-["Clupea harengus","Atlantic herring","clupeiformes","herring"],
-["Engraulis encrasicolus","European anchovy","clupeiformes","anchovy"],
-["Sardina pilchardus","European pilchard","clupeiformes","sardine"],
-["Thunnus thynnus","Atlantic bluefin tuna","scombridae","tuna"],
-["Scomber scombrus","Atlantic mackerel","scombridae","mackerel"],
-["Hippocampus hippocampus","Short-snouted seahorse","syngnathiformes","seahorse"],
-["Takifugu rubripes","Japanese pufferfish","tetraodontiformes","pufferfish|fugu|blowfish"],
-["Mola mola","Ocean sunfish","tetraodontiformes","sunfish"],
-["Pleuronectes platessa","European plaice","pleuronectiformes","plaice|flounder|flatfish"],
-["Amphiprion ocellaris","Clown anemonefish","pomacentridae","clownfish"],
-["Oreochromis niloticus","Nile tilapia","cichliformes","tilapia|cichlid"],
-["Perca fluviatilis","European perch","percidae","perch"],
-["Anguilla anguilla","European eel","anguilliformes","eel"],
-["Acipenser ruthenus","Sterlet","acipenseriformes","sturgeon"],
-["Pterois volitans","Red lionfish","scorpaenidae","lionfish"],
-["Melanocetus johnsonii","Humpback anglerfish","lophiiformes","anglerfish"],
-["Gobius niger","Black goby","gobiiformes","goby"],
-["Labrus bergylta","Ballan wrasse","labriformes","wrasse"],
-// --- sharks, rays & jawless fishes ---
-["Carcharodon carcharias","Great white shark","lamnidae","great white|shark"],
-["Rhincodon typus","Whale shark","orectolobiformes",""],
-["Sphyrna mokarran","Great hammerhead","sphyrnidae","hammerhead shark"],
-["Carcharhinus leucas","Bull shark","carcharhinidae",""],
-["Galeocerdo cuvier","Tiger shark","carcharhinidae",""],
-["Squalus acanthias","Spiny dogfish","squaliformes","dogfish"],
-["Mobula birostris","Giant manta ray","myliobatiformes","manta ray"],
-["Dasyatis pastinaca","Common stingray","myliobatiformes","stingray"],
-["Raja clavata","Thornback ray","rajiformes","skate|ray"],
-["Chimaera monstrosa","Rabbit fish","holocephali","chimaera|ratfish"],
-["Petromyzon marinus","Sea lamprey","petromyzontida","lamprey"],
-["Myxine glutinosa","Atlantic hagfish","myxini","hagfish"],
-["Branchiostoma lanceolatum","Lancelet","cephalochordata","amphioxus"],
-["Ciona intestinalis","Sea vase","tunicata","sea squirt|tunicate"],
-// --- echinoderms ---
-["Asterias rubens","Common starfish","asteroidea","starfish|sea star"],
-["Echinus esculentus","European edible sea urchin","echinoidea","sea urchin"],
-["Apostichopus japonicus","Japanese sea cucumber","holothuroidea","sea cucumber"],
-["Ophiura ophiura","Serpent star","ophiuroidea","brittle star"],
-// --- molluscs ---
-["Octopus vulgaris","Common octopus","octopoda","octopus"],
-["Enteroctopus dofleini","Giant Pacific octopus","octopoda",""],
-["Loligo vulgaris","European squid","teuthida","squid|calamari"],
-["Architeuthis dux","Giant squid","teuthida",""],
-["Sepia officinalis","Common cuttlefish","sepiida","cuttlefish"],
-["Nautilus pompilius","Chambered nautilus","nautilida","nautilus"],
-["Helix pomatia","Roman snail","gastropoda","snail|escargot"],
-["Limax maximus","Leopard slug","gastropoda","slug"],
-["Ostrea edulis","European flat oyster","ostreidae","oyster"],
-["Pecten maximus","Great scallop","pectinidae","scallop"],
-["Mytilus edulis","Blue mussel","mytilidae","mussel"],
-["Acanthopleura granulata","West Indian fuzzy chiton","polyplacophora","chiton"],
-// --- worms & other invertebrates ---
-["Lumbricus terrestris","Common earthworm","clitellata","earthworm|worm"],
-["Hirudo medicinalis","Medicinal leech","clitellata","leech"],
-["Arenicola marina","Lugworm","polychaeta","lugworm|ragworm"],
-["Schmidtea mediterranea","Planarian","turbellaria","flatworm"],
-["Taenia solium","Pork tapeworm","cestoda","tapeworm"],
-["Caenorhabditis elegans","Nematode worm","nematoda","roundworm|c. elegans"],
-["Hypsibius dujardini","Water bear","tardigrada","tardigrade|moss piglet"],
-["Euperipatoides rowelli","Velvet worm","onychophora",""],
-["Aurelia aurita","Moon jellyfish","scyphozoa","jellyfish|jelly"],
-["Chironex fleckeri","Australian box jellyfish","cubozoa","box jellyfish|sea wasp"],
-["Physalia physalis","Portuguese man o' war","hydrozoa",""],
-["Hydra vulgaris","Hydra","hydrozoa",""],
-["Acropora millepora","Staghorn coral","anthozoa","coral"],
-["Actinia equina","Beadlet anemone","anthozoa","sea anemone|anemone"],
-["Spongia officinalis","Bath sponge","porifera","sponge"],
-["Mnemiopsis leidyi","Sea walnut","ctenophora","comb jelly"],
-["Trichoplax adhaerens","Placozoan","placozoa",""],
-// --- arachnids, myriapods & crustaceans ---
-["Limulus polyphemus","Atlantic horseshoe crab","xiphosura","horseshoe crab"],
-["Theraphosa blondi","Goliath birdeater","theraphosidae","tarantula"],
-["Salticus scenicus","Zebra jumping spider","salticidae","jumping spider"],
-["Araneus diadematus","European garden spider","araneidae","spider|orb weaver"],
-["Latrodectus mactans","Southern black widow","theridiidae","black widow"],
-["Loxosceles reclusa","Brown recluse","sicariidae","recluse spider"],
-["Pandinus imperator","Emperor scorpion","scorpiones","scorpion"],
-["Ixodes ricinus","Castor bean tick","ixodidae","tick"],
-["Scolopendra gigantea","Amazonian giant centipede","chilopoda","centipede"],
-["Archispirostreptus gigas","Giant African millipede","diplopoda","millipede"],
-["Cancer pagurus","Edible crab","brachyura","crab"],
-["Carcinus maenas","Green shore crab","brachyura","shore crab"],
-["Homarus gammarus","European lobster","astacidea","lobster"],
-["Astacus astacus","European crayfish","astacidea","crayfish|crawfish"],
-["Palaemon serratus","Common prawn","caridea","shrimp|prawn"],
-["Armadillidium vulgare","Common pill woodlouse","isopoda","woodlouse|pill bug|roly poly"],
-["Daphnia pulex","Water flea","branchiopoda","daphnia"],
-["Semibalanus balanoides","Acorn barnacle","maxillopoda","barnacle"],
-// --- insects ---
-["Apis mellifera","Western honey bee","apidae","bee|honeybee"],
-["Bombus terrestris","Buff-tailed bumblebee","apidae","bumblebee"],
-["Vespa crabro","European hornet","vespidae","hornet|wasp"],
-["Formica rufa","Red wood ant","formicidae","ant"],
-["Atta cephalotes","Leafcutter ant","formicidae",""],
-["Danaus plexippus","Monarch butterfly","nymphalidae","monarch|butterfly"],
-["Vanessa atalanta","Red admiral","nymphalidae",""],
-["Papilio machaon","Old World swallowtail","papilionidae","swallowtail"],
-["Pieris rapae","Small white","pieridae","cabbage white"],
-["Bombyx mori","Silkworm moth","bombycidae","silkworm"],
-["Actias luna","Luna moth","saturniidae","moth"],
-["Acherontia atropos","Death's-head hawkmoth","sphingidae","hawk moth"],
-["Coccinella septempunctata","Seven-spot ladybird","coccinellidae","ladybug|ladybird"],
-["Scarabaeus sacer","Sacred scarab","scarabaeidae","dung beetle|scarab"],
-["Lampyris noctiluca","Common glow-worm","lampyridae","firefly|glow worm"],
-["Lucanus cervus","European stag beetle","coleoptera","stag beetle|beetle"],
-["Curculio nucum","Nut weevil","curculionidae","weevil"],
-["Drosophila melanogaster","Fruit fly","drosophilidae","vinegar fly"],
-["Musca domestica","House fly","muscidae","fly"],
-["Aedes aegypti","Yellow fever mosquito","culicidae","mosquito"],
-["Anopheles gambiae","African malaria mosquito","culicidae",""],
-["Ctenocephalides felis","Cat flea","siphonaptera","flea"],
-["Anax imperator","Emperor dragonfly","odonata","dragonfly"],
-["Ischnura elegans","Blue-tailed damselfly","odonata","damselfly"],
-["Schistocerca gregaria","Desert locust","acrididae","locust|grasshopper"],
-["Acheta domesticus","House cricket","gryllidae","cricket"],
-["Blattella germanica","German cockroach","blattodea","cockroach|roach"],
-["Macrotermes bellicosus","African mound termite","isoptera","termite"],
-["Mantis religiosa","European mantis","mantodea","praying mantis|mantis"],
-["Carausius morosus","Indian stick insect","phasmatodea","stick insect|walking stick"],
-["Forficula auricularia","Common earwig","dermaptera","earwig"],
-["Magicicada septendecim","Periodical cicada","cicadidae","cicada"],
-["Acyrthosiphon pisum","Pea aphid","aphididae","aphid"],
-["Ephemera danica","Green drake","ephemeroptera","mayfly"]
-];
-
+/* Put every marked-up string into the page. Elements carry data-i18n for their
+   text, data-i18n-ph for a placeholder and data-i18n-al for an aria-label. */
+function applyStrings(){
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll("[data-i18n-al]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAl)); });
+  const note = t("foot.translation");
+  $("transNote").textContent = note;
+  $("transNote").hidden = !note;
+  const picker = $("lang");
+  picker.innerHTML = LANGS.map(code =>
+    '<option value="' + code + '"' + (code === lang ? " selected" : "") + '>' +
+    esc(STRINGS[code]["lang.name"]) + '</option>').join("");
+  picker.hidden = LANGS.length < 2;
+}
 
 /* =====================================================================
    2. BUILD THE TREE
@@ -1321,18 +619,23 @@ for(const n of nodes.values()){
   }
   (n.aliases||[]).forEach(a=>terms.add(a.toLowerCase()));
   if(n.species) terms.add(n.name.split(" ")[1].toLowerCase());
+  Object.keys(LOCAL_NAMES).forEach(code => {
+    const entry = LOCAL_NAMES[code][n.id];
+    if(!entry) return;
+    (Array.isArray(entry) ? entry : [entry]).forEach(name => terms.add(String(name).toLowerCase()));
+  });
   searchIndex.push({node:n, terms:[...terms].filter(Boolean)});
 }
 function groupLabel(node){
   const ids = lineage(node).map(n=>n.id);
-  const groups = [["mammalia","mammal"],["aves","bird"],["squamata","reptile"],["testudines","reptile"],
-    ["crocodylia","reptile"],["rhynchocephalia","reptile"],["amphibia","amphibian"],["chondrichthyes","fish"],
-    ["actinopterygii","fish"],["sarcopterygii","fish"],["cyclostomata","fish"],["insecta","insect"],
-    ["arachnida","spider or scorpion"],["malacostraca","crustacean"],["arthropoda","arthropod"],["mollusca","mollusc"],
-    ["echinodermata","echinoderm"],["annelida","worm"],["nematoda","worm"],["platyhelminthes","worm"],
-    ["cnidaria","jellyfish or coral"],["porifera","sponge"],["chordata","chordate"],["metazoa","animal"]];
-  for(const [id,l] of groups) if(ids.includes(id)) return l;
-  return "life";
+  const groups = [["mammalia","grp.mammal"],["aves","grp.bird"],["squamata","grp.reptile"],["testudines","grp.reptile"],
+    ["crocodylia","grp.reptile"],["rhynchocephalia","grp.reptile"],["amphibia","grp.amphibian"],["chondrichthyes","grp.fish"],
+    ["actinopterygii","grp.fish"],["sarcopterygii","grp.fish"],["cyclostomata","grp.fish"],["insecta","grp.insect"],
+    ["arachnida","grp.arachnid"],["malacostraca","grp.crustacean"],["arthropoda","grp.arthropod"],["mollusca","grp.mollusc"],
+    ["echinodermata","grp.echinoderm"],["annelida","grp.worm"],["nematoda","grp.worm"],["platyhelminthes","grp.worm"],
+    ["cnidaria","grp.cnidarian"],["porifera","grp.sponge"],["chordata","grp.chordate"],["metazoa","grp.animal"]];
+  for(const [id,key] of groups) if(ids.includes(id)) return t(key);
+  return t("grp.life");
 }
 function search(q, limit){
   q = (q||"").trim().toLowerCase();
@@ -1372,26 +675,27 @@ const MILESTONES = new Set(["life","metazoa","bilateria","chordata","vertebrata"
   "coleoptera","lepidoptera","hymenoptera","diptera","odonata","malacostraca","decapoda","mollusca","cephalopoda",
   "gastropoda","bivalvia","annelida","nematoda","platyhelminthes","echinodermata","cnidaria","porifera","ctenophora"]);
 
-const RANK_WORDS = {root:"the very start", domain:"domain", kingdom:"kingdom", phylum:"phylum",
-  class:"class", order:"order", family:"family", genus:"genus", species:"species"};
-const rankWord = r => RANK_WORDS[r] || "group";
+const RANK_WORDS = {root:"rank.root", domain:"rank.domain", kingdom:"rank.kingdom", phylum:"rank.phylum",
+  class:"rank.class", order:"rank.order", family:"rank.family", genus:"rank.genus", species:"rank.species"};
+const rankWord = r => t(RANK_WORDS[r] || "rank.group");
 
-function agePhrase(mya){
+function agePhrase(mya, form){
   if(!mya) return null;
-  if(mya >= 1000) return "about " + (mya/1000).toFixed(1).replace(/\.0$/,"") + " billion years ago";
-  return "about " + mya.toLocaleString() + " million years ago";
+  const suffix = form === "short" ? "Short" : form === "bare" ? "Bare" : "";
+  if(mya >= 1000) return t("age.billion" + suffix, {n: (mya/1000).toFixed(1).replace(/\.0$/,"")});
+  return t("age.million" + suffix, {n: mya.toLocaleString(lang)});
 }
 function whatWasHappening(mya){
   if(!mya) return "";
-  if(mya >= 900) return "That is so long ago that most life was still microscopic.";
-  if(mya >= 600) return "Back then, every animal on Earth lived in the sea.";
-  if(mya >= 450) return "Back then, animals still lived in the sea and the land was bare rock.";
-  if(mya >= 360) return "That is around the time the first animals were crawling out onto land.";
-  if(mya >= 235) return "That is before the first dinosaurs appeared.";
-  if(mya >= 66)  return "Dinosaurs were walking around at that time.";
-  if(mya >= 20)  return "That is after the asteroid strike that finished off the big dinosaurs.";
-  if(mya >= 5)   return "In evolution's terms that is fairly recent.";
-  return "In evolution's terms that is extremely recent.";
+  if(mya >= 900) return t("era.microscopic");
+  if(mya >= 600) return t("era.allSea");
+  if(mya >= 450) return t("era.bareLand");
+  if(mya >= 360) return t("era.ontoLand");
+  if(mya >= 235) return t("era.beforeDinos");
+  if(mya >= 66)  return t("era.dinos");
+  if(mya >= 20)  return t("era.afterAsteroid");
+  if(mya >= 5)   return t("era.fairlyRecent");
+  return t("era.veryRecent");
 }
 /* "Carnivorans" -> "carnivorans", but "Nile crocodile" and "Old World monkeys" keep their capitals */
 function lower(name){
@@ -1400,16 +704,16 @@ function lower(name){
 }
 
 function closeness(m){
-  const byRank = {species:"The same animal", genus:"Very close cousins", subfamily:"Close cousins",
-    family:"Close cousins", tribe:"Close cousins"};
-  if(byRank[m.rank]) return byRank[m.rank];
+  const byRank = {species:"close.same", genus:"close.veryClose", subfamily:"close.close",
+    family:"close.close", tribe:"close.close"};
+  if(byRank[m.rank]) return t(byRank[m.rank]);
   const age = m.mya || (nearestAge(m) ? nearestAge(m).mya : null);
-  if(!age) return "Related";
-  if(age <= 20) return "Very close cousins";
-  if(age <= 80) return "Close cousins";
-  if(age <= 250) return "Distant cousins";
-  if(age <= 500) return "Very distant cousins";
-  return "Super-distant relatives";
+  if(!age) return t("close.related");
+  if(age <= 20) return t("close.veryClose");
+  if(age <= 80) return t("close.close");
+  if(age <= 250) return t("close.distant");
+  if(age <= 500) return t("close.veryDistant");
+  return t("close.super");
 }
 
 /* =====================================================================
@@ -1418,14 +722,14 @@ function closeness(m){
 const $ = id => document.getElementById(id);
 const calmly = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const label = n => n.common || n.name;                       // what a person calls it
+const label = n => localNames(n)[0] || n.common || n.name;   // what a person calls it
 const sciOf = n => n.name;                                   // what a scientist calls it
-const showsSci = n => !n.common || n.common !== n.name;
+const showsSci = n => label(n) !== n.name;
 const picked = {a:null, b:null};
 let nextSlot = "a";
 
 const speciesCount = [...nodes.values()].filter(n=>n.species).length;
-$("treeStat").textContent = speciesCount + " animals";
+$("treeStat").textContent = t("tree.animals", {n: speciesCount});
 
 function setPick(slot, node, opts){
   const sync = !opts || opts.sync !== false;
@@ -1438,7 +742,7 @@ function setPick(slot, node, opts){
     chosen.innerHTML = (showsSci(node) ? '<span class="sci">'+esc(sciOf(node))+'</span> &middot; ' : "") + esc(rankWord(node.rank));
   } else {
     chosen.className = "chosen none";
-    chosen.textContent = input.value.trim() ? "Sorry, that one is not in the tree yet - try another animal" : "";
+    chosen.textContent = input.value.trim() ? t("pick.noMatch") : "";
   }
   if(sync) compare();
 }
@@ -1530,15 +834,16 @@ function compare(){
 
   let story;
   if(same){
-    story = "Those are the same animal, so every ancestor they have is shared.";
+    story = t("story.same");
   } else if(nested){
     const inner = r.tailA.length ? a : b, outer = r.tailA.length ? b : a;
-    story = "A " + lower(label(inner)) + " is one kind of " + lower(label(outer)) +
-            ", so one sits inside the other on the tree rather than on a separate branch.";
+    story = t("story.nested", {inner: lower(label(inner)), outer: lower(label(outer))});
   } else {
-    story = "Go back " + (when ? when.replace(" ago","") : "far enough") + " and you reach a single animal that is an ancestor of both the " +
-            lower(label(a)) + " and the " + lower(label(b)) + ". It belongs to the group scientists call " +
-            sciOf(m) + (m.common ? " — the " + lower(m.common).replace(" & ", " and ") : "") + ". " + whatWasHappening(age);
+    story = t("story.meet", {
+      when: when ? agePhrase(age, "bare") : t("story.farEnough"),
+      a: lower(label(a)), b: lower(label(b)), sci: sciOf(m), era: whatWasHappening(age),
+      common: label(m) !== sciOf(m) ? lower(label(m)).replace(" & ", " " + t("ui.or") + " ") : ""
+    });
   }
 
   const older = !age && nearestAge(m) ? nearestAge(m) : null;
@@ -1547,11 +852,11 @@ function compare(){
     '<h2>' + esc(label(m)) + (showsSci(m) ? ' <span class="sci">' + esc(sciOf(m)) + '</span>' : '') + '</h2>' +
     '<p class="story">' + esc(story) + '</p>' +
     '<div class="when">' +
-      '<div><b>' + esc(when ? when.replace("about ","") : (older ? "less than " + agePhrase(older.mya).replace("about ","") : "unknown")) + '</b>' +
-        '<span>when their branches split</span></div>' +
+      '<div><b>' + esc(when ? agePhrase(age, "short") : (older ? t("verdict.lessThan", {age: agePhrase(older.mya, "short")}) : t("verdict.unknown"))) + '</b>' +
+        '<span>' + esc(t("verdict.whenSplit")) + '</span></div>' +
       (RANK_WORDS[m.rank] && m.rank !== "root"
-        ? '<div><b>' + esc(rankWord(m.rank)) + '</b><span>the rank scientists give it</span></div>' : '') +
-      '<div><b>' + descendantSpecies(m).toLocaleString() + '</b><span>animals in this tree belong to it</span></div>' +
+        ? '<div><b>' + esc(rankWord(m.rank)) + '</b><span>' + esc(t("verdict.rank")) + '</span></div>' : '') +
+      '<div><b>' + descendantSpecies(m).toLocaleString(lang) + '</b><span>' + esc(t("verdict.belong")) + '</span></div>' +
     '</div>';
 
   $("legA").textContent = label(a);
@@ -1562,10 +867,9 @@ function compare(){
   showSwipeHint();          // only measurable once the panel is on screen
 
   $("announce").textContent = same
-    ? label(a) + " and " + label(b) + " are the same animal."
-    : label(a) + " and " + label(b) + ": " + closeness(m).toLowerCase() + ". They meet at " + label(m) +
-      (when ? ", " + when : "") + ".";
-  setHash("#a=" + encodeURIComponent(sciOf(a)) + "&b=" + encodeURIComponent(sciOf(b)));
+    ? t("announce.same", {a: label(a), b: label(b)})
+    : t("announce.meet", {a: label(a), b: label(b), closeness: closeness(m).toLowerCase(), group: label(m), when: when});
+  setHash("#a=" + encodeURIComponent(sciOf(a)) + "&b=" + encodeURIComponent(sciOf(b)) + langParam());
   [a,b].forEach(n => lineage(n).forEach(x => expanded.add(x.id)));
   renderTree();
 }
@@ -1597,10 +901,10 @@ function showSwipeHint(){
 /* A box that scrolls sideways has to be reachable by keyboard - but only while it
    really does scroll, so no empty tab stops appear on a wide screen. */
 function markScrollables(){
-  [[$("diagram"), "The picture of how the two animals are connected. Scroll sideways to see all of it."],
-   [$("manyDiagram"), "The family tree picture. Scroll sideways to see all of it."],
-   [$("linTable").parentElement, "The full classification table. Scroll sideways to see all of it."],
-   [$("treeAsList"), "The tree written out as a list. Scroll sideways to see all of it."]
+  [[$("diagram"), t("a11y.diagramScrolls")],
+   [$("manyDiagram"), t("a11y.figureScrolls")],
+   [$("linTable").parentElement, t("a11y.tableScrolls")],
+   [$("treeAsList"), t("a11y.listScrolls")]
   ].forEach(([el, lbl]) => {
     if(el.scrollWidth > el.clientWidth + 1){
       el.tabIndex = 0; el.setAttribute("role", "group"); el.setAttribute("aria-label", lbl);
@@ -1649,7 +953,7 @@ function drawNarrow(r, trunk, tailA, tailB, full){
       line(rw.x, prev.y, rw.x, rw.y, rw.col, 3, rw.e.skipped > 0);
       if(rw.e.skipped > 0)
         p.push('<text x="'+(rw.x+14)+'" y="'+((prev.y+rw.y)/2+4)+'" fill="var(--faint)" font-size="13">+'+
-          rw.e.skipped+' more '+(rw.e.skipped===1?"group":"groups")+'</text>');
+          esc(rw.e.skipped===1 ? t("diag.moreOne") : t("diag.moreMany",{n: rw.e.skipped}))+'</text>');
     }
     if(rw.meet){
       p.push('<circle cx="'+rw.x+'" cy="'+rw.y+'" r="12" fill="'+MEET+'"/>');
@@ -1668,20 +972,18 @@ function drawNarrow(r, trunk, tailA, tailB, full){
     p.push('<text x="'+tx+'" y="'+(rw.y-1)+'" fill="'+(rw.leaf ? rw.col : "var(--ink)")+'" font-size="'+((rw.meet||rw.leaf)?16:15)+
       '" font-weight="'+((rw.meet||rw.leaf)?700:600)+'" font-family="Fredoka, system-ui, sans-serif">'+esc(label(n))+'</text>');
     const sub = (showsSci(n) ? sciOf(n) + " · " : "") + rankWord(n.rank) +
-                (rw.meet && n.mya ? " · " + agePhrase(n.mya).replace("about ","") : "");
+                (rw.meet && n.mya ? " · " + agePhrase(n.mya, "short") : "");
     p.push('<text x="'+tx+'" y="'+(rw.y+16)+'" fill="var(--muted)" font-size="13"'+(showsSci(n)?' font-style="italic"':'')+'>'+esc(sub)+'</text>');
     if(rw.meet)
-      p.push('<text x="'+tx+'" y="'+(rw.y+33)+'" fill="'+MEET+'" font-size="13" font-weight="700">they meet here</text>');
+      p.push('<text x="'+tx+'" y="'+(rw.y+33)+'" fill="'+MEET+'" font-size="13" font-weight="700">'+esc(t("diag.meetHere"))+'</text>');
   });
 
   const endA = tailA.length ? tailA[tailA.length-1].node : trunk[trunk.length-1].node;
   const endB = tailB.length ? tailB[tailB.length-1].node : trunk[trunk.length-1].node;
   return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-labelledby="diagTitle diagDesc">' +
-    '<title id="diagTitle">How ' + esc(label(endA)) + ' and ' + esc(label(endB)) + ' are connected</title>' +
-    '<desc id="diagDesc">' + esc("An indented list: the shared groups from " + label(trunk[0].node) + " down to " +
-      label(trunk[trunk.length-1].node) + ", where the tree splits into a branch leading to " + label(endA) +
-      " and a branch leading to " + label(endB) + ". The same information is written out in the panel called " +
-      "See the full scientific classification.") + '</desc>' + p.join("") + '</svg>';
+    '<title id="diagTitle">' + esc(t("diag.title", {a: label(endA), b: label(endB)})) + '</title>' +
+    '<desc id="diagDesc">' + esc(t("fig.descNarrow", {first: label(trunk[0].node),
+      meet: label(trunk[trunk.length-1].node), a: label(endA), b: label(endB)})) + '</desc>' + p.join("") + '</svg>';
 }
 
 /* ---- the picture ---- */
@@ -1711,7 +1013,7 @@ function drawDiagram(r, full, narrow){
   const seg = (x1,y1,x2,y2,col,w,dashed) => p.push('<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+
       '" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round"'+(dashed?' stroke-dasharray="2 7"':'')+'/>');
   const gap = (x,yy,n,anchor,dx) => p.push('<text x="'+(x+dx)+'" y="'+(yy+4)+'" text-anchor="'+anchor+
-      '" fill="var(--faint)" font-size="13">+'+n+' more '+(n===1?"group":"groups")+'</text>');
+      '" fill="var(--faint)" font-size="13">'+esc(n===1 ? t("diag.moreOne") : t("diag.moreMany",{n}))+'</text>');
 
   /* one taxon's label: two friendly lines, or one compact line in full mode */
   const nodeLabel = (n, x, yy, anchor, col, big) => {
@@ -1739,12 +1041,12 @@ function drawDiagram(r, full, narrow){
       nodeLabel(e.node, cx + 20, yy, "start", "var(--ink)", false);
       if(e.node.mya && !full)
         p.push('<text x="'+(cx-20)+'" y="'+(yy+4)+'" text-anchor="end" fill="var(--faint)" font-size="13">'+
-          esc(agePhrase(e.node.mya).replace("about ",""))+'</text>');
+          esc(agePhrase(e.node.mya, "short"))+'</text>');
     } else {
       p.push('<circle cx="'+cx+'" cy="'+yy+'" r="13" fill="var(--meet)"/>');
       p.push('<path d="'+star(cx, yy, 7)+'" fill="var(--card)"/>');
       nodeLabel(e.node, cx + 26, yy, "start", "var(--ink)", true);
-      p.push('<text x="'+(cx-26)+'" y="'+(yy-2)+'" text-anchor="end" fill="var(--meet)" font-size="13.5" font-weight="700">they meet here</text>');
+      p.push('<text x="'+(cx-26)+'" y="'+(yy-2)+'" text-anchor="end" fill="var(--meet)" font-size="13.5" font-weight="700">'+esc(t("diag.meetHere"))+'</text>');
       if(e.node.mya)
         p.push('<text x="'+(cx-26)+'" y="'+(yy+15)+'" text-anchor="end" fill="var(--muted)" font-size="13">'+
           esc(agePhrase(e.node.mya))+'</text>');
@@ -1773,12 +1075,9 @@ function drawDiagram(r, full, narrow){
   const first = trunk[0].node, meet = trunk[meetIdx].node;
   const endA = tailA.length ? tailA[tailA.length-1].node : meet;
   const endB = tailB.length ? tailB[tailB.length-1].node : meet;
-  const desc = "The trunk starts at " + label(first) + " and runs down through " + (trunk.length - 1) +
-    " shared " + (trunk.length === 2 ? "group" : "groups") + " to " + label(meet) +
-    ", where the two lines separate: one branch leads to " + label(endA) + ", the other to " + label(endB) +
-    ". The same information is written out in the panel called See the full scientific classification.";
+  const desc = t("fig.descNarrow", {first: label(first), meet: label(meet), a: label(endA), b: label(endB)});
   return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-labelledby="diagTitle diagDesc">' +
-    '<title id="diagTitle">How ' + esc(label(endA)) + ' and ' + esc(label(endB)) + ' are connected</title>' +
+    '<title id="diagTitle">' + esc(t("diag.title", {a: label(endA), b: label(endB)})) + '</title>' +
     '<desc id="diagDesc">' + esc(desc) + '</desc>' + p.join("")+'</svg>';
 }
 
@@ -1786,7 +1085,7 @@ function drawDiagram(r, full, narrow){
 function lineageTable(r, a, b){
   const nm = n => (showsSci(n) ? '<span class="sci">'+esc(sciOf(n))+'</span>' : esc(n.name)) +
                   (n.common ? ' <span class="cn">'+esc(n.common)+'</span>' : '');
-  const out = ['<tr><th>Kind of group</th><th>Shared by both</th><th>'+esc(label(a))+'</th><th>'+esc(label(b))+'</th></tr>'];
+  const out = ['<tr><th>'+esc(t("table.rank"))+'</th><th>'+esc(t("table.shared"))+'</th><th>'+esc(label(a))+'</th><th>'+esc(label(b))+'</th></tr>'];
   r.shared.forEach((n,i) => {
     const meet = i === r.shared.length - 1;
     out.push('<tr class="'+(meet?"meetrow":"shared")+'"><td class="rank">'+esc(rankWord(n.rank))+'</td>' +
@@ -1809,6 +1108,7 @@ const figState = {style: "page", title: null, footer: null, names: {}};
 let bareMode = false;
 let lastHash = "";
 function setHash(h){ lastHash = h; location.replace(h); }
+const langParam = () => lang === "en" ? "" : "&lang=" + lang;
 const manyPicks = [];
 const ACCENTS = ["var(--p1)","var(--p2)","var(--p3)","var(--p4)","var(--p5)"];
 
@@ -2095,11 +1395,10 @@ function drawFamilyTree(picksArr){
   });
 
   const names = picksArr.map(displayName);
-  const desc = "A family tree of " + names.join(", ") + ". It starts at " + label(stemPath[0]) +
-    " and branches at " + describeBranches(root) + ".";
+  const desc = t("fig.desc", {names: names.join(", "), root: label(stemPath[0]), branches: describeBranches(root)});
   return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H +
     '" role="img" aria-labelledby="manyTitle manyDesc" id="familySvg">' +
-    '<title id="manyTitle">' + esc(title || ("Family tree of " + names.join(", "))) + '</title>' +
+    '<title id="manyTitle">' + esc(title || autoTitle(picksArr) || t("ui.title")) + '</title>' +
     '<desc id="manyDesc">' + esc(desc) + '</desc>' + p.join("") + '</svg>';
 }
 
@@ -2110,9 +1409,9 @@ const displayName = n => givenName(n) || label(n);
 function autoTitle(picksArr){
   const names = picksArr.map(displayName);
   if(!names.length) return "";
-  if(names.length === 1) return "Where the " + lower(names[0]) + " sits on the tree of life";
-  if(names.length === 2) return "From " + names[0] + " to " + names[1];
-  return "How " + names.slice(0, -1).join(", ") + " and " + names[names.length - 1] + " are related";
+  if(names.length === 1) return t("fig.titleOne", {a: lower(names[0])});
+  if(names.length === 2) return t("fig.titleTwo", {a: names[0], b: names[1]});
+  return t("fig.titleMany", {list: names.slice(0, -1).join(", "), last: names[names.length - 1]});
 }
 function figTitle(picksArr){
   return figState.title === null ? autoTitle(picksArr) : figState.title;
@@ -2122,7 +1421,7 @@ function figSubtitle(picksArr, root){
   if(picksArr.length < 2) return "";
   const known = MILESTONES.has(root.node.id) || RANK_WORDS[root.node.rank];
   if(!known) return "";          // no point announcing "Boreoeutherians" to a class
-  return (picksArr.length === 2 ? "They meet at " : "All of them meet at ") + label(root.node);
+  return t(picksArr.length === 2 ? "fig.meetTwo" : "fig.meetMany", {group: label(root.node)});
 }
 function autoFooter(){
   if(location.protocol === "http:" || location.protocol === "https:")
@@ -2136,7 +1435,7 @@ function figFooter(){
 function describeBranches(d){
   if(!d.children.length) return label(d.node);
   if(d.children.length === 1) return describeBranches(d.children[0]);
-  return label(d.node) + ", which splits into " + d.children.map(describeBranches).join(" and ");
+  return t("fig.branchSplit", {group: label(d.node), into: d.children.map(describeBranches).join(" " + t("ui.and") + " ")});
 }
 
 /* ---- the same tree as a nested list, for anyone not reading the picture ---- */
@@ -2144,7 +1443,7 @@ function treeAsList(d){
   const kids = d.children.length ? "<ul>" + d.children.map(treeAsList).join("") + "</ul>" : "";
   const name = esc(label(d.node)) + (showsSci(d.node) ? ' <span class="sci">' + esc(sciOf(d.node)) + '</span>' : '') +
     ' <span class="cn">' + esc(rankWord(d.node.rank)) + '</span>' +
-    (d.skipped ? ' <span class="cn">(' + d.skipped + ' more ' + (d.skipped === 1 ? "group" : "groups") + ' not shown)</span>' : '');
+    (d.skipped ? ' <span class="cn">' + esc(d.skipped === 1 ? t("list.notShownOne") : t("list.notShownMany", {n: d.skipped})) + '</span>' : '');
   return "<li>" + name + kids + "</li>";
 }
 
@@ -2158,15 +1457,15 @@ let filterMatches = null;
 function renderNode(n, isRoot){
   const kids = filterMatches ? n.children.filter(c=>filterMatches.has(c.id)) : n.children;
   const open = kids.length && (expanded.has(n.id) || (filterMatches && filterMatches.has(n.id)));
-  const kidCount = !n.species && n.children.length ? descendantSpecies(n) + " animals" : "";
+  const kidCount = !n.species && n.children.length ? t("tree.animals", {n: descendantSpecies(n)}) : "";
   const spoken = [label(n), showsSci(n) ? sciOf(n) : "", rankWord(n.rank), kidCount].filter(Boolean).join(", ");
   let html = '<div class="node'+(isRoot?" root":"")+'">' +
     '<div class="row" data-id="'+n.id+'">' +
       (kids.length
         ? '<button type="button" class="tw" data-tw="'+n.id+'" aria-expanded="'+(open?"true":"false")+
-          '" aria-label="'+(open?"Hide":"Show")+' what is inside '+esc(label(n))+'">'+(open?"▾":"▸")+'</button>'
+          '" aria-label="'+esc(t(open ? "tree.collapse" : "tree.expand", {name: label(n)}))+'">'+(open?"▾":"▸")+'</button>'
         : '<span class="tw leaf" aria-hidden="true">•</span>') +
-      '<button type="button" class="nm" data-pick="'+n.id+'" aria-label="Choose '+esc(spoken)+'">'+esc(label(n))+'</button>' +
+      '<button type="button" class="nm" data-pick="'+n.id+'" aria-label="'+esc(t("pick.choose",{name: spoken}))+'">'+esc(label(n))+'</button>' +
       (showsSci(n) ? '<span class="sci">'+esc(sciOf(n))+'</span>' : '') +
       '<span class="rk">'+esc(rankWord(n.rank))+'</span>' +
       (kidCount ? '<span class="count">'+esc(kidCount)+'</span>' : '') +
@@ -2264,8 +1563,12 @@ $("rand").addEventListener("click", () => {
 
 const EXAMPLES = [["Human","Octopus"],["Lion","Cat"],["Blue whale","Hippo"],["Penguin","Crocodile"],
   ["Dog","Bear"],["Butterfly","Spider"],["Human","Chicken"],["Kangaroo","Wolf"]];
-$("examples").innerHTML += EXAMPLES.map(([x,y]) =>
-  '<button data-ex="'+esc(x)+'|'+esc(y)+'">'+esc(x)+' &amp; '+esc(y)+'</button>').join("");
+function renderExamples(){
+  const label1 = term => { const n = search(term, 1)[0]; return (n && localNames(n)[0]) || term; };
+  $("examples").querySelectorAll("[data-ex]").forEach(b => b.remove());
+  $("examples").insertAdjacentHTML("beforeend", EXAMPLES.map(([x,y]) =>
+    '<button data-ex="'+esc(x)+'|'+esc(y)+'">'+esc(label1(x))+' &amp; '+esc(label1(y))+'</button>').join(""));
+}
 $("examples").addEventListener("click", e => {
   const btn = e.target.closest("[data-ex]"); if(!btn) return;
   const [x,y] = btn.dataset.ex.split("|");
@@ -2274,6 +1577,22 @@ $("examples").addEventListener("click", e => {
   compare();
   $("result").scrollIntoView({behavior:calmly(), block:"start"});
 });
+
+/* Everything that shows a name has to be redrawn when the language changes. */
+function relabelTree(){
+  for(const n of nodes.values())
+    n.children.sort((a,b) => sortKey(a).localeCompare(sortKey(b), lang));
+}
+function redrawEverything(){
+  renderExamples();
+  $("treeStat").textContent = t("tree.animals", {n: speciesCount});
+  renderTree();
+  if(picked.a) setPick("a", picked.a, {sync:false});
+  if(picked.b) setPick("b", picked.b, {sync:false});
+  if(picked.a && picked.b) compare();
+  if(manyPicks.length) drawMany();
+}
+$("lang").addEventListener("change", e => pickLanguage(e.target.value));
 
 /* ---- light, dark, or whatever the device says ---- */
 /* A host (the artifact viewer, say) may stamp a theme of its own. Remember it, so
@@ -2307,10 +1626,9 @@ function renderChips(){
   list.innerHTML = manyPicks.map((n,i) =>
     '<li class="chip"><span class="dot" aria-hidden="true" style="background:'+ACCENTS[i]+'"></span>' +
       esc(label(n)) + (showsSci(n) ? ' <span class="sci">'+esc(sciOf(n))+'</span>' : '') +
-      '<button type="button" data-drop="'+n.id+'" aria-label="Remove '+esc(label(n))+'">&times;</button></li>').join("");
+      '<button type="button" data-drop="'+n.id+'" aria-label="'+esc(t("pick.remove",{name: label(n)}))+'">&times;</button></li>').join("");
   $("manyNote").textContent = manyPicks.length >= MAX_PICKS
-    ? "That is five, the most one picture can show. Remove one to swap it for another."
-    : manyPicks.length + " of " + MAX_PICKS + " chosen";
+    ? t("pick.full") : t("pick.count", {n: manyPicks.length, max: MAX_PICKS});
 }
 
 function drawMany(){
@@ -2331,9 +1649,9 @@ function drawFigure(){
   const {root} = inducedTree(manyPicks);
   $("treeAsList").innerHTML = "<ul>" + treeAsList(root) + "</ul>";
   $("manyHeadText").textContent = manyPicks.length === 1
-    ? "Where " + displayName(manyPicks[0]) + " sits on the tree"
-    : "How these " + manyPicks.length + " animals are connected";
-  $("manyAnnounce").textContent = "Tree drawn for " + manyPicks.map(displayName).join(", ") + ".";
+    ? t("many.headOne", {name: displayName(manyPicks[0])})
+    : t("many.head", {n: manyPicks.length});
+  $("manyAnnounce").textContent = t("many.announce", {names: manyPicks.map(displayName).join(", ")});
   showSwipeHint();
   setHash(treeHash());
   markScrollables();
@@ -2348,18 +1666,19 @@ function treeHash(){
   if(manyPicks.some(n => givenName(n)))
     parts.push("names=" + manyPicks.map(n => encodeURIComponent(givenName(n))).join(","));
   if(bareMode) parts.push("bare=1");
+  if(lang !== "en") parts.push("lang=" + lang);
   return "#" + parts.join("&");
 }
 
 function addPick(node){
   if(!node) return;
   if(manyPicks.some(n => n.id === node.id)){
-    $("manyNote").textContent = label(node) + " is already in the picture.";
+    $("manyNote").textContent = t("pick.already", {name: label(node)});
     $("inMany").value = "";
     return;
   }
   if(manyPicks.length >= MAX_PICKS){
-    $("manyNote").textContent = "Remove one first - five is the most this picture can show.";
+    $("manyNote").textContent = t("pick.removeFirst");
     return;
   }
   manyPicks.push(node);
@@ -2397,16 +1716,16 @@ $("figStyle").innerHTML = Object.entries(FIG_STYLES)
 
 function renderWordsPanel(){
   const rows = [
-    '<div class="fig-field"><label for="figTitle">Title on the picture</label>' +
-      '<input id="figTitle" type="text" placeholder="' + esc(autoTitle(manyPicks) || "From one animal to another") + '"' +
+    '<div class="fig-field"><label for="figTitle">' + esc(t("ui.figTitleLabel")) + '</label>' +
+      '<input id="figTitle" type="text" placeholder="' + esc(autoTitle(manyPicks) || t("fig.titlePlaceholder")) + '"' +
       ' value="' + esc(figState.title === null ? "" : figState.title) + '"></div>',
-    '<div class="fig-field"><label for="figFooter">Small print along the bottom</label>' +
+    '<div class="fig-field"><label for="figFooter">' + esc(t("ui.figFooterLabel")) + '</label>' +
       '<input id="figFooter" type="text" placeholder="' + esc(autoFooter()) + '"' +
       ' value="' + esc(figState.footer === null ? "" : figState.footer) + '"></div>'
   ];
   manyPicks.forEach((n, i) => rows.push(
-    '<div class="fig-field"><label for="figName' + i + '">A name for the ' + esc(lower(label(n))) +
-      ' <span class="hint">(the picture shows this instead)</span></label>' +
+    '<div class="fig-field"><label for="figName' + i + '">' + esc(t("ui.figNameLabel", {animal: lower(label(n))})) +
+      ' <span class="hint">' + esc(t("ui.figNameHint")) + '</span></label>' +
       '<input id="figName' + i + '" data-name-for="' + n.id + '" type="text" placeholder="' + esc(label(n)) + '"' +
       ' value="' + esc(figState.names[n.id] || "") + '"></div>'));
   $("figWordsBody").innerHTML = '<div class="fig-fields">' + rows.join("") + '</div>';
@@ -2502,7 +1821,7 @@ function download(blob, name){
 $("btnSvg").addEventListener("click", () => {
   const svg = svgForExport(); if(!svg) return;
   download(new Blob([svg], {type: "image/svg+xml"}), fileName("svg"));
-  $("exportNote").textContent = "Saved as SVG.";
+  $("exportNote").textContent = t("ui.savedSvg");
 });
 $("btnPng").addEventListener("click", () => {
   const svg = svgForExport(); if(!svg) return;
@@ -2518,12 +1837,12 @@ $("btnPng").addEventListener("click", () => {
     ctx.drawImage(img, 0, 0);
     URL.revokeObjectURL(url);
     canvas.toBlob(blob => {
-      if(!blob){ $("exportNote").textContent = "The browser would not save this one - try Download SVG."; return; }
+      if(!blob){ $("exportNote").textContent = t("ui.saveFailed"); return; }
       download(blob, fileName("png"));
-      $("exportNote").textContent = "Saved as PNG (system fonts).";
+      $("exportNote").textContent = t("ui.savedPng");
     }, "image/png");
   };
-  img.onerror = () => { URL.revokeObjectURL(url); $("exportNote").textContent = "The browser would not save this one - try Download SVG."; };
+  img.onerror = () => { URL.revokeObjectURL(url); $("exportNote").textContent = t("ui.saveFailed"); };
   img.src = url;
 });
 
@@ -2531,6 +1850,13 @@ $("btnPng").addEventListener("click", () => {
    #tree=a,b,c for the family tree, &bare=1 for the picture on its own. */
 function applyHash(){
   const params = new URLSearchParams((location.hash || "").replace(/^#/, ""));
+  const wanted = params.get("lang");
+  if(wanted && STRINGS[wanted] && wanted !== lang){
+    lang = wanted;
+    document.documentElement.lang = lang;
+    try{ localStorage.setItem("tol-lang", lang); }catch(e){}
+    applyStrings(); relabelTree(); renderExamples(); renderTree();
+  }
   bareMode = params.get("bare") === "1";
   document.body.classList.toggle("bare", bareMode);
   if(params.has("tree")){
@@ -2570,6 +1896,18 @@ function applyHash(){
 }
 addEventListener("hashchange", () => { if(location.hash !== lastHash) applyHash(); });
 
+(function startLanguage(){
+  let saved = null;
+  try{ saved = localStorage.getItem("tol-lang"); }catch(e){}
+  const wanted = new URLSearchParams((location.hash || "").replace(/^#/, "")).get("lang") ||
+                 saved || (navigator.language || "en").slice(0, 2);
+  lang = STRINGS[wanted] ? wanted : "en";
+  document.documentElement.lang = lang;
+  applyStrings();
+  relabelTree();
+})();
+
+renderExamples();
 renderTree();
 if(!applyHash()){
   setPick("a", search("Lion",1)[0], {sync:false});

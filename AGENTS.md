@@ -6,10 +6,14 @@ Read this before changing `index.html`.
 
 ## What must stay true
 
-1. **One file, no dependencies, no network at runtime.** `index.html` carries the markup, the
-   styles, the data and the code. No frameworks, no bundler, no CDN scripts, no analytics, no API
-   calls. It has to work opened from a USB stick (`file://`) with the wifi off. The only external
-   request is the Google Fonts stylesheet, and the page is fully usable when it fails.
+1. **No dependencies, no network at runtime.** No frameworks, no bundler, no CDN scripts, no
+   analytics, no API calls. The only external request is the Google Fonts stylesheet, and the page
+   is fully usable when it fails. `index.html` holds the markup, styles and code; the data, the
+   interface text and the translated names sit beside it in `data/` as plain scripts, which is what
+   lets a translator or a taxonomist work on one small file. Everything still has to work from a
+   USB stick (`file://`): use classic `<script src>` tags, never `fetch` or ES modules.
+   `node tools/build-single.mjs` folds it all back into one `dist/tree-of-life.html` for offline
+   distribution and for publishing as an Artifact.
 2. **One layout engine.** The two-animal answer and the five-animal figure share
    `inducedTree`/`condense`, the milestone set and the autocomplete. Presentation differs;
    the tree logic does not. Don't fork the renderer — add a parameter.
@@ -21,13 +25,33 @@ Read this before changing `index.html`.
    `style`, `title`, `footer`, `names` and `bare=1` for the figure. Any picture a teacher can see
    must be reachable as a link, because that is what makes it printable and screenshottable.
 
+## Every visible string goes through `t()`
+
+This is the rule most easily broken, so it is checked: **no user-visible English in `index.html`.**
+
+- Text in the markup carries `data-i18n="id"` (or `data-i18n-ph` for a placeholder,
+  `data-i18n-al` for an aria-label), and `applyStrings()` fills it in.
+- Text built in code comes from `t("id", {vars})`. Where a sentence has to be assembled, the
+  string is a **function** in the language file — never concatenation in the app, because word
+  order, articles and plurals differ by language.
+- `data/strings.en.js` is the reference: `tools/check.mjs` fails if the app asks for an id English
+  does not define, and if English defines an id nothing uses. Other languages may be partial; they
+  fall back to English, and English falls back to the scientific name.
+- Names of animals and groups are data, not interface text: `data/names.<lang>.js`, keyed by clade
+  id or `sp-<slug of scientific name>`. Every name in every shipped language is indexed for search,
+  so a link written in one language still resolves in another.
+- Adding a string means editing `data/strings.en.js` **and** checking which other languages now
+  fall back — the check script prints the coverage. Draft translations must say so in their header
+  and in `foot.translation`, which the page shows to the reader.
+
 ## The accessibility bar
 
 Not aspirational — it is checked. `node tools/check.mjs` must pass before pushing
 (needs `npm i -D playwright axe-core`; see `tools/README.md`).
 
 - **axe-core, WCAG 2.1/2.2 A + AA + best practice: zero violations**, on both views × light and
-  dark × desktop and phone.
+  dark × desktop and phone. Every shipped language must also render with no missing strings and no
+  script errors.
 - **Every colour clears 4.5:1 against its own background**, including tinted table rows and each
   fixed figure style against that style's own paper. Check before choosing a colour, not after.
 - **Keyboard-complete**: visible focus everywhere, a skip link, the suggestion list is a real ARIA
@@ -53,9 +77,9 @@ Not aspirational — it is checked. `node tools/check.mjs` must pass before push
 
 ## How things are shaped
 
-- `CLADES` / `SPECIES` near the top of the script are the data. Genus nodes are generated from
-  species names, so adding an animal is usually one line. A taxon whose parent id is missing is
-  reported in the console at startup.
+- `data/taxonomy.js` holds `CLADES` and `SPECIES`. Genus nodes are generated from species names,
+  so adding an animal is usually one line. A taxon whose parent id is missing is reported in the
+  console at startup. `tools/fetch-images.mjs` reads this same file, so the two cannot drift.
 - `MILESTONES` decides which groups a reader sees by default. Add to it only for groups a
   12-year-old would recognise — everything else is compression noise.
 - `FIG_STYLES` holds the figure palettes. `page` uses `var(--…)` so it follows the theme and

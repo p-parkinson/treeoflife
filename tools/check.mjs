@@ -9,7 +9,8 @@
  *
  * It exits non-zero on any failure, so it can go in CI as-is.
  */
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
@@ -67,6 +68,77 @@ for (const [viewName, hash] of VIEWS) {
       report(errors.length === 0, `${viewName}, ${scheme}, ${size}: no script errors`, errors.join(" | "));
       await ctx.close();
     }
+  }
+}
+
+console.log("\ninterface text");
+{
+  /* every id the code asks for must exist in English; other languages may be partial */
+  const page = readFileSync(join(ROOT, "index.html"), "utf8");
+  /* ids reach t() three ways: written out, sitting in a lookup table, or built from a
+     prefix ("age.million" + form). Collect every id-shaped literal, and treat a prefix
+     match as used, so a table-driven id is not reported as dead. */
+  const literals = [...page.matchAll(/"([a-z][a-zA-Z0-9]*\.[a-zA-Z]+)"/g)].map(m => m[1]);
+  const used = new Set(literals);
+  [...page.matchAll(/data-i18n(?:-ph|-al)?="([^"]+)"/g)].forEach(m => used.add(m[1]));
+  const isUsed = id => used.has(id) || literals.some(l => id.startsWith(l));
+  const files = readdirSync(join(ROOT, "data")).filter(f => /^strings\.[a-z-]+\.js$/.test(f));
+  const ids = {};
+  for(const file of files){
+    const code = readFileSync(join(ROOT, "data", file), "utf8");
+    ids[file.split(".")[1]] = new Set([...code.matchAll(/^  "([^"]+)":/gm)].map(m => m[1]));
+  }
+  report(!!ids.en, "data/strings.en.js is present");
+  const missing = [...used].filter(id => ids.en && !ids.en.has(id) && /^(ui|ph|a11y|foot|story|close|era|rank|grp|fig|diag|tree|list|pick|verdict|table|age|many|announce|lang)\./.test(id));
+  report(missing.length === 0, "every id the app uses is defined in English", missing.join(", "));
+  const unused = ids.en ? [...ids.en].filter(id => !isUsed(id)) : [];
+  /* informational: a static scan cannot see every dynamic id, so this is a hint, not a gate */
+  console.log(unused.length ? "  info  ids no static reference could be found for: " + unused.join(", ")
+                            : "  ok   every English id has a reference in the app");
+  for(const code of Object.keys(ids).filter(c => c !== "en")){
+    const gaps = [...ids.en].filter(id => !ids[code].has(id));
+    console.log("  info  " + code + ": " + (ids.en.size - gaps.length) + "/" + ids.en.size +
+      " interface strings" + (gaps.length ? " (falls back to English for " + gaps.length + ")" : ""));
+  }
+}
+
+console.log("\nevery language renders with no missing text");
+{
+  const codes = readdirSync(join(ROOT, "data")).filter(f => /^strings\./.test(f)).map(f => f.split(".")[1]);
+  for(const code of codes){
+    const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 } });
+    const page = await ctx.newPage();
+    const problems = [];
+    page.on("pageerror", e => problems.push(e.message));
+    page.on("console", m => { if (m.text().includes("No text for")) problems.push(m.text()); });
+    await page.goto(PAGE + "#tree=lion,octopus,honey+bee&lang=" + code);
+    await page.waitForTimeout(700);
+    await page.evaluate(() => document.querySelectorAll("details").forEach(d => (d.open = true)));
+    await page.waitForTimeout(200);
+    report(problems.length === 0, code + ": page renders cleanly", problems.slice(0, 3).join(" | "));
+    await ctx.close();
+  }
+}
+
+console.log("\nthe single-file build");
+{
+  let built = true;
+  try { execFileSync(process.execPath, [join(ROOT, "tools", "build-single.mjs")], { stdio: "pipe" }); }
+  catch (e) { built = false; report(false, "tools/build-single.mjs runs", String(e.message).slice(0, 120)); }
+  if(built){
+    const out = join(ROOT, "dist", "tree-of-life.html");
+    report(existsSync(out), "dist/tree-of-life.html written");
+    const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 } });
+    const page = await ctx.newPage();
+    const problems = [];
+    page.on("pageerror", e => problems.push(e.message));
+    page.on("requestfailed", r => { if(!r.url().includes("fonts.google")) problems.push("failed request " + r.url()); });
+    await page.goto(pathToFileURL(out).href + "#tree=lion,octopus");
+    await page.waitForTimeout(700);
+    const taxa = await page.evaluate(() => (typeof nodes !== "undefined" ? nodes.size : 0));
+    report(taxa > 1000 && problems.length === 0, "the built file works on its own",
+      "taxa " + taxa + " " + problems.slice(0, 2).join(" | "));
+    await ctx.close();
   }
 }
 

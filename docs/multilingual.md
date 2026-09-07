@@ -1,7 +1,11 @@
 # Making it work in another language
 
-Not built yet. This is the cheapest credible route, in the order I'd do it, keeping the
-project's offline, no-dependency promise.
+**Steps 1 and 2 are built**: the interface, the generated sentences, and a first-draft French
+translation with 124 group names and 298 animal names. Step 3 (names from Wikidata) and step 4
+(searching in the reader's language — partly done, see below) are the remaining work.
+
+This is the route, in the order it is worth doing, keeping the project's offline,
+no-dependency promise.
 
 ## What actually has to be translated
 
@@ -17,7 +21,38 @@ The insight worth keeping: **scientific names need no translation**, so a partia
 still a usable app. A French child with a French interface and French group names, seeing
 *Panthera leo* at the leaf, is well served. That makes the layers above shippable one at a time.
 
-## Step 1 — pull the strings out (half a day)
+## How it works now
+
+```
+data/strings.en.js    the reference: every id the app can ask for
+data/strings.<lang>.js   one file per language, partial is fine
+data/names.<lang>.js  names for groups (by clade id) and animals (by "sp-<slug>")
+```
+
+- `t("id", {vars})` looks up the current language, falls back to English, and warns in the console
+  if an id is missing everywhere. `tools/check.mjs` turns that into a failing check.
+- Sentences are **functions**, so a translator controls word order:
+  `"fig.titleTwo": v => "De " + v.a + " à " + v.b`.
+- Markup carries `data-i18n` / `data-i18n-ph` / `data-i18n-al`; `applyStrings()` fills them in and
+  is re-run when the language changes.
+- `label(node)` prefers `data/names.<lang>.js`, then the English common name, then the scientific
+  name — so partial coverage degrades to something correct rather than blank.
+- The search index contains **every** shipped language's names at once, so links survive a
+  language change and a bilingual classroom can type in either.
+- Language comes from `#…&lang=xx`, then `localStorage`, then `navigator.language`, then English.
+  `<html lang>` is set so screen readers switch voice.
+
+### Adding a language
+
+1. Copy `data/strings.en.js` to `data/strings.<code>.js`, translate the values, keep the ids, and
+   set `lang.name` plus a `foot.translation` note while it is unreviewed.
+2. Optionally add `data/names.<code>.js` — group ids first (they appear in every figure), animals
+   second.
+3. Add two `<script src>` tags in `index.html` next to the others. That is the whole wiring.
+4. Run `node tools/check.mjs`: it reports coverage per language and fails if the page throws or a
+   string is missing everywhere.
+
+## Step 1 — pull the strings out (done)
 
 Replace literals with `t("id")` against a `STRINGS = { en: {...} }` object, and make every
 generated sentence a **template function**, not concatenation:
@@ -36,7 +71,7 @@ translator move the pieces.
 Language choice: `?lang=fr` → `localStorage` → `navigator.language` → `en`, with a picker beside
 the Colours switch. Set `<html lang>` from it so screen readers use the right voice.
 
-## Step 2 — one pilot language (a day, plus a speaker)
+## Step 2 — one pilot language (done for French, still needs a speaker)
 
 Translate the interface and the ~200 group names into one language and ship it. Do not scale to
 five languages before one has been read by someone who speaks it: the group names are where a
@@ -54,11 +89,11 @@ runtime stays offline. First name becomes the label, the rest become search alia
 Budget a review pass: P1843 contains regional and informal variants, and some taxa have none.
 Missing names fall back to the scientific name, which is correct rather than broken.
 
-## Step 4 — search in the reader's language
+## Step 4 — search in the reader's language (done)
 
-`searchIndex` already indexes several strings per taxon, so adding the translated names and
-aliases is a loop, not a redesign. Keep English and Latin indexed alongside, so a link written
-by an English-speaking teacher still resolves for a French class.
+Done: `searchIndex` indexes the translated names and aliases of every shipped language alongside
+English and the scientific names, so a link written by an English-speaking teacher still resolves
+for a French class, and vice versa.
 
 ## Costs and traps
 
