@@ -24,8 +24,10 @@ data/names.es.js      Spanish names for groups and animals — draft
 tools/                image fetcher, single-file build, the check script
 ```
 
-Want one file for a USB stick, an email or an Artifact? `node tools/build-single.mjs` inlines
-everything into `dist/tree-of-life.html` (~190 KB).
+Want one file for a USB stick or an email? `node tools/build-single.mjs` inlines everything into
+`dist/tree-of-life.html` (~230 KB). It also writes `dist/artifact.html`, the same page with the
+`<!doctype>`/`<head>`/`<body>` skeleton removed, which is what a Claude Artifact host supplies
+itself.
 
 ## What it does
 

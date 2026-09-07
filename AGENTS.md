@@ -18,7 +18,9 @@ from the URL. `node tools/check.mjs` is the gate — 44 checks, and it must stay
    lets a translator or a taxonomist work on one small file. Everything still has to work from a
    USB stick (`file://`): use classic `<script src>` tags, never `fetch` or ES modules.
    `node tools/build-single.mjs` folds it all back into one `dist/tree-of-life.html` for offline
-   distribution and for publishing as an Artifact.
+   distribution, plus `dist/artifact.html` (the same page minus the document skeleton) for
+   publishing as an Artifact. Never hand-strip that copy: the tool exists so the published page
+   cannot drift from the built one.
 2. **One layout engine.** The two-animal answer and the five-animal figure share
    `inducedTree`/`condense`, the milestone set and the autocomplete. Presentation differs;
    the tree logic does not. Don't fork the renderer — add a parameter.

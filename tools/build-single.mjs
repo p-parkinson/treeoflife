@@ -51,3 +51,20 @@ const kb = (Buffer.byteLength(page) / 1024).toFixed(0);
 console.log("dist/tree-of-life.html written: " + kb + " KB, " + inlined + " file(s) inlined");
 const leftover = [...page.matchAll(/<script src="([^"]+)"><\/script>/g)].filter(m => !commentedOut(m.index));
 if(leftover.length) console.warn("warning: still external: " + leftover.map(m => m[1]).join(", "));
+
+/* A second copy for publishing as a Claude Artifact, which supplies its own
+   <!doctype>, <html>, <head> (charset + viewport) and <body>. Our own <title>,
+   <style> and scripts stay, in order; only the skeleton is stripped. Keeping
+   this here rather than doing it by hand means the published page cannot drift
+   from dist/tree-of-life.html. */
+let bare = page;
+for(const pat of [/<!DOCTYPE html>\s*/i, /<html lang="en">\s*/, /<head>\s*/,
+                  /<meta charset="utf-8">\s*/, /<meta name="viewport"[^>]*>\s*/,
+                  /<\/head>\s*/, /<body>\s*/, /<\/body>\s*/, /<\/html>\s*/])
+  bare = bare.replace(pat, "");
+for(const tag of ["<!DOCTYPE", "</head>", "<body>", "</html>"])
+  if(bare.includes(tag)) throw new Error("the artifact copy still contains " + tag);
+if(!bare.trimStart().startsWith("<title>")) throw new Error("the artifact copy must start with <title>");
+const ART = join(ROOT, "dist", "artifact.html");
+await writeFile(ART, bare);
+console.log("dist/artifact.html written: " + (Buffer.byteLength(bare) / 1024).toFixed(0) + " KB");
