@@ -1,0 +1,101 @@
+# Checks on every pull request, and a distributable on every merge to main.
+#
+# The distributable matters because this app is handed out two ways: a URL for
+# a classroom with wifi, and a single file for one without. Both come out of
+# the same commit here, so the offline copy can never be an older build than
+# the site.
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The gate. Everything in tools/check.mjs: axe on both views in light and
+  # dark, contrast, interface text in every language, the figure inside its
+  # frame, small screens, and the photo flow end to end.
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the two dev dependencies
+        run: npm install --no-save playwright axe-core
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run the checks
+        run: node tools/check.mjs
+
+  # One file that works from a USB stick, and the page the site is served from.
+  # Cropper.js is vendored here rather than left to the CDN, so the offline copy
+  # keeps hand-framing too; if the fetch fails the build still succeeds and the
+  # copy simply falls back, which is the behaviour rule 1 asks for.
+  build:
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Vendor the crop library
+        continue-on-error: true
+        run: node tools/vendor-cropper.mjs
+      - name: Build
+        run: node tools/build-single.mjs
+      - name: Name the files after the commit
+        run: |
+          mkdir -p out
+          cp dist/tree-of-life.html "out/tree-of-life-${GITHUB_SHA::7}.html"
+          cp index.html out/index.html
+          cp -r data out/data
+          if [ -d vendor ]; then cp -r vendor out/vendor; fi
+      - name: Upload the single-file copy
+        uses: actions/upload-artifact@v4
+        with:
+          name: tree-of-life-single-file
+          path: dist/tree-of-life.html
+          if-no-files-found: error
+      - name: Upload the whole site
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: out
+          if-no-files-found: error
+
+  # Publishes to GitHub Pages. Needs Pages turned on once, with "Source" set to
+  # "GitHub Actions" in Settings -> Pages; until then this job fails and the
+  # rest of the workflow is unaffected.
+  pages:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

@@ -45,9 +45,41 @@ if(!/images\/images\.js/.test(page)){
   } catch { /* none fetched yet */ }
 }
 
+/* The crop library, when a maintainer has vendored it. Inlining it means the
+   single file gets hand-framing with no network at all: index.html checks for
+   `Cropper` before it tries to load anything, so this simply makes the check
+   succeed. Without vendor/ the file still works and falls back to the slider. */
+try {
+  const js = await readFile(join(ROOT, "vendor", "cropper.min.js"), "utf8");
+  const css = await readFile(join(ROOT, "vendor", "cropper.min.css"), "utf8");
+  page = page.replace("</head>",
+    "<style>\n/* inlined from vendor/cropper.min.css (Cropper.js, MIT) */\n" + css + "\n</style>\n" +
+    "<script>\n/* inlined from vendor/cropper.min.js (Cropper.js, MIT) */\n" + js + "\n</script>\n</head>");
+  console.log("crop library inlined - the single file can frame photos offline");
+} catch {
+  console.log("no vendor/ - the single file will fall back to the up/down slider");
+}
+
 await mkdir(dirname(OUT), { recursive: true });
 await writeFile(OUT, page);
 const kb = (Buffer.byteLength(page) / 1024).toFixed(0);
 console.log("dist/tree-of-life.html written: " + kb + " KB, " + inlined + " file(s) inlined");
 const leftover = [...page.matchAll(/<script src="([^"]+)"><\/script>/g)].filter(m => !commentedOut(m.index));
 if(leftover.length) console.warn("warning: still external: " + leftover.map(m => m[1]).join(", "));
+
+/* A second copy for publishing as a Claude Artifact, which supplies its own
+   <!doctype>, <html>, <head> (charset + viewport) and <body>. Our own <title>,
+   <style> and scripts stay, in order; only the skeleton is stripped. Keeping
+   this here rather than doing it by hand means the published page cannot drift
+   from dist/tree-of-life.html. */
+let bare = page;
+for(const pat of [/<!DOCTYPE html>\s*/i, /<html lang="en">\s*/, /<head>\s*/,
+                  /<meta charset="utf-8">\s*/, /<meta name="viewport"[^>]*>\s*/,
+                  /<\/head>\s*/, /<body>\s*/, /<\/body>\s*/, /<\/html>\s*/])
+  bare = bare.replace(pat, "");
+for(const tag of ["<!DOCTYPE", "</head>", "<body>", "</html>"])
+  if(bare.includes(tag)) throw new Error("the artifact copy still contains " + tag);
+if(!bare.trimStart().startsWith("<title>")) throw new Error("the artifact copy must start with <title>");
+const ART = join(ROOT, "dist", "artifact.html");
+await writeFile(ART, bare);
+console.log("dist/artifact.html written: " + (Buffer.byteLength(bare) / 1024).toFixed(0) + " KB");

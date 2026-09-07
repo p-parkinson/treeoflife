@@ -77,13 +77,19 @@ body{
 h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.1px;text-wrap:balance}
 
 /* ---------- header ---------- */
-header.top{display:flex;gap:14px;align-items:flex-start;margin-bottom:20px}
+/* The header is a row that must be allowed to become rows: below 700px the
+   theme group takes a line of its own, and translated labels are longer than
+   the English ones, so without wrapping the whole page scrolls sideways. */
+header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;margin-bottom:20px}
 header.top .mark{flex:0 0 auto;margin-top:2px}
+header.top > div:not(.theme){flex:1 1 240px;min-width:0}
 h1{font-size:31px;margin:0;line-height:1.1}
 header.top p{margin:6px 0 0;color:var(--muted);font-size:16.5px;max-width:56ch}
 .theme{margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .theme span{font-size:13.5px;color:var(--muted);margin-right:2px}
 .theme button{padding:7px 13px;font-size:14px;min-height:38px;color:var(--muted);border-width:1px}
+.theme .sel select{font-size:14px;min-height:38px;padding:6px 34px 6px 13px;border-width:1px}
+.theme .sel::after{right:13px}
 .theme button[aria-pressed="true"]{background:var(--shared);border-color:var(--shared);color:var(--on-shared)}
 @media (max-width:700px){.theme{margin-left:0;width:100%}}
 
@@ -161,9 +167,6 @@ button.primary:hover{filter:brightness(1.06);background:var(--shared)}
 .switch input{width:22px;height:22px;accent-color:var(--shared);cursor:pointer}
 @media (pointer: coarse){
   .switch{min-height:44px}
-  .tw{width:34px;height:34px;flex-basis:34px}
-  .row .nm{padding:6px 6px}
-  .row{padding:4px 6px}
 }
 
 .diagram-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -183,7 +186,6 @@ details.full > summary::before{content:"+";font-size:20px;color:var(--muted);wid
 details.full[open] > summary::before{content:"\2013"}
 details.full > summary:hover{background:var(--paper-2)}
 details.full > summary .tools{margin-left:auto;font-family:var(--body);font-size:14px;font-weight:600;color:var(--muted)}
-details.full#explorer .body{padding:0 20px 18px}
 details.full .body{padding:0 20px 18px;overflow-x:auto}
 
 table.lin{width:100%;border-collapse:collapse;font-size:15px}
@@ -196,31 +198,6 @@ table.lin td.col-a{color:var(--a)}
 table.lin td.col-b{color:var(--b)}
 table.lin .sci{font-style:italic}
 table.lin .cn{color:var(--muted);font-size:13.5px}
-
-/* ---------- explorer ---------- */
-.tree{font-size:15px;max-height:520px;overflow:auto;-webkit-overflow-scrolling:touch;padding:4px 2px 10px}
-.tree:focus-visible{outline:3px solid var(--a);outline-offset:-3px}
-.node{padding-left:15px;border-left:2px solid var(--line);margin-left:10px}
-.node.root{border-left:0;margin-left:0;padding-left:0}
-.row{display:flex;align-items:center;gap:8px;padding:3px 8px;border-radius:10px;line-height:1.5;flex-wrap:wrap}
-.row:hover{background:var(--paper-2)}
-.tw{width:26px;height:26px;flex:0 0 26px;min-height:0;padding:0;display:inline-flex;align-items:center;justify-content:center;
-  color:var(--muted);background:none;border:0;border-radius:8px;cursor:pointer;user-select:none;font-size:13px}
-.tw:hover{background:var(--line)}
-.tw.leaf{cursor:default;opacity:.45}
-.row .nm{cursor:pointer;font-weight:700;background:none;border:0;padding:2px 4px;min-height:0;font-size:15px;
-  font-family:inherit;color:var(--ink);border-radius:8px}
-.row .nm:hover{text-decoration:underline;background:none}
-.row .sci{font-style:italic;color:var(--muted);font-size:13.5px}
-.row .rk{font-size:13px;color:var(--faint)}
-.row .count{font-size:13px;color:var(--faint)}
-.row.is-a{background:var(--a-soft);box-shadow:inset 3px 0 0 var(--a)}
-.row.is-b{background:var(--b-soft);box-shadow:inset 3px 0 0 var(--b)}
-.row.is-meet{background:var(--meet-soft);box-shadow:inset 3px 0 0 var(--meet)}
-.tree-tools{display:flex;gap:9px;flex-wrap:wrap;padding:14px 20px 0}
-.tree-tools input{flex:1;min-width:190px;padding:9px 13px;border-radius:var(--r-md);border:2px solid var(--line);background:var(--paper-2);color:var(--ink);font:inherit;outline:none}
-.tree-tools input:focus{border-color:var(--shared);background:var(--card)}
-.tree-tools button{padding:8px 14px;font-size:14.5px}
 
 /* ---------- the two views ---------- */
 .tabs{display:flex;gap:8px;margin-bottom:16px}
@@ -247,21 +224,55 @@ details.full.inset .body{padding:0 14px 14px}
 .fig-field .hint{font-size:13px;color:var(--muted);font-weight:400}
 .fig-field input{padding:10px 12px;border-radius:var(--r-md);border:2px solid var(--line);
   background:var(--card);color:var(--ink);font:inherit;font-size:16px;outline:none}
+.photo-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:4px}
+.photo-thumb{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
+.photo-pick{display:inline-flex;align-items:center;min-height:44px}
+.photo-pick span{border:2px solid var(--line);border-radius:999px;padding:9px 16px;font-size:14.5px;font-weight:600;
+  background:var(--card);cursor:pointer}
+.photo-pick:hover span{background:var(--paper-2)}
+.photo-pick input{position:absolute;width:1px;height:1px;opacity:0;padding:0;margin:-1px;overflow:hidden}
+.photo-pick:focus-within span{outline:3px solid var(--a);outline-offset:2px}
+.photo-move{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
+.photo-move input[type=range]{width:120px;padding:0;border:0;accent-color:var(--shared);min-height:44px}
+.photo-row button{min-height:44px;padding:9px 14px;font-size:14.5px}
+.photo-note{margin:2px 0 0;font-size:13.5px;color:var(--muted)}
+
+/* the hand-framing dialog: only ever opened once the crop library is present */
+#cropBox{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);color:var(--ink);
+  padding:20px;max-width:min(460px,94vw);box-shadow:var(--shadow)}
+#cropBox::backdrop{background:rgba(20,28,23,.55)}
+#cropBox h2{margin:0 0 4px;font-size:20px}
+.crop-help{margin:0 0 14px;font-size:14px;color:var(--muted)}
+.crop-stage{width:100%;aspect-ratio:1;background:var(--paper-2);border-radius:var(--r-md);overflow:hidden}
+.crop-stage img{display:block;max-width:100%}
+.crop-tools{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
+.crop-tools button{padding:8px 13px;font-size:14px;min-height:40px;color:var(--muted);border-width:1px}
+.crop-actions{display:flex;flex-wrap:wrap;gap:9px}
+@media print{#cropBox{display:none !important}}
 .fig-field input:focus{border-color:var(--shared)}
 .card > h2 .tools label{font-weight:600}
-.card > h2 select, .export select{font:inherit;font-size:14px;padding:7px 9px;border-radius:10px;
-  border:2px solid var(--line);background:var(--card);color:var(--ink);min-height:40px}
+/* Dropdowns are drawn by us, not by the operating system, so they match the
+   pill buttons everywhere. The chevron is a rotated corner in currentColor,
+   which follows the theme without a second image. */
+.sel{position:relative;display:inline-flex;align-items:center;color:var(--muted);max-width:100%}
+.sel::after{content:"";position:absolute;right:14px;width:8px;height:8px;pointer-events:none;
+  border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+  transform:translateY(-2px) rotate(45deg)}
+.sel select{appearance:none;-webkit-appearance:none;font:inherit;font-size:14.5px;font-weight:600;
+  padding:8px 36px 8px 15px;border-radius:999px;border:2px solid var(--line);
+  background:var(--card);color:var(--ink);min-height:40px;cursor:pointer;max-width:100%;
+  text-overflow:ellipsis;transition:background .15s,border-color .15s}
+.sel select:hover{background:var(--paper-2)}
+@media (forced-colors: active){.sel::after{border-color:ButtonText}}
 
 /* ---------- export bar ---------- */
 .export{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:0 20px 16px}
 .export button{padding:8px 14px;font-size:14.5px;min-height:40px}
 .export label{font-size:14px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
-.export select{font:inherit;font-size:14px;padding:7px 9px;border-radius:10px;border:2px solid var(--line);
-  background:var(--card);color:var(--ink);min-height:40px}
 .export .note{font-size:13px;color:var(--faint)}
 
 /* ---------- picture-only mode (#...&bare=1) ---------- */
-body.bare header.top, body.bare .theme, body.bare .tabs, body.bare .picker, body.bare #explorer,
+body.bare header.top, body.bare .theme, body.bare .tabs, body.bare .picker,
 body.bare footer, body.bare .export, body.bare .skip, body.bare .swipe-hint{display:none}
 body.bare .wrap{padding:10px}
 body.bare .card{border:0;box-shadow:none;margin:0}
@@ -273,7 +284,7 @@ body.bare .card > h3{border:0;padding-bottom:0}
         --paper:#fff;--paper-2:#fff;--card:#fff;--ink:#111a14;--muted:#3f5147;--faint:#4a5c51;--line:#c9d6c9;
         --shared:#186637;--shadow:none}
   body{background:#fff}
-  header.top, .tabs, .picker, #explorer, footer, .export, .skip, .swipe-hint, .legend, .theme{display:none !important}
+  header.top, .tabs, .picker, footer, .export, .skip, .swipe-hint, .legend, .theme{display:none !important}
   .wrap{max-width:none;padding:0 3mm}
   .card{border:0;box-shadow:none;margin:0;break-inside:avoid}
   .card > h3{border:0;padding:0 0 8px}
@@ -283,12 +294,6 @@ body.bare .card > h3{border:0;padding-bottom:0}
   .diagram-scroll svg{min-width:0;max-width:none;width:100%;height:auto}
   *{print-color-adjust:exact;-webkit-print-color-adjust:exact}
 }
-
-#treeAsList ul{margin:3px 0 3px 6px;padding-left:14px;border-left:2px solid var(--line);list-style:none}
-#treeAsList > ul{margin-left:0;padding-left:0;border-left:0}
-#treeAsList li{padding:2px 0}
-#treeAsList .sci{font-style:italic;color:var(--muted)}
-#treeAsList .cn{color:var(--faint);font-size:13px}
 
 footer{margin-top:30px;color:var(--muted);font-size:14.5px;line-height:1.65;max-width:70ch}
 footer strong{color:var(--ink)}
@@ -322,7 +327,7 @@ footer a{color:var(--a);text-underline-offset:2px}
   </div>
   <div class="theme" role="group" data-i18n-al="a11y.colours" aria-label="Page colours">
     <label class="sr-only" for="lang" data-i18n="ui.language">Language</label>
-    <select id="lang"></select>
+    <span class="sel"><select id="lang"></select></span>
     <span id="themeLabel" data-i18n="ui.colours">Colours</span>
     <button type="button" data-theme-btn="auto" aria-pressed="true" data-i18n="ui.auto">Auto</button>
     <button type="button" data-theme-btn="light" aria-pressed="false" data-i18n="ui.light">Light</button>
@@ -420,45 +425,46 @@ footer a{color:var(--a);text-underline-offset:2px}
   <div class="card">
     <h2 id="manyHead"><span id="manyHeadText">How they are all connected</span>
       <span class="tools"><label for="figStyle" data-i18n="ui.figStyle">Picture style</label>
-        <select id="figStyle"></select></span></h2>
+        <span class="sel"><select id="figStyle"></select></span></span></h2>
     <div class="body diagram-scroll" id="manyDiagram"></div>
     <p class="swipe-hint" id="manySwipeHint" data-i18n="ui.swipe" hidden>The picture is wider than your screen &mdash; slide it sideways to see all of it.</p>
     <p class="count-note" style="padding:0 20px 4px" data-i18n="ui.dashedNote">A dashed line with a number means that many in-between groups are not shown.</p>
     <div class="export">
       <button id="btnPrint" data-i18n="ui.print">Print or save as PDF</button>
       <label for="paper"><span data-i18n="ui.paper">Paper</span>
-        <select id="paper">
-          <option value="A4 portrait">A4 portrait</option>
-          <option value="A4 landscape">A4 landscape</option>
-          <option value="A3 portrait">A3 portrait</option>
-          <option value="A3 landscape">A3 landscape</option>
-        </select>
+        <span class="sel"><select id="paper"></select></span>
       </label>
       <button id="btnSvg" data-i18n="ui.downloadSvg">Download SVG</button>
       <button id="btnPng" data-i18n="ui.downloadPng">Download PNG</button>
       <span class="note" id="exportNote"></span>
     </div>
   </div>
-  <details class="full">
-    <summary data-i18n="ui.treeAsList">Read this tree as a list</summary>
-    <div class="body" id="treeAsList"></div>
-  </details>
 </section>
 
 </div><!-- /viewMany -->
 
-<details class="full" id="explorer">
-  <summary><span data-i18n="ui.explore">Explore the whole tree</span> <span class="tools" id="treeStat"></span></summary>
-  <div class="tree-tools">
-    <label class="sr-only" for="treeFilter" data-i18n="ui.searchTree">Search the tree</label>
-    <input id="treeFilter" type="text" placeholder="Search the tree..." data-i18n-ph="ph.searchTree" autocomplete="off" spellcheck="false">
-    <button id="expandPath" data-i18n="ui.showMine">Show my two animals</button>
-    <button id="collapseAll" data-i18n="ui.closeAll">Close all</button>
-  </div>
-  <div class="body"><div class="tree" id="tree" tabindex="0" role="group" data-i18n-al="a11y.wholeTree" aria-label="The whole tree of life, group by group"></div></div>
-</details>
-
 </main>
+
+<!-- Framing a photo by hand. Empty and inert until the crop library has
+     actually loaded; see "Network, and what happens without it" in AGENTS.md. -->
+<dialog id="cropBox" aria-labelledby="cropTitle">
+  <h2 id="cropTitle" data-i18n="crop.title">Frame the photo</h2>
+  <p class="crop-help" data-i18n="crop.help">Drag the picture to move it.</p>
+  <div class="crop-stage"><img id="cropImg" alt=""></div>
+  <div class="crop-tools">
+    <button type="button" data-crop="zoomIn" data-i18n="crop.zoomIn">Closer</button>
+    <button type="button" data-crop="zoomOut" data-i18n="crop.zoomOut">Wider</button>
+    <button type="button" data-crop="left" data-i18n="crop.left">Left</button>
+    <button type="button" data-crop="right" data-i18n="crop.right">Right</button>
+    <button type="button" data-crop="up" data-i18n="crop.up">Up</button>
+    <button type="button" data-crop="down" data-i18n="crop.down">Down</button>
+    <button type="button" data-crop="reset" data-i18n="crop.reset">Start again</button>
+  </div>
+  <div class="crop-actions">
+    <button type="button" class="primary" data-crop="use" data-i18n="crop.use">Use this framing</button>
+    <button type="button" data-crop="cancel" data-i18n="crop.cancel">Cancel</button>
+  </div>
+</dialog>
 
 <footer>
   <p><strong data-i18n="foot.howHead">How this works.</strong> <span data-i18n="foot.how">Every animal here sits on one big family tree. To find a common ancestor,
@@ -499,7 +505,7 @@ footer a{color:var(--a);text-underline-offset:2px}
 -->
 <script>
 /* =====================================================================
-   0. LANGUAGE
+   1. LANGUAGE
    Interface text comes from data/strings.<lang>.js; names for animals and
    groups from data/names.<lang>.js. Both fall back to English, and English
    falls back to the scientific name, so a partial translation is still
@@ -537,6 +543,10 @@ function pickLanguage(code){
 /* Put every marked-up string into the page. Elements carry data-i18n for their
    text, data-i18n-ph for a placeholder and data-i18n-al for an aria-label. */
 function applyStrings(){
+  /* The two dropdowns are built from tables rather than markup, so they need
+     rebuilding here too - doing it at any single call site gets forgotten, as
+     it was: the style names stayed English after a language change. */
+  if(typeof renderStyleOptions === "function"){ renderStyleOptions(); renderPaperOptions(); }
   document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
   document.querySelectorAll("[data-i18n-al]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAl)); });
@@ -748,8 +758,6 @@ const showsSci = n => label(n) !== n.name;
 const picked = {a:null, b:null};
 let nextSlot = "a";
 
-const speciesCount = [...nodes.values()].filter(n=>n.species).length;
-$("treeStat").textContent = t("tree.animals", {n: speciesCount});
 
 function setPick(slot, node, opts){
   const sync = !opts || opts.sync !== false;
@@ -847,7 +855,7 @@ function condense(list, isTail){
 
 function compare(){
   const a = picked.a, b = picked.b;
-  if(!a || !b){ $("result").classList.remove("show"); paintTree(); return; }
+  if(!a || !b){ $("result").classList.remove("show"); return; }
   const r = mrca(a,b), m = r.node;
   const same = a === b, nested = !same && (!r.tailA.length || !r.tailB.length);
   const age = m.mya, when = agePhrase(age);
@@ -890,8 +898,6 @@ function compare(){
     ? t("announce.same", {a: label(a), b: label(b)})
     : t("announce.meet", {a: label(a), b: label(b), closeness: closeness(m).toLowerCase(), group: label(m), when: when});
   setHash("#a=" + encodeURIComponent(sciOf(a)) + "&b=" + encodeURIComponent(sciOf(b)) + langParam());
-  [a,b].forEach(n => lineage(n).forEach(x => expanded.add(x.id)));
-  renderTree();
 }
 
 /* A phone cannot hold the side-by-side picture at a readable size, so below this
@@ -923,8 +929,7 @@ function showSwipeHint(){
 function markScrollables(){
   [[$("diagram"), t("a11y.diagramScrolls")],
    [$("manyDiagram"), t("a11y.figureScrolls")],
-   [$("linTable").parentElement, t("a11y.tableScrolls")],
-   [$("treeAsList"), t("a11y.listScrolls")]
+   [$("linTable").parentElement, t("a11y.tableScrolls")]
   ].forEach(([el, lbl]) => {
     if(el.scrollWidth > el.clientWidth + 1){
       el.tabIndex = 0; el.setAttribute("role", "group"); el.setAttribute("aria-label", lbl);
@@ -1119,12 +1124,12 @@ function lineageTable(r, a, b){
 }
 
 /* =====================================================================
-   9. THE FAMILY TREE OF UP TO FIVE ANIMALS
+   7. THE FAMILY TREE OF UP TO FIVE ANIMALS
    ===================================================================== */
 const MAX_PICKS = 5;
 /* Everything about the picture that is not the choice of animals. null means
    "work it out for me"; a string (even an empty one) means the person decided. */
-const figState = {style: "page", title: null, footer: null, names: {}};
+const figState = {style: "page", title: null, footer: null, names: {}, photos: {}, photoOffsets: {}};
 let bareMode = false;
 let lastHash = "";
 function setHash(h){ lastHash = h; location.replace(h); }
@@ -1402,7 +1407,7 @@ function drawFamilyTree(picksArr){
   /* the animals themselves, with a picture where we have one */
   leaves.forEach(d => {
     const x = xOf(d), y = yOf(d), col = accentOf(d.node), n = d.node, R = 30;
-    const pic = typeof TAXON_IMAGES !== "undefined" && TAXON_IMAGES[n.id];
+    const pic = photoFor(n);
     if(pic){
       const cid = "clip-" + n.id;
       p.push('<clipPath id="' + cid + '"><circle cx="' + x + '" cy="' + (y + R + 6) + '" r="' + R + '"/></clipPath>');
@@ -1467,100 +1472,6 @@ function describeBranches(d){
   return t("fig.branchSplit", {group: label(d.node), into: d.children.map(describeBranches).join(" " + t("ui.and") + " ")});
 }
 
-/* ---- the same tree as a nested list, for anyone not reading the picture ---- */
-function treeAsList(d){
-  const kids = d.children.length ? "<ul>" + d.children.map(treeAsList).join("") + "</ul>" : "";
-  const name = esc(label(d.node)) + (showsSci(d.node) ? ' <span class="sci">' + esc(sciOf(d.node)) + '</span>' : '') +
-    ' <span class="cn">' + esc(rankWord(d.node.rank)) + '</span>' +
-    (d.skipped ? ' <span class="cn">' + esc(d.skipped === 1 ? t("list.notShownOne") : t("list.notShownMany", {n: d.skipped})) + '</span>' : '');
-  return "<li>" + name + kids + "</li>";
-}
-
-/* =====================================================================
-   7. EXPLORING THE WHOLE TREE
-   ===================================================================== */
-const treeEl = $("tree");
-const expanded = new Set(["life","eukaryota","opisthokonta","holozoa","metazoa","bilateria","deuterostomia","chordata","vertebrata"]);
-let filterMatches = null;
-
-function renderNode(n, isRoot){
-  const kids = filterMatches ? n.children.filter(c=>filterMatches.has(c.id)) : n.children;
-  const open = kids.length && (expanded.has(n.id) || (filterMatches && filterMatches.has(n.id)));
-  const kidCount = !n.species && n.children.length ? t("tree.animals", {n: descendantSpecies(n)}) : "";
-  const spoken = [label(n), showsSci(n) ? sciOf(n) : "", rankWord(n.rank), kidCount].filter(Boolean).join(", ");
-  let html = '<div class="node'+(isRoot?" root":"")+'">' +
-    '<div class="row" data-id="'+n.id+'">' +
-      (kids.length
-        ? '<button type="button" class="tw" data-tw="'+n.id+'" aria-expanded="'+(open?"true":"false")+
-          '" aria-label="'+esc(t(open ? "tree.collapse" : "tree.expand", {name: label(n)}))+'">'+(open?"▾":"▸")+'</button>'
-        : '<span class="tw leaf" aria-hidden="true">•</span>') +
-      '<button type="button" class="nm" data-pick="'+n.id+'" aria-label="'+esc(t("pick.choose",{name: spoken}))+'">'+esc(label(n))+'</button>' +
-      (showsSci(n) ? '<span class="sci">'+esc(sciOf(n))+'</span>' : '') +
-      '<span class="rk">'+esc(rankWord(n.rank))+'</span>' +
-      (kidCount ? '<span class="count">'+esc(kidCount)+'</span>' : '') +
-    '</div>';
-  if(open) html += kids.map(c=>renderNode(c,false)).join("");
-  return html + '</div>';
-}
-function renderTree(){ treeEl.innerHTML = renderNode(ROOT, true); paintTree(); }
-/* the tree is re-rendered wholesale, so put the keyboard focus back where it was */
-function refocus(selector){
-  const el = treeEl.querySelector(selector);
-  if(el && treeEl.closest("details")?.open) el.focus({preventScroll:true});
-}
-function paintTree(){
-  const r = (picked.a && picked.b) ? mrca(picked.a, picked.b) : null;
-  treeEl.querySelectorAll(".row").forEach(row => {
-    const id = row.dataset.id;
-    row.classList.toggle("is-a", !!picked.a && picked.a.id === id);
-    row.classList.toggle("is-b", !!picked.b && picked.b.id === id);
-    row.classList.toggle("is-meet", !!r && r.node.id === id);
-  });
-}
-treeEl.addEventListener("click", e => {
-  const tw = e.target.closest("[data-tw]");
-  if(tw){
-    const id = tw.dataset.tw;
-    if(expanded.has(id)) expanded.delete(id); else expanded.add(id);
-    renderTree();
-    refocus('[data-tw="' + id + '"]');
-    return;
-  }
-  const pick = e.target.closest("[data-pick]");
-  if(pick){
-    const id = pick.dataset.pick;
-    const slot = !picked.a ? "a" : (!picked.b ? "b" : nextSlot);
-    nextSlot = slot === "a" ? "b" : "a";
-    setPick(slot, nodes.get(id));
-    refocus('[data-pick="' + id + '"]');
-  }
-});
-$("treeFilter").addEventListener("input", e => {
-  const q = e.target.value.trim().toLowerCase();
-  if(!q){ filterMatches = null; renderTree(); return; }
-  const keep = new Set();
-  for(const entry of searchIndex){
-    if(searchTerms(entry, false).some(term => term.includes(q)))
-      lineage(entry.node).forEach(x => keep.add(x.id));
-  }
-  filterMatches = keep.size ? keep : new Set([ROOT.id]);
-  renderTree();
-});
-$("expandPath").addEventListener("click", () => {
-  [picked.a, picked.b].filter(Boolean).forEach(n => lineage(n).forEach(x => expanded.add(x.id)));
-  renderTree();
-  const r = (picked.a && picked.b) ? mrca(picked.a, picked.b) : null;
-  const id = r ? r.node.id : (picked.a || ROOT).id;
-  const target = treeEl.querySelector('.row[data-id="' + id + '"]');
-  if(target) target.scrollIntoView({block:"center", behavior:calmly()});
-  refocus('[data-pick="' + id + '"]');
-});
-$("collapseAll").addEventListener("click", () => {
-  expanded.clear(); expanded.add("life");
-  $("treeFilter").value = ""; filterMatches = null;
-  renderTree();
-});
-
 /* =====================================================================
    8. BUTTONS, EXAMPLES AND LINKS
    ===================================================================== */
@@ -1614,8 +1525,6 @@ function relabelTree(){
 }
 function redrawEverything(){
   renderExamples();
-  $("treeStat").textContent = t("tree.animals", {n: speciesCount});
-  renderTree();
   if(picked.a) setPick("a", picked.a, {sync:false});
   if(picked.b) setPick("b", picked.b, {sync:false});
   if(picked.a && picked.b) compare();
@@ -1648,7 +1557,7 @@ document.querySelector(".theme").addEventListener("click", e => {
 })();
 
 /* =====================================================================
-   10. THE FIVE-ANIMAL VIEW: PICKING, LINKS, PRINTING AND EXPORT
+   9. THE FIVE-ANIMAL VIEW: PICKING, LINKS, PRINTING AND EXPORT
    ===================================================================== */
 function renderChips(){
   const list = $("chips");
@@ -1675,8 +1584,6 @@ function drawFigure(){
   }
   box.hidden = false;
   $("manyDiagram").innerHTML = drawFamilyTree(manyPicks);
-  const {root} = inducedTree(manyPicks);
-  $("treeAsList").innerHTML = "<ul>" + treeAsList(root) + "</ul>";
   $("manyHeadText").textContent = manyPicks.length === 1
     ? t("many.headOne", {name: displayName(manyPicks[0])})
     : t("many.head", {n: manyPicks.length});
@@ -1739,9 +1646,254 @@ $("manyRand").addEventListener("click", () => {
   drawMany();
 });
 
+/* ---- a photo of your own on an animal ----
+   Kept on this device only: read from the file picker, cropped square and
+   shrunk in the browser, then stored as a data URI so it travels with the
+   exported SVG, PNG and print without any upload. The platform does the work
+   a resize library would: createImageBitmap corrects EXIF rotation and scales
+   with proper filtering, and toDataURL encodes. Nothing is fetched. */
+const PHOTO_SIZE = 320;              // enough for A3 at the size the figure draws it
+const PHOTO_BUDGET = 1.6e6;          // characters of localStorage we are willing to use
+const photoWorking = {};             // id -> a bigger copy, this session only, for re-cropping
+
+async function squarePhoto(source, offset){
+  let bitmap;
+  try { bitmap = await createImageBitmap(source, {imageOrientation: "from-image"}); }
+  catch(err){ throw new Error("unreadable"); }
+  const side = Math.min(bitmap.width, bitmap.height);
+  const sx = (bitmap.width - side) / 2;
+  const sy = (bitmap.height - side) * Math.max(0, Math.min(1, offset));
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = PHOTO_SIZE;
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bitmap, sx, sy, side, side, 0, 0, PHOTO_SIZE, PHOTO_SIZE);
+  if(bitmap.close) bitmap.close();
+  return canvas.toDataURL("image/jpeg", 0.82);
+}
+
+function savePhotos(){
+  try{
+    const kept = JSON.stringify(figState.photos);
+    if(kept.length > PHOTO_BUDGET) throw new Error("too big to keep");
+    localStorage.setItem("tol-photos", kept);
+  }catch(err){
+    $("manyNote").textContent = t("ui.photoDropped");
+  }
+}
+
+async function choosePhoto(id, file){
+  if(!file) return;
+  if(file.size > 20e6){ $("manyNote").textContent = t("ui.photoTooBig"); return; }
+  try{
+    /* a working copy for the up/down slider, and the square that goes in the figure */
+    photoWorking[id] = file;
+    figState.photos[id] = await squarePhoto(file, figState.photoOffsets[id] ?? 0.5);
+    savePhotos();
+    renderWordsPanel();
+    drawFigure();
+    const node = nodes.get(id);
+    $("manyNote").textContent = t("ui.photoAdded", {name: node ? displayName(node) : ""});
+    /* Now, and only now, see whether hand-framing can be offered. The panel is
+       redrawn if it can; if it cannot, nothing about the page changes. */
+    photoBig[id] = await bigCopy(file);
+    if(await loadCropper()) renderWordsPanel();
+  }catch(err){
+    delete photoWorking[id];
+    $("manyNote").textContent = t("ui.photoUnreadable");
+  }
+}
+
+async function movePhoto(id, offset){
+  figState.photoOffsets[id] = offset;
+  if(!photoWorking[id]) return;
+  figState.photos[id] = await squarePhoto(photoWorking[id], offset);
+  savePhotos();
+  drawFigure();
+}
+
+function dropPhoto(id){
+  delete figState.photos[id];
+  delete photoWorking[id];
+  delete photoBig[id];
+  delete figState.photoOffsets[id];
+  savePhotos();
+  renderWordsPanel();
+  drawFigure();
+}
+
+/* the picture for a leaf: the reader's own, else a fetched one, else none */
+function photoFor(node){
+  if(figState.photos[node.id]) return {src: figState.photos[node.id]};
+  return (typeof TAXON_IMAGES !== "undefined" && TAXON_IMAGES[node.id]) || null;
+}
+
+(function startPhotos(){
+  try{
+    const kept = JSON.parse(localStorage.getItem("tol-photos") || "{}");
+    if(kept && typeof kept === "object") Object.assign(figState.photos, kept);
+  }catch(err){ /* nothing kept, or unreadable */ }
+})();
+
+/* ---- framing a photo by hand ----
+   The one enhancement that reaches the network, under the rules in AGENTS.md:
+   the crop library is fetched the first time a photo is chosen - never on page
+   load - and "Adjust the framing" is only added to the panel once the library
+   is genuinely there. A blocked script, a school firewall or a USB stick with
+   no network therefore means the button never appears, which is the graceful
+   half of the deal. Centre crop plus the up/down slider stays the offline
+   path, and remains the only path a keyboard user needs.
+
+   `vendor/` is tried first, so a build that ran tools/vendor-cropper.mjs is
+   fully offline; the CDN is the fallback for the plain checked-in page. */
+const CROPPER_VER = "1.6.2";
+const CROPPER_CDN = "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/" + CROPPER_VER + "/cropper.min.";
+/* Subresource integrity for the CDN copy. Third-party code runs in a page that
+   handles photographs of children, so this matters: tools/vendor-cropper.mjs
+   prints the hash to paste in here. Null means the browser cannot verify the
+   file, which is why a vendored copy is preferred for anything public. */
+const CROPPER_SRI = null;
+const CROP_WORKING = 1200;           // longest side kept in memory for re-cropping
+const photoBig = {};                 // id -> data URI, this session only
+
+let cropperTry = null;
+function addStyle(href){
+  const el = document.createElement("link");
+  el.rel = "stylesheet"; el.href = href;
+  document.head.appendChild(el);
+}
+function addScript(src, sri){
+  return new Promise(resolve => {
+    const el = document.createElement("script");
+    el.src = src;
+    if(sri){ el.integrity = sri; el.crossOrigin = "anonymous"; }
+    el.onload = () => resolve(typeof Cropper === "function");
+    el.onerror = () => resolve(false);
+    document.head.appendChild(el);
+  });
+}
+function loadCropper(){
+  if(cropperTry) return cropperTry;
+  cropperTry = (async () => {
+    if(typeof Cropper === "function") return true;
+    addStyle("vendor/cropper.min.css");
+    if(await addScript("vendor/cropper.min.js", null)) return true;
+    addStyle(CROPPER_CDN + "css");
+    /* a captive portal answers slowly rather than not at all, so give up */
+    const gaveUp = new Promise(r => setTimeout(() => r(false), 8000));
+    return Promise.race([addScript(CROPPER_CDN + "js", CROPPER_SRI), gaveUp]);
+  })().then(ok => {
+    /* a failure is not remembered: the network may be back next time */
+    if(!ok) cropperTry = null;
+    return ok;
+  });
+  return cropperTry;
+}
+
+/* A copy big enough to re-crop from, as a data URI - not a blob: URL, because
+   on file:// those taint the canvas and the crop could not be read back. */
+async function bigCopy(file){
+  const bitmap = await createImageBitmap(file, {imageOrientation: "from-image"});
+  const scale = Math.min(1, CROP_WORKING / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  if(bitmap.close) bitmap.close();
+  return canvas.toDataURL("image/jpeg", 0.9);
+}
+
+let cropper = null, cropFor = null;
+function closeCrop(){
+  if(cropper){ try{ cropper.destroy(); }catch(err){} cropper = null; }
+  cropFor = null;
+  const box = $("cropBox");
+  if(box.open) box.close();
+}
+async function openCrop(id){
+  if(!photoBig[id] || !(await loadCropper())) return;
+  closeCrop();
+  cropFor = id;
+  const img = $("cropImg");
+  img.src = photoBig[id];
+  $("cropBox").showModal();
+  if(!img.complete) await new Promise(r => { img.onload = r; img.onerror = r; });
+  try{
+    cropper = new Cropper(img, {
+      aspectRatio: 1, viewMode: 1, autoCropArea: 1, dragMode: "move",
+      background: false, guides: false, center: false, highlight: false,
+      cropBoxMovable: false, cropBoxResizable: false, toggleDragModeOnDblclick: false
+    });
+  }catch(err){
+    /* an unexpected version, or a browser that will not have it: fall back */
+    closeCrop();
+  }
+}
+async function useCrop(){
+  if(!cropper || !cropFor) return closeCrop();
+  const id = cropFor;
+  try{
+    const canvas = cropper.getCroppedCanvas({
+      width: PHOTO_SIZE, height: PHOTO_SIZE, imageSmoothingQuality: "high"
+    });
+    figState.photos[id] = canvas.toDataURL("image/jpeg", 0.82);
+    savePhotos();
+    closeCrop();
+    renderWordsPanel();
+    drawFigure();
+  }catch(err){
+    closeCrop();
+    $("manyNote").textContent = t("ui.photoUnreadable");
+  }
+}
+$("cropBox").addEventListener("click", e => {
+  const btn = e.target.closest("[data-crop]");
+  if(!btn) return;
+  const what = btn.dataset.crop;
+  if(what === "cancel") return closeCrop();
+  if(what === "use") return useCrop();
+  if(!cropper) return;
+  const step = 24;
+  try{
+    if(what === "zoomIn") cropper.zoom(0.1);
+    else if(what === "zoomOut") cropper.zoom(-0.1);
+    else if(what === "left") cropper.move(step, 0);
+    else if(what === "right") cropper.move(-step, 0);
+    else if(what === "up") cropper.move(0, step);
+    else if(what === "down") cropper.move(0, -step);
+    else if(what === "reset") cropper.reset();
+  }catch(err){ /* leave the framing as it was */ }
+});
+/* Esc closes a native dialog on its own; tidy the library up when it does */
+$("cropBox").addEventListener("close", () => {
+  if(cropper){ try{ cropper.destroy(); }catch(err){} cropper = null; }
+  cropFor = null;
+});
+
 /* ---- the figure's own settings: style, titles, and names for the animals ---- */
-$("figStyle").innerHTML = Object.entries(FIG_STYLES)
-  .map(([id, s]) => '<option value="' + id + '">' + esc(s.name) + '</option>').join("");
+/* Paper sizes: A4 and A3 are the same everywhere, the orientation words are not. */
+const PAPERS = ["A4 portrait", "A4 landscape", "A3 portrait", "A3 landscape"];
+function renderPaperOptions(){
+  const keep = $("paper").value;
+  $("paper").innerHTML = PAPERS.map(v => {
+    const [size, way] = v.split(" ");
+    return '<option value="' + v + '"' + (v === keep ? " selected" : "") + '>' +
+      esc(t("paper." + way, {size: size})) + '</option>';
+  }).join("");
+}
+renderPaperOptions();
+
+function renderStyleOptions(){
+  const keep = figState.style;
+  $("figStyle").innerHTML = Object.entries(FIG_STYLES)
+    .map(([id, s]) => '<option value="' + id + '"' + (id === keep ? " selected" : "") + '>' +
+      esc(t("style." + id)) + '</option>').join("");
+}
+renderStyleOptions();
 
 function renderWordsPanel(){
   const rows = [
@@ -1752,19 +1904,46 @@ function renderWordsPanel(){
       '<input id="figFooter" type="text" placeholder="' + esc(autoFooter()) + '"' +
       ' value="' + esc(figState.footer === null ? "" : figState.footer) + '"></div>'
   ];
-  manyPicks.forEach((n, i) => rows.push(
-    '<div class="fig-field"><label for="figName' + i + '">' + esc(t("ui.figNameLabel", {animal: lower(label(n))})) +
-      ' <span class="hint">' + esc(t("ui.figNameHint")) + '</span></label>' +
-      '<input id="figName' + i + '" data-name-for="' + n.id + '" type="text" placeholder="' + esc(label(n)) + '"' +
-      ' value="' + esc(figState.names[n.id] || "") + '"></div>'));
+  manyPicks.forEach((n, i) => {
+    const photo = figState.photos[n.id];
+    rows.push(
+      '<div class="fig-field"><label for="figName' + i + '">' + esc(t("ui.figNameLabel", {animal: lower(label(n))})) +
+        ' <span class="hint">' + esc(t("ui.figNameHint")) + '</span></label>' +
+        '<input id="figName' + i + '" data-name-for="' + n.id + '" type="text" placeholder="' + esc(label(n)) + '"' +
+        ' value="' + esc(figState.names[n.id] || "") + '">' +
+        '<div class="photo-row">' +
+          (photo ? '<img class="photo-thumb" src="' + photo + '" alt="">' : '') +
+          '<label class="photo-pick"><span>' + esc(t(photo ? "ui.photoReplace" : "ui.photoChoose")) + '</span>' +
+            '<input type="file" accept="image/*" data-photo-for="' + n.id + '"></label>' +
+          (photo && photoWorking[n.id]
+            ? '<label class="photo-move">' + esc(t("ui.photoOffset")) +
+              '<input type="range" min="0" max="1" step="0.05" value="' + (figState.photoOffsets[n.id] ?? 0.5) +
+              '" data-photo-move="' + n.id + '"></label>' : '') +
+          (photo && photoBig[n.id] && typeof Cropper === "function"
+            ? '<button type="button" data-photo-crop="' + n.id + '">' + esc(t("ui.photoAdjust")) + '</button>' : '') +
+          (photo ? '<button type="button" data-photo-drop="' + n.id + '">' + esc(t("ui.photoRemove")) + '</button>' : '') +
+        '</div></div>');
+  });
+  rows.push('<p class="photo-note">' + esc(t("ui.photoPrivacy")) + '</p>');
   $("figWordsBody").innerHTML = '<div class="fig-fields">' + rows.join("") + '</div>';
   $("figWords").hidden = !manyPicks.length;
 }
 
 /* Typing must not rebuild the panel underneath the person's cursor, so text
    fields redraw the picture only. */
+$("figWordsBody").addEventListener("change", e => {
+  const el = e.target;
+  if(el.dataset.photoFor) choosePhoto(el.dataset.photoFor, el.files && el.files[0]);
+});
+$("figWordsBody").addEventListener("click", e => {
+  const drop = e.target.closest("[data-photo-drop]");
+  if(drop){ dropPhoto(drop.dataset.photoDrop); return; }
+  const crop = e.target.closest("[data-photo-crop]");
+  if(crop) openCrop(crop.dataset.photoCrop);
+});
 $("figWordsBody").addEventListener("input", e => {
   const el = e.target;
+  if(el.dataset.photoMove){ movePhoto(el.dataset.photoMove, +el.value); return; }
   if(el.id === "figTitle") figState.title = el.value;
   else if(el.id === "figFooter"){
     figState.footer = el.value;
@@ -1884,7 +2063,7 @@ function applyHash(){
     lang = wanted;
     document.documentElement.lang = lang;
     try{ localStorage.setItem("tol-lang", lang); }catch(e){}
-    applyStrings(); relabelTree(); renderExamples(); renderTree();
+    applyStrings(); relabelTree(); renderExamples();
   }
   bareMode = params.get("bare") === "1";
   document.body.classList.toggle("bare", bareMode);
@@ -1937,7 +2116,6 @@ addEventListener("hashchange", () => { if(location.hash !== lastHash) applyHash(
 })();
 
 renderExamples();
-renderTree();
 if(!applyHash()){
   setPick("a", search("Lion",1)[0], {sync:false});
   setPick("b", search("Brown bear",1)[0], {sync:false});

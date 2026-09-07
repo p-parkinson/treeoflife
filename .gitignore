@@ -1,2 +1,6 @@
-node_modules/
-dist/
+# Trailing slashes are deliberately absent: these match a real directory and a
+# symlink to one, and a symlinked node_modules is how the checks get playwright
+# and axe-core without a package.json in the repo.
+node_modules
+dist
+vendor

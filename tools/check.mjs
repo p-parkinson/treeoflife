@@ -9,7 +9,9 @@
  *
  * It exits non-zero on any failure, so it can go in CI as-is.
  */
-import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync, writeFileSync, unlinkSync, mkdirSync, rmdirSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { deflateSync, crc32 } from "node:zlib";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -79,9 +81,12 @@ console.log("\ninterface text");
      prefix ("age.million" + form). Collect every id-shaped literal, and treat a prefix
      match as used, so a table-driven id is not reported as dead. */
   const literals = [...page.matchAll(/"([a-z][a-zA-Z0-9]*\.[a-zA-Z]+)"/g)].map(m => m[1]);
+  /* a bare prefix, as in t("style." + id), stands for every id under it */
+  const prefixes = [...page.matchAll(/"([a-z][a-zA-Z0-9]*\.)"/g)].map(m => m[1]);
   const used = new Set(literals);
   [...page.matchAll(/data-i18n(?:-ph|-al)?="([^"]+)"/g)].forEach(m => used.add(m[1]));
-  const isUsed = id => used.has(id) || literals.some(l => id.startsWith(l));
+  const isUsed = id => used.has(id) || literals.some(l => id.startsWith(l)) ||
+    prefixes.some(pre => id.startsWith(pre));
   const files = readdirSync(join(ROOT, "data")).filter(f => /^strings\.[a-z-]+\.js$/.test(f));
   const ids = {};
   for(const file of files){
@@ -89,7 +94,7 @@ console.log("\ninterface text");
     ids[file.split(".")[1]] = new Set([...code.matchAll(/^  "([^"]+)":/gm)].map(m => m[1]));
   }
   report(!!ids.en, "data/strings.en.js is present");
-  const missing = [...used].filter(id => ids.en && !ids.en.has(id) && /^(ui|ph|a11y|foot|story|close|era|rank|grp|fig|diag|tree|list|pick|verdict|table|age|many|announce|lang)\./.test(id));
+  const missing = [...used].filter(id => ids.en && !ids.en.has(id) && /^(ui|ph|a11y|foot|story|close|era|rank|grp|fig|diag|tree|list|pick|verdict|table|age|many|announce|lang|crop|style|paper)\./.test(id));
   report(missing.length === 0, "every id the app uses is defined in English", missing.join(", "));
   const unused = ids.en ? [...ids.en].filter(id => !isUsed(id)) : [];
   /* informational: a static scan cannot see every dynamic id, so this is a hint, not a gate */
@@ -104,7 +109,8 @@ console.log("\ninterface text");
 
 console.log("\nevery language renders with no missing text");
 {
-  const codes = readdirSync(join(ROOT, "data")).filter(f => /^strings\./.test(f)).map(f => f.split(".")[1]);
+  const codes = readdirSync(join(ROOT, "data")).filter(f => /^strings\./.test(f)).map(f => f.split(".")[1])
+    .sort((a, b) => (a === "en" ? -1 : b === "en" ? 1 : a.localeCompare(b)));
   for(const code of codes){
     const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 } });
     const page = await ctx.newPage();
@@ -116,8 +122,151 @@ console.log("\nevery language renders with no missing text");
     await page.evaluate(() => document.querySelectorAll("details").forEach(d => (d.open = true)));
     await page.waitForTimeout(200);
     report(problems.length === 0, code + ": page renders cleanly", problems.slice(0, 3).join(" | "));
+    /* Dropdowns built from a table in code, not from markup: applyStrings has to
+       rebuild them, and forgetting that left the style names in English once.
+       Comparing against English would be wrong - French for "A4 portrait" is
+       "A4 portrait" - so compare each option against what t() says it should be. */
+    const wrong = await page.evaluate(() => {
+      const out = [];
+      for(const [id, want] of [["figStyle", o => t("style." + o.value)],
+                               ["paper", o => t("paper." + o.value.split(" ")[1], {size: o.value.split(" ")[0]})]]){
+        for(const o of document.getElementById(id).options)
+          if(o.text !== want(o)) out.push(id + ": " + o.text + " should be " + want(o));
+      }
+      return out;
+    });
+    report(wrong.length === 0, code + ": dropdowns built in code say what t() says",
+      wrong.slice(0, 2).join(" | "));
     await ctx.close();
   }
+}
+
+console.log("\na photo of your own");
+{
+  /* a real PNG, written here so the check needs no fixtures on disk */
+  const w = 240, h = 160;
+  const rows = [];
+  for(let y = 0; y < h; y++){
+    const line = [0];
+    for(let x = 0; x < w; x++) line.push(y < h / 3 ? 240 : 40, y < h / 3 ? 90 : 120, 40);
+    rows.push(Buffer.from(line));
+  }
+  const chunk = (type, data) => {
+    const body = Buffer.concat([Buffer.from(type), data]);
+    const len = Buffer.alloc(4); len.writeUInt32BE(data.length);
+    const crc = Buffer.alloc(4); crc.writeUInt32BE(crc32(body) >>> 0);
+    return Buffer.concat([len, body, crc]);
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(w, 0); ihdr.writeUInt32BE(h, 4);
+  ihdr[8] = 8; ihdr[9] = 2;
+  const file = join(tmpdir(), "tol-check-photo.png");
+  writeFileSync(file, Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    chunk("IHDR", ihdr), chunk("IDAT", deflateSync(Buffer.concat(rows))), chunk("IEND", Buffer.alloc(0))]));
+
+  const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 }, acceptDownloads: true });
+  const page = await ctx.newPage();
+  const problems = [];
+  page.on("pageerror", e => problems.push(e.message));
+  await page.goto(PAGE + "#tree=domestic+cat,human&names=Mr+Whiskers");
+  await page.waitForTimeout(700);
+  await page.evaluate(() => (document.querySelector("#figWords").open = true));
+  await page.setInputFiles('[data-photo-for="sp-felis-catus"]', file);
+  await page.waitForTimeout(900);
+  const href = await page.$eval("#familySvg image", el => el.getAttribute("href")).catch(() => "");
+  report(href.startsWith("data:image/"), "a chosen photo lands on the animal, inlined not linked",
+    href.slice(0, 30));
+  report(await page.evaluate(() => !!JSON.parse(localStorage.getItem("tol-photos") || "{}")["sp-felis-catus"]),
+    "the photo is remembered on this device");
+  const [download] = await Promise.all([page.waitForEvent("download"), page.click("#btnPng")]);
+  const bytes = readFileSync(await download.path()).length;
+  report(bytes > 20000, "the photo survives into the PNG export (canvas not tainted)", Math.round(bytes / 1024) + " KB");
+  await page.click("[data-photo-drop]");
+  await page.waitForTimeout(500);
+  report((await page.$$("#familySvg image")).length === 0, "removing the photo clears it from the figure");
+  report(problems.length === 0, "no script errors while handling a photo", problems.slice(0, 2).join(" | "));
+  await ctx.close();
+
+  /* ---- the graceful half of the deal (AGENTS.md rule 1) ----
+     With the crop library unreachable, choosing a photo must still work and
+     "Adjust the framing" must never appear: a control that cannot work must
+     not be on the screen. Requests to the CDN are blocked outright here, which
+     is what a school firewall or an unplugged cable looks like. */
+  {
+    const offline = await browser.newContext({ viewport: { width: 1200, height: 900 } });
+    await offline.route("**cdnjs.cloudflare.com/**", r => r.abort());
+    const p2 = await offline.newPage();
+    const errs = [];
+    p2.on("pageerror", e => errs.push(e.message));
+    await p2.goto(PAGE + "#tree=domestic+cat,human");
+    await p2.waitForTimeout(600);
+    await p2.evaluate(() => (document.querySelector("#figWords").open = true));
+    await p2.setInputFiles('[data-photo-for="sp-felis-catus"]', file);
+    await p2.waitForTimeout(1200);
+    const onLeaf = await p2.$eval("#familySvg image", el => el.getAttribute("href")).catch(() => "");
+    report(onLeaf.startsWith("data:image/"), "with no crop library, the photo still lands on the animal");
+    report((await p2.$$("[data-photo-crop]")).length === 0,
+      "with no crop library, no Adjust button is offered");
+    report((await p2.$$("[data-photo-move]")).length === 1,
+      "the up/down slider is still there as the offline and keyboard path");
+    report(errs.length === 0, "a blocked crop library causes no script errors", errs.slice(0, 2).join(" | "));
+    await offline.close();
+  }
+
+  /* ---- the same flow with the library present ----
+     Stood in for by a stub with the small API surface index.html actually uses,
+     so this checks our wiring - not Cropper itself, which cannot be fetched in
+     this sandbox. See TODO.md: the real library still needs one manual pass. */
+  {
+    const stub = join(ROOT, "vendor");
+    let made = false;
+    try {
+      if (!existsSync(stub)) { mkdirSync(stub); made = true; }
+      writeFileSync(join(stub, "cropper.min.css"), "/* stand-in */\n");
+      writeFileSync(join(stub, "cropper.min.js"), `
+        window.Cropper = function(img){
+          this.destroy = function(){};
+          this.zoom = function(){}; this.move = function(){}; this.reset = function(){};
+          this.getCroppedCanvas = function(o){
+            const c = document.createElement("canvas");
+            c.width = o.width; c.height = o.height;
+            const x = c.getContext("2d");
+            x.fillStyle = "#2b7"; x.fillRect(0, 0, c.width, c.height);
+            x.drawImage(img, 0, 0, c.width, c.height);
+            return c;
+          };
+        };`);
+      const ctx3 = await browser.newContext({ viewport: { width: 1200, height: 900 } });
+      const p3 = await ctx3.newPage();
+      const errs = [];
+      p3.on("pageerror", e => errs.push(e.message));
+      await p3.goto(PAGE + "#tree=domestic+cat,human");
+      await p3.waitForTimeout(600);
+      await p3.evaluate(() => (document.querySelector("#figWords").open = true));
+      await p3.setInputFiles('[data-photo-for="sp-felis-catus"]', file);
+      await p3.waitForTimeout(1500);
+      report((await p3.$$("[data-photo-crop]")).length === 1,
+        "with the library there, Adjust the framing is offered");
+      await p3.click("[data-photo-crop]");
+      await p3.waitForTimeout(600);
+      report(await p3.evaluate(() => document.querySelector("#cropBox").open),
+        "the framing dialog opens");
+      const before = await p3.$eval("#familySvg image", el => el.getAttribute("href"));
+      await p3.click('[data-crop="use"]');
+      await p3.waitForTimeout(700);
+      const after = await p3.$eval("#familySvg image", el => el.getAttribute("href"));
+      report(!(await p3.evaluate(() => document.querySelector("#cropBox").open)) && after !== before,
+        "using a framing closes the dialog and replaces the photo");
+      report(errs.length === 0, "no script errors while framing by hand", errs.slice(0, 2).join(" | "));
+      await ctx3.close();
+    } finally {
+      try { unlinkSync(join(stub, "cropper.min.js")); } catch { /* fine */ }
+      try { unlinkSync(join(stub, "cropper.min.css")); } catch { /* fine */ }
+      if (made) { try { rmdirSync(stub); } catch { /* fine */ } }
+    }
+  }
+
+  try { unlinkSync(file); } catch { /* fine */ }
 }
 
 console.log("\ntyped search stays in the reader's language");
@@ -200,12 +349,28 @@ for (const set of SETS) {
 }
 
 console.log("\nsmall screens");
-for (const [name, width] of [["320 px", 320], ["390 px", 390], ["768 px", 768]]) {
-  await page.setViewportSize({ width, height: 800 });
-  await page.goto(PAGE);
-  await page.waitForTimeout(500);
-  const wide = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
-  report(!wide, name + ": the page itself never scrolls sideways");
+/* Every language, because translated labels are longer than the English ones and
+   that is exactly how the header came to overflow at 320px once already. */
+for (const lang of readdirSync(join(ROOT, "data")).filter(f => /^strings\./.test(f)).map(f => f.split(".")[1])) {
+  const bad = [];
+  for (const width of [320, 360, 390, 480, 768, 1024]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto(PAGE + "#lang=" + lang);
+    await page.waitForTimeout(320);
+    const over = await page.evaluate(() => {
+      const de = document.documentElement;
+      if (de.scrollWidth <= de.clientWidth) return null;
+      const who = [];
+      for (const el of document.querySelectorAll("body *")) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 0 && r.right > de.clientWidth + 1 && !el.closest(".diagram-scroll, details.full .body"))
+          who.push(el.id ? "#" + el.id : el.tagName.toLowerCase());
+      }
+      return de.scrollWidth + ">" + de.clientWidth + " " + [...new Set(who)].slice(0, 3).join(",");
+    });
+    if (over) bad.push(width + "px: " + over);
+  }
+  report(bad.length === 0, lang + ": the page never scrolls sideways, 320-1024px", bad.slice(0, 2).join(" | "));
 }
 await page.setViewportSize({ width: 1200, height: 900 });
 await page.goto(PAGE);
