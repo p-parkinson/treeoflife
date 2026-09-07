@@ -7,7 +7,7 @@ Read this before changing anything.
 **What exists today.** Two views (the two-animal answer, the family tree of up to five); 1,050 taxa
 and 343 animals; English, French and Spanish; five figure styles; per-animal names and photos a
 teacher supplies; print/PDF and SVG/PNG export; light/dark. Everything is driven
-from the URL. `node tools/check.mjs` is the gate — 55 checks, and it must stay green.
+from the URL. `node tools/check.mjs` is the gate — 58 checks, and it must stay green.
 
 ## What must stay true
 
