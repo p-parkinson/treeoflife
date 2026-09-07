@@ -6,6 +6,11 @@
 window.TOL_STRINGS = window.TOL_STRINGS || {};
 window.TOL_STRINGS.en = {
   "lang.name": "English",
+  "fig.captionHint": "Point at any part of the picture, or use the arrow keys, to see more about it.",
+  "hover.apart": v => "about " + v.span + " apart",
+  "hover.inGroup": v => "one of the " + v.group,
+  "hover.hiddenOne": "1 group not named here",
+  "hover.hiddenMany": v => v.n + " groups not named here",
   "fig.showSkippedOne": "Show the 1 group not named here",
   "fig.showSkippedMany": v => "Show the " + v.n + " groups not named here",
   "fig.hideSkipped": "Hide these groups again",

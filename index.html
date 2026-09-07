@@ -265,6 +265,15 @@ details.full.inset .body{padding:0 14px 14px}
 .sel select:hover{background:var(--paper-2)}
 @media (forced-colors: active){.sel::after{border-color:ButtonText}}
 
+/* the line under the picture that fills in as you point at its parts */
+.fig-caption{margin:0;padding:8px 20px 2px;font-size:15px;color:var(--ink);min-height:2.6em;
+  border-top:1px solid var(--line)}
+.fig-caption.resting{color:var(--muted);font-size:14px}
+#familySvg[tabindex]:focus-visible{outline:3px solid var(--a);outline-offset:2px;border-radius:8px}
+.fig-hits [data-part]{fill:transparent;stroke:none;cursor:default}
+.fig-hits [data-part]:hover,.fig-hits [data-part].on{fill:var(--shared);fill-opacity:.16}
+@media (forced-colors: active){.fig-hits [data-part]:hover,.fig-hits [data-part].on{fill:Highlight;fill-opacity:.3}}
+
 /* a numbered badge you can open out, and the "-" that folds it away again */
 .gap-btn{cursor:pointer}
 .gap-btn circle{transition:fill .12s}
@@ -446,6 +455,7 @@ footer p{margin:0 0 10px}
         <span class="sel"><select id="figStyle"></select></span></span></h2>
     <div class="body diagram-scroll" id="manyDiagram"></div>
     <p class="swipe-hint" id="manySwipeHint" data-i18n="ui.swipe" hidden>The picture is wider than your screen &mdash; slide it sideways to see all of it.</p>
+    <p class="fig-caption" id="figCaption" role="status" data-i18n="fig.captionHint">Point at any part of the picture to see more about it.</p>
     <p class="count-note" style="padding:0 20px 4px" data-i18n="ui.dashedNote">A dashed line with a number means that many in-between groups are not shown.</p>
     <div class="export">
       <button id="btnPrint" data-i18n="ui.print">Print or save as PDF</button>
@@ -1042,8 +1052,13 @@ function drawNarrow(r, trunk, tailA, tailB, full){
 
   const endA = tailA.length ? tailA[tailA.length-1].node : trunk[trunk.length-1].node;
   const endB = tailB.length ? tailB[tailB.length-1].node : trunk[trunk.length-1].node;
-  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-labelledby="diagTitle diagDesc">' +
-    '<title id="diagTitle">' + esc(t("diag.title", {a: label(endA), b: label(endB)})) + '</title>' +
+  /* The name goes in aria-label, not a <title> child: a <title> makes the
+     browser pop the whole picture's name as a tooltip wherever the pointer
+     lands, which repeats the heading directly above it and says nothing about
+     the part being pointed at. This diagram already prints its dates beside
+     every step, so there is nothing to reveal. */
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img"' +
+    ' aria-label="' + esc(t("diag.title", {a: label(endA), b: label(endB)})) + '" aria-describedby="diagDesc">' +
     '<desc id="diagDesc">' + esc(t("fig.descNarrow", {first: label(trunk[0].node),
       meet: label(trunk[trunk.length-1].node), a: label(endA), b: label(endB)})) + '</desc>' + p.join("") + '</svg>';
 }
@@ -1138,8 +1153,8 @@ function drawDiagram(r, full, narrow){
   const endA = tailA.length ? tailA[tailA.length-1].node : meet;
   const endB = tailB.length ? tailB[tailB.length-1].node : meet;
   const desc = t("fig.descNarrow", {first: label(first), meet: label(meet), a: label(endA), b: label(endB)});
-  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-labelledby="diagTitle diagDesc">' +
-    '<title id="diagTitle">' + esc(t("diag.title", {a: label(endA), b: label(endB)})) + '</title>' +
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img"' +
+    ' aria-label="' + esc(t("diag.title", {a: label(endA), b: label(endB)})) + '" aria-describedby="diagDesc">' +
     '<desc id="diagDesc">' + esc(desc) + '</desc>' + p.join("")+'</svg>';
 }
 
@@ -1172,6 +1187,9 @@ const figState = {style: "page", title: null, footer: null, names: {}, photos: {
    whoever opens it can open the gaps for themselves. Exports do follow it,
    because the picture you can see is the picture you should get. */
 const openedGaps = new Set();
+/* key -> the line shown under the picture when that part is pointed at, and
+   the order to walk them in with the arrow keys. Rebuilt on every draw. */
+let figParts = {}, figPartOrder = [];
 let bareMode = false;
 let lastHash = "";
 function setHash(h){ lastHash = h; location.replace(h); }
@@ -1400,10 +1418,33 @@ function drawFamilyTree(picksArr){
      whether any badge turned out to be pressable. */
   let hasControls = false;
   const bare = document.body.classList.contains("bare");
+  /* Generous, invisible shapes laid over the picture at the end, so pointing
+     anywhere near a group, an animal or a line finds it. They carry no colour
+     and no text: the caption under the picture does the talking. */
+  const hits = [];
+  const badges = [];
+  const partKeys = [];
+  figParts = {};
+  const hitNode = (key, node, x, y, r) => {
+    if(bare || figParts[key]) return;
+    figParts[key] = partCaption(node, "node");
+    partKeys.push(key);
+    hits.push('<circle data-part="' + esc(key) + '" cx="' + x + '" cy="' + y + '" r="' + r + '"/>');
+  };
+  /* The band stops short of both ends, so the circles at either end keep their
+     own hit area: a line is what lies between two groups, not the groups. */
+  const hitEdge = (key, node, from, skipped, x, y1, y2) => {
+    const top = Math.min(y1, y2) + 14, bottom = Math.max(y1, y2) - 14;
+    if(bare || figParts[key] || bottom - top < 10) return;
+    figParts[key] = partCaption(node, "edge", {from: from, skipped: skipped});
+    partKeys.push(key);
+    hits.push('<rect data-part="' + esc(key) + '" x="' + (x - 13) + '" y="' + top +
+      '" width="26" height="' + (bottom - top) + '"/>');
+  };
   const w = n => +(n * S.stroke).toFixed(2);                    // stroke widths follow the style
   const text = (x, y, s, opts) => {
     const o = opts || {};
-    p.push('<text x="' + x + '" y="' + y + '" text-anchor="' + (o.anchor || "middle") + '" fill="' + (o.fill || S.ink) +
+    (o.into || p).push('<text x="' + x + '" y="' + y + '" text-anchor="' + (o.anchor || "middle") + '" fill="' + (o.fill || S.ink) +
       '" font-size="' + (o.size || 13) + '" font-family="' + (o.family || S.body) + '"' +
       (o.weight ? ' font-weight="' + o.weight + '"' : '') + (o.italic ? ' font-style="italic"' : '') +
       (o.plain ? '' : ' stroke="' + S.paper + '" stroke-width="4.5" paint-order="stroke fill" stroke-linejoin="round"') +
@@ -1420,13 +1461,14 @@ function drawFamilyTree(picksArr){
     if(key && bare) key = null;               // the static picture has nothing to press
     if(key) hasControls = true;
     const face = open ? "\u2212" : String(n);
-    if(key) p.push('<g class="gap-btn" data-gap="' + esc(key) + '" role="button" tabindex="0"' +
+    if(key) badges.push('<g class="gap-btn" data-gap="' + esc(key) + '" role="button" tabindex="0"' +
       ' aria-expanded="' + (open ? "true" : "false") + '" aria-label="' +
       esc(open ? t("fig.hideSkipped") : (n === 1 ? t("fig.showSkippedOne") : t("fig.showSkippedMany", {n: n}))) + '">');
-    p.push('<circle cx="' + x + '" cy="' + y + '" r="10" fill="' + S.paper + '" stroke="' +
+    badges.push('<circle cx="' + x + '" cy="' + y + '" r="10" fill="' + S.paper + '" stroke="' +
       (key ? S.shared : S.faint) + '" stroke-width="' + w(1.5) + '"/>');
-    text(x, y + 4, face, {size: open ? 15 : 12, weight: 700, fill: key ? S.shared : S.muted, plain: true});
-    if(key) p.push('</g>');
+    text(x, y + 4, face, {size: open ? 15 : 12, weight: 700, fill: key ? S.shared : S.muted,
+                          plain: true, into: badges});
+    if(key) badges.push('</g>');
   };
 
   if(S.opaque) p.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="' + S.paper + '"/>');
@@ -1446,6 +1488,8 @@ function drawFamilyTree(picksArr){
     if(prevY !== null && (e.skipped || e.closeKey))
       gapBadge(rootX, (prevY + y) / 2, e.skipped, e.gapKey || e.closeKey, !!e.closeKey);
     p.push('<circle cx="' + rootX + '" cy="' + y + '" r="6" fill="' + S.paper + '" stroke="' + S.shared + '" stroke-width="' + w(3) + '"/>');
+    if(prevY !== null) hitEdge("e:" + e.node.id, e.node, stem[i - 1].node, e.skipped, rootX, prevY, y);
+    hitNode("n:" + e.node.id, e.node, rootX, y, 15);
     const side = besideNode(rootX, label(e.node), 14);
     text(rootX + side.dx, y - 1, label(e.node), {anchor: side.anchor, size: 14, weight: 600, family: S.display});
     if(showsSci(e.node)) text(rootX + side.dx, y + 14, sciOf(e.node), {anchor: side.anchor, size: 12, fill: S.muted, italic: true, weight: S.sciWeight});
@@ -1455,6 +1499,7 @@ function drawFamilyTree(picksArr){
     p.push('<line x1="' + rootX + '" y1="' + prevY + '" x2="' + rootX + '" y2="' + rootY +
       '" stroke="' + S.shared + '" stroke-width="' + w(3.5) + '" stroke-linecap="round"' + (rootGap ? ' stroke-dasharray="2 7"' : '') + '/>');
     if(rootGap) gapBadge(rootX, (prevY + rootY) / 2, rootGap, rootGapKey, false);
+    hitEdge("e:" + root.node.id, root.node, stem[stem.length - 1].node, rootGap, rootX, prevY, rootY);
   }
 
   /* every branch below the root */
@@ -1471,6 +1516,7 @@ function drawFamilyTree(picksArr){
         if(labelTop - from >= 20)
           gapBadge(cx, (from + labelTop) / 2, c.skipped, c.gapKey || c.closeKey, !!c.closeKey);
       }
+      hitEdge("e:" + c.node.id, c.node, d.node, c.skipped, cx, midY, cy);
       branch(c);
     });
   })(root);
@@ -1480,6 +1526,7 @@ function drawFamilyTree(picksArr){
     const x = xOf(d), y = yOf(d);
     if(d.children.length){
       p.push('<circle cx="' + x + '" cy="' + y + '" r="7" fill="' + S.paper + '" stroke="' + S.shared + '" stroke-width="' + w(3) + '"/>');
+      hitNode("n:" + d.node.id, d.node, x, y, 16);
       if(d === root && stem.length){
         const side = besideNode(x, label(d.node), 14);
         text(x + side.dx, y - 1, label(d.node), {anchor: side.anchor, size: 14, weight: 600, family: S.display});
@@ -1507,6 +1554,7 @@ function drawFamilyTree(picksArr){
       p.push('<circle cx="' + x + '" cy="' + (y + R + 6) + '" r="' + R + '" fill="' + S.paper + '" stroke="' + col + '" stroke-width="' + w(3.5) + '"/>');
       p.push('<circle cx="' + x + '" cy="' + (y + R + 6) + '" r="9" fill="' + col + '"/>');
     }
+    hitNode("n:" + n.id, n, x, y + R + 6, R + 6);
     let ty = y + R * 2 + 26;
     const given = givenName(n);
     const headline = given || label(n);
@@ -1519,10 +1567,47 @@ function drawFamilyTree(picksArr){
 
   const names = picksArr.map(displayName);
   const desc = t("fig.desc", {names: names.join(", "), root: label(stemPath[0]), branches: describeBranches(root)});
+  if(hits.length) p.push('<g class="fig-hits">' + hits.join("") + '</g>');
+  if(badges.length) p.push(badges.join(""));   // last, so nothing can swallow a press
+  figPartOrder = partKeys;
+  /* The name lives in aria-label rather than a <title> child, because a <title>
+     makes the browser show the whole figure's name as a tooltip wherever the
+     pointer happens to be - which is the vague hover this replaced. The
+     exported file gets its <title> back, where a tooltip is all there is. */
   return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H +
-    '" role="' + (hasControls ? "group" : "img") + '" aria-labelledby="manyTitle manyDesc" id="familySvg">' +
-    '<title id="manyTitle">' + esc(title || autoTitle(picksArr) || t("ui.title")) + '</title>' +
+    '" role="' + (hasControls || hits.length ? "group" : "img") + '"' +
+    ' aria-label="' + esc(title || autoTitle(picksArr) || t("ui.title")) + '"' +
+    ' aria-describedby="manyDesc" id="familySvg"' + (hits.length ? ' tabindex="0"' : '') + '>' +
     '<desc id="manyDesc">' + esc(desc) + '</desc>' + p.join("") + '</svg>';
+}
+
+/* ---- what a part of the picture says when you point at it ----
+   The figure names groups but deliberately shows no dates, so pointing at one
+   is where the "when" lives. Everything here is derived from the same node the
+   picture already draws - nothing new is fetched or invented. */
+function partCaption(node, kind, extra){
+  const bits = [];
+  if(kind === "edge"){
+    bits.push(label(extra.from) + " \u2192 " + label(node));
+    if(extra.from.mya && node.mya && extra.from.mya > node.mya)
+      bits.push(t("hover.apart", {span: agePhrase(extra.from.mya - node.mya, "bare")}));
+    if(extra.skipped)
+      bits.push(extra.skipped === 1 ? t("hover.hiddenOne") : t("hover.hiddenMany", {n: extra.skipped}));
+    return bits.join(" \u00b7 ");
+  }
+  bits.push(label(node) + (showsSci(node) ? " (" + sciOf(node) + ")" : ""));
+  bits.push(rankWord(node.rank));
+  const when = agePhrase(node.mya);
+  if(when) bits.push(when);
+  if(node.species){
+    /* a genus says little a child does not already see, so name the group above it */
+    const home = lineage(node).slice().reverse().find(a => a !== node && a.rank !== "genus");
+    if(home) bits.push(t("hover.inGroup", {group: label(home)}));
+  } else {
+    const many = descendantSpecies(node);
+    if(many) bits.push(many.toLocaleString(lang) + " " + t("verdict.belong"));
+  }
+  return bits.join(" \u00b7 ");
 }
 
 /* ---- the words that go on the picture ---- */
@@ -1673,16 +1758,62 @@ function toggleGap(key){
   const again = $("manyDiagram").querySelector('[data-gap="' + CSS.escape(key) + '"]');
   if(again) again.focus({preventScroll: true});
 }
+/* ---- pointing at a part of the picture ----
+   The caption is a line under the figure rather than a floating tooltip: it
+   cannot fall off the edge of a picture that pans sideways on a phone, it
+   works the same for a tap as for a hover, and it stays put long enough to
+   read at museum distance. */
+function sayPart(key){
+  const box = $("figCaption");
+  const said = key && figParts[key];
+  box.textContent = said || t("fig.captionHint");
+  box.classList.toggle("resting", !said);
+  $("manyDiagram").querySelectorAll(".fig-hits [data-part].on").forEach(el => el.classList.remove("on"));
+  if(said){
+    const el = $("manyDiagram").querySelector('.fig-hits [data-part="' + CSS.escape(key) + '"]');
+    if(el) el.classList.add("on");
+  }
+}
+let figCursor = -1;                              // where the arrow keys are
+$("manyDiagram").addEventListener("pointerover", e => {
+  const hit = e.target.closest("[data-part]");
+  if(hit){ figCursor = figPartOrder.indexOf(hit.dataset.part); sayPart(hit.dataset.part); }
+});
+$("manyDiagram").addEventListener("pointerleave", () => { figCursor = -1; sayPart(null); });
+
 $("manyDiagram").addEventListener("click", e => {
   const btn = e.target.closest("[data-gap]");
-  if(btn) toggleGap(btn.dataset.gap);
+  if(btn){ toggleGap(btn.dataset.gap); return; }
+  /* a tap has no hover, so it has to be the thing that chooses a part */
+  const hit = e.target.closest("[data-part]");
+  if(hit){ figCursor = figPartOrder.indexOf(hit.dataset.part); sayPart(hit.dataset.part); }
 });
 $("manyDiagram").addEventListener("keydown", e => {
-  if(e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
   const btn = e.target.closest("[data-gap]");
-  if(!btn) return;
-  e.preventDefault();                 // Space would otherwise scroll the page
-  toggleGap(btn.dataset.gap);
+  if(btn && (e.key === "Enter" || e.key === " " || e.key === "Spacebar")){
+    e.preventDefault();               // Space would otherwise scroll the page
+    toggleGap(btn.dataset.gap);
+    return;
+  }
+  /* Walking the picture: one tab stop, then arrows step through its parts in
+     the order they were drawn - down the stem, then branch by branch. Without
+     this the dates would be a thing only a mouse could reach. */
+  if(!figPartOrder.length) return;
+  const step = {ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1}[e.key];
+  if(step){
+    e.preventDefault();
+    figCursor = (figCursor + step + figPartOrder.length) % figPartOrder.length;
+    sayPart(figPartOrder[figCursor]);
+  } else if(e.key === "Home"){
+    e.preventDefault(); figCursor = 0; sayPart(figPartOrder[0]);
+  } else if(e.key === "End"){
+    e.preventDefault(); figCursor = figPartOrder.length - 1; sayPart(figPartOrder[figCursor]);
+  } else if(e.key === "Escape"){
+    figCursor = -1; sayPart(null);
+  }
+});
+$("manyDiagram").addEventListener("focusout", e => {
+  if(!$("manyDiagram").contains(e.relatedTarget)){ figCursor = -1; sayPart(null); }
 });
 
 function drawFigure(){
@@ -2108,7 +2239,13 @@ function svgForExport(){
   let out = new XMLSerializer().serializeToString(svg);
   /* The file is a picture, not a page: the badges lose the attributes that
      only mean something on screen, and the root goes back to being an image. */
-  out = out.replace(/<g class="gap-btn"[^>]*>/g, "<g>").replace(' role="group"', ' role="img"');
+  out = out.replace(/<g class="fig-hits">.*?<\/g>/g, "")
+           .replace(/<g class="gap-btn"[^>]*>/g, "<g>")
+           .replace(/\stabindex="[^"]*"/g, "")
+           .replace(' role="group"', ' role="img"');
+  /* a standalone file has no caption line, so give the tooltip back */
+  const name = (svg.getAttribute("aria-label") || "").trim();
+  if(name) out = out.replace(/(<svg[^>]*>)/, '$1<title>' + name.replace(/[<&]/g, c => c === "<" ? "&lt;" : "&amp;") + "</title>");
   out = out.replace(/var\(--([\w-]+)\)/g, (_, name) => (style.getPropertyValue("--" + name) || "#000").trim());
   const paper = (style.getPropertyValue("--card") || "#fff").trim();
   out = out.replace(/(<svg[^>]*>)/, '$1<rect width="100%" height="100%" fill="' + paper + '"/>');

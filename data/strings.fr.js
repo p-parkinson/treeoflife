@@ -6,6 +6,11 @@
 window.TOL_STRINGS = window.TOL_STRINGS || {};
 window.TOL_STRINGS.fr = {
   "lang.name": "Français",
+  "fig.captionHint": "Pointe une partie de l\u2019image, ou utilise les flèches, pour en savoir plus.",
+  "hover.apart": v => "environ " + v.span + " d\u2019\u00e9cart",
+  "hover.inGroup": v => "parmi les " + v.group,
+  "hover.hiddenOne": "1 groupe non nomm\u00e9 ici",
+  "hover.hiddenMany": v => v.n + " groupes non nomm\u00e9s ici",
   "fig.showSkippedOne": "Afficher le groupe non nommé ici",
   "fig.showSkippedMany": v => "Afficher les " + v.n + " groupes non nommés ici",
   "fig.hideSkipped": "Masquer de nouveau ces groupes",

@@ -7,7 +7,7 @@ Read this before changing anything.
 **What exists today.** Two views (the two-animal answer, the family tree of up to five); 1,050 taxa
 and 343 animals; English, French and Spanish; five figure styles; per-animal names and photos a
 teacher supplies; print/PDF and SVG/PNG export; light/dark. Everything is driven
-from the URL. `node tools/check.mjs` is the gate — 63 checks, and it must stay green.
+from the URL. `node tools/check.mjs` is the gate — 71 checks, and it must stay green.
 
 ## What must stay true
 
@@ -129,6 +129,25 @@ Not aspirational — it is checked. `node tools/check.mjs` must pass before push
   text-spacing overrides, and `prefers-reduced-motion` honoured — including scrolling.
 
 ## A picture you can press
+
+Pointing at a group, an animal or a line fills the caption under the family tree: what the group
+is, when it lived, how many animals belong to it; for a line, the two ends and the years between
+them. The figure names groups but deliberately prints no dates, so this is where the "when" lives.
+
+- **A caption line, not a floating tooltip.** It cannot fall off a picture that pans sideways on a
+  phone, a tap works exactly like a hover, and it stays put long enough to read at museum distance.
+- **The keyboard reaches all of it.** The figure is one tab stop; arrow keys walk its parts in
+  drawing order, Home/End jump, Escape lets go. Without that the dates would be mouse-only, which
+  the accessibility bar below does not allow.
+- **Never a `<title>` child on an SVG root.** It makes the browser pop the *whole figure's* name
+  wherever the pointer lands — a vague tooltip that repeats the heading above it. The name belongs
+  in `aria-label`, with `<desc>` for the long description. `svgForExport()` puts a `<title>` back,
+  because in a standalone file a tooltip is all there is.
+- **Paint order is hit order.** SVG has no z-index, so the transparent hit shapes go on after the
+  picture and the pressable badges go on after those. Getting that wrong made the badges unclickable
+  and only the checks noticed.
+
+## Opening a skipped step
 
 The numbered badges on the family tree ("3" on a dashed line) are buttons: pressing one opens out
 the groups it stands for, and a "−" badge folds them away again. Two things this cost, both of
