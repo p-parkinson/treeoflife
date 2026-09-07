@@ -19,6 +19,8 @@ data/taxonomy.js      1,050 taxa and 343 animals
 data/strings.en.js    every word of the interface (the reference copy)
 data/strings.fr.js    French interface — draft
 data/names.fr.js      French names for groups and animals — draft
+data/strings.es.js    Spanish interface — draft
+data/names.es.js      Spanish names for groups and animals — draft
 tools/                image fetcher, single-file build, the check script
 ```
 
@@ -46,10 +48,11 @@ everything into `dist/tree-of-life.html` (~190 KB).
   tree is redrawn as an indented list so the names get the full width. It switches on rotation.
 - **Light or dark**, chosen in the header: *Auto* follows the device, *Light* and *Dark* override it and
   the choice is remembered. Printing always uses the light palette whichever is on screen.
-- **English or French** (French is a first draft, and says so on the page). The language picker sits
-  beside the colours; `#…&lang=fr` puts it in a link. Animal and group names are translated too,
-  and every language's names are searchable whichever one you are reading in — so a French child
-  can type *pieuvre* and an English link to the same page still works.
+- **English, French or Spanish** (the two translations are first drafts, and say so on the page).
+  The language picker sits beside the colours; `#…&lang=es` puts it in a link. Animal and group
+  names are translated too. Typing searches **only** the language on screen (plus scientific
+  names, and English where a name is missing), so *pieuvre* finds nothing in the Spanish version —
+  while a link written in any language still resolves for everyone.
 - Plus *Surprise me*, *Swap*, and one-click example pairs.
 
 ## The family tree of up to five animals
@@ -159,6 +162,7 @@ node tools/check.mjs        # axe on both views x light/dark x desktop/phone, fi
 
 [docs/multilingual.md](docs/multilingual.md) explains how the translation works and how to add
 the next language — including how to pull animal names from Wikidata rather than by hand.
+[TODO.md](TODO.md) is the honest list of what is outstanding, deferred or blocked.
 
 ## The data
 

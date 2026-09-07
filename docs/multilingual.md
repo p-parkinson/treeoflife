@@ -37,8 +37,11 @@ data/names.<lang>.js  names for groups (by clade id) and animals (by "sp-<slug>"
   is re-run when the language changes.
 - `label(node)` prefers `data/names.<lang>.js`, then the English common name, then the scientific
   name — so partial coverage degrades to something correct rather than blank.
-- The search index contains **every** shipped language's names at once, so links survive a
-  language change and a bilingual classroom can type in either.
+- The search index keeps terms **per language**. What a person types is matched against the names
+  they can see: the current language, English only where the current language has no name for that
+  taxon, and scientific names always. This is deliberate — one shared index would mean every new
+  language adds cross-language mishits. Links are the exception: `search(q, n, true)` looks across
+  every language, so a URL written in French still opens for a Spanish reader.
 - Language comes from `#…&lang=xx`, then `localStorage`, then `navigator.language`, then English.
   `<html lang>` is set so screen readers switch voice.
 

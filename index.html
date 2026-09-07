@@ -489,6 +489,8 @@ footer a{color:var(--a);text-underline-offset:2px}
 <script src="data/strings.en.js"></script>
 <script src="data/strings.fr.js"></script>
 <script src="data/names.fr.js"></script>
+<script src="data/strings.es.js"></script>
+<script src="data/names.es.js"></script>
 <!-- Pictures are optional. After running:
        node tools/fetch-images.mjs --contact you@example.org --species all --inline
      uncomment the next line (or paste the file's contents here) and every animal
@@ -610,21 +612,39 @@ function nearestAge(node){
 /* =====================================================================
    3. SEARCH
    ===================================================================== */
+/* Search terms are kept per language, not in one pile. What a person types is
+   matched against the names they can actually see - the current language, plus
+   English only where this language has no name for that taxon - so adding a
+   language never creates cross-language mishits. Scientific names always match.
+   Links are different: a URL is machine input and must resolve whatever language
+   wrote it, so hash and example lookups pass allLangs. */
 const searchIndex = [];
 for(const n of nodes.values()){
-  const terms = new Set([n.name.toLowerCase()]);
+  const always = new Set([n.name.toLowerCase()]);
+  if(n.species) always.add(n.name.split(" ")[1].toLowerCase());
+  const byLang = {};
+  const english = new Set();
   if(n.common){
-    terms.add(n.common.toLowerCase());
-    n.common.toLowerCase().split(/\s*[,&]\s*|\s+(?:and|incl\.)\s+/).forEach(t=>terms.add(t.trim()));
+    english.add(n.common.toLowerCase());
+    n.common.toLowerCase().split(/\s*[,&]\s*|\s+(?:and|incl\.)\s+/).forEach(t=>english.add(t.trim()));
   }
-  (n.aliases||[]).forEach(a=>terms.add(a.toLowerCase()));
-  if(n.species) terms.add(n.name.split(" ")[1].toLowerCase());
+  (n.aliases||[]).forEach(a=>english.add(a.toLowerCase()));
+  byLang.en = [...english].filter(Boolean);
   Object.keys(LOCAL_NAMES).forEach(code => {
     const entry = LOCAL_NAMES[code][n.id];
     if(!entry) return;
-    (Array.isArray(entry) ? entry : [entry]).forEach(name => terms.add(String(name).toLowerCase()));
+    byLang[code] = (Array.isArray(entry) ? entry : [entry]).map(name => String(name).toLowerCase());
   });
-  searchIndex.push({node:n, terms:[...terms].filter(Boolean)});
+  searchIndex.push({node:n, always:[...always].filter(Boolean), byLang});
+}
+
+/* the names this entry can be found by right now */
+function searchTerms(entry, allLangs){
+  if(allLangs) return entry.always.concat(...Object.values(entry.byLang));
+  const own = entry.byLang[lang] || [];
+  /* where this language has no name, the reader sees the English one, so allow it */
+  const seen = own.length ? [] : (entry.byLang.en || []);
+  return entry.always.concat(own, seen);
 }
 function groupLabel(node){
   const ids = lineage(node).map(n=>n.id);
@@ -637,13 +657,13 @@ function groupLabel(node){
   for(const [id,key] of groups) if(ids.includes(id)) return t(key);
   return t("grp.life");
 }
-function search(q, limit){
+function search(q, limit, allLangs){
   q = (q||"").trim().toLowerCase();
   if(!q) return [];
   const out = [];
   for(const entry of searchIndex){
     let best = 0;
-    for(const t of entry.terms){
+    for(const t of searchTerms(entry, allLangs)){
       let s = 0;
       if(t === q) s = 100;
       else if(t.startsWith(q)) s = 70 - Math.min(20, t.length - q.length);
@@ -1239,17 +1259,26 @@ function wrapLabel(text, maxChars){
   return lines;
 }
 
-/* like wrapLabel, but for a heading: two lines, and never truncated */
+/* Like wrapLabel, but for a heading: two lines, never truncated, and it breaks at
+   a comma where it can so a name is not split across lines. */
 function wrapWide(text, maxChars){
-  const words = String(text).split(" "), lines = [""];
-  for(const word of words){
-    const line = lines[lines.length - 1];
-    if(!line) lines[lines.length - 1] = word;
-    else if((line + " " + word).length <= maxChars) lines[lines.length - 1] = line + " " + word;
-    else if(lines.length < 2) lines.push(word);
-    else lines[1] += " " + word;
+  const fit = (units, joiner) => {
+    const lines = [""];
+    for(const unit of units){
+      const line = lines[lines.length - 1];
+      if(!line) lines[lines.length - 1] = unit;
+      else if((line + joiner + unit).length <= maxChars) lines[lines.length - 1] = line + joiner + unit;
+      else if(lines.length < 2) lines.push(unit);
+      else lines[1] += joiner + unit;
+    }
+    return lines.filter(Boolean);
+  };
+  const str = String(text);
+  if(str.includes(", ")){
+    const byComma = fit(str.split(", ").map((s, i, all) => i < all.length - 1 ? s + "," : s), " ");
+    if(byComma.every(l => l.length <= maxChars)) return byComma;
   }
-  return lines.filter(Boolean);
+  return fit(str.split(" "), " ");
 }
 
 function drawFamilyTree(picksArr){
@@ -1510,9 +1539,9 @@ $("treeFilter").addEventListener("input", e => {
   const q = e.target.value.trim().toLowerCase();
   if(!q){ filterMatches = null; renderTree(); return; }
   const keep = new Set();
-  for(const n of nodes.values()){
-    const hay = (n.name + " " + n.common + " " + (n.aliases||[]).join(" ")).toLowerCase();
-    if(hay.includes(q)) lineage(n).forEach(x => keep.add(x.id));
+  for(const entry of searchIndex){
+    if(searchTerms(entry, false).some(term => term.includes(q)))
+      lineage(entry.node).forEach(x => keep.add(x.id));
   }
   filterMatches = keep.size ? keep : new Set([ROOT.id]);
   renderTree();
@@ -1564,7 +1593,7 @@ $("rand").addEventListener("click", () => {
 const EXAMPLES = [["Human","Octopus"],["Lion","Cat"],["Blue whale","Hippo"],["Penguin","Crocodile"],
   ["Dog","Bear"],["Butterfly","Spider"],["Human","Chicken"],["Kangaroo","Wolf"]];
 function renderExamples(){
-  const label1 = term => { const n = search(term, 1)[0]; return (n && localNames(n)[0]) || term; };
+  const label1 = term => { const n = search(term, 1, true)[0]; return (n && localNames(n)[0]) || term; };
   $("examples").querySelectorAll("[data-ex]").forEach(b => b.remove());
   $("examples").insertAdjacentHTML("beforeend", EXAMPLES.map(([x,y]) =>
     '<button data-ex="'+esc(x)+'|'+esc(y)+'">'+esc(label1(x))+' &amp; '+esc(label1(y))+'</button>').join(""));
@@ -1572,8 +1601,8 @@ function renderExamples(){
 $("examples").addEventListener("click", e => {
   const btn = e.target.closest("[data-ex]"); if(!btn) return;
   const [x,y] = btn.dataset.ex.split("|");
-  setPick("a", search(x,1)[0], {sync:false});
-  setPick("b", search(y,1)[0], {sync:false});
+  setPick("a", search(x,1,true)[0], {sync:false});
+  setPick("b", search(y,1,true)[0], {sync:false});
   compare();
   $("result").scrollIntoView({behavior:calmly(), block:"start"});
 });
@@ -1869,7 +1898,7 @@ function applyHash(){
     manyPicks.length = 0;
     figState.names = {};
     wanted.forEach((name, i) => {
-      const found = search(name, 1)[0];
+      const found = search(name, 1, true)[0];
       if(found && !manyPicks.some(n => n.id === found.id)){
         manyPicks.push(found);
         if((given[i] || "").trim()) figState.names[found.id] = given[i].trim();
@@ -1885,7 +1914,7 @@ function applyHash(){
     return true;
   }
   if(params.has("a") && params.has("b")){
-    const a = search(params.get("a"), 1)[0], b = search(params.get("b"), 1)[0];
+    const a = search(params.get("a"), 1, true)[0], b = search(params.get("b"), 1, true)[0];
     if(a && b){
       setPick("a", a, {sync:false}); setPick("b", b, {sync:false});
       showView("tabTwo");

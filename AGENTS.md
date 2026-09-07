@@ -38,8 +38,12 @@ This is the rule most easily broken, so it is checked: **no user-visible English
   does not define, and if English defines an id nothing uses. Other languages may be partial; they
   fall back to English, and English falls back to the scientific name.
 - Names of animals and groups are data, not interface text: `data/names.<lang>.js`, keyed by clade
-  id or `sp-<slug of scientific name>`. Every name in every shipped language is indexed for search,
-  so a link written in one language still resolves in another.
+  id or `sp-<slug of scientific name>`.
+- **Typed search is scoped to the language on screen** — the reader's language, English only where
+  that language has no name for a taxon, and scientific names always. Adding a language must never
+  make another language's names matchable, or mishits multiply as the corpus grows. Link
+  resolution is the deliberate exception: `search(q, n, true)` searches every language, because a
+  URL is machine input and has to resolve whoever wrote it. Both halves are checked.
 - Adding a string means editing `data/strings.en.js` **and** checking which other languages now
   fall back — the check script prints the coverage. Draft translations must say so in their header
   and in `foot.translation`, which the page shows to the reader.
@@ -87,6 +91,11 @@ Not aspirational — it is checked. `node tools/check.mjs` must pass before push
   the figure must come from the style object, never from a hard-coded literal.
 - Words on the figure (`title`, `footer`, per-animal `names`) live in `figState`, where `null`
   means "work it out for me" and a string — even an empty one — means the person decided.
+
+## Before you start
+
+[TODO.md](TODO.md) lists what is outstanding, deferred or blocked, with sizes — check it before
+adding something new, and move an item there rather than dropping it silently.
 
 ## Habits that have paid off here
 

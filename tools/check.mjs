@@ -120,6 +120,46 @@ console.log("\nevery language renders with no missing text");
   }
 }
 
+console.log("\ntyped search stays in the reader's language");
+{
+  const codes = readdirSync(join(ROOT, "data")).filter(f => /^names\./.test(f)).map(f => f.split(".")[1]);
+  const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 } });
+  const page = await ctx.newPage();
+  await page.goto(PAGE);
+  await page.waitForTimeout(700);
+  /* A name from one language must not find its taxon while another language is on
+     screen - otherwise every language added makes mishits more likely. A link,
+     which is machine input, must still resolve. */
+  const result = await page.evaluate(codes => {
+    const probes = ["sp-octopus-vulgaris", "sp-panthera-leo", "sp-apis-mellifera", "sp-felis-catus", "sp-aptenodytes-forsteri"];
+    const leaks = [], unresolvable = [];
+    const all = ["en", ...codes];
+    for(const from of all) for(const to of all){
+      if(from === to) continue;
+      for(const id of probes){
+        const entry = from === "en" ? null : (window.TOL_NAMES[from] || {})[id];
+        const node = nodes.get(id);
+        if(!node) continue;
+        const term = from === "en" ? node.common : (Array.isArray(entry) ? entry[0] : entry);
+        if(!term) continue;
+        const theirs = to === "en" ? [node.common] :
+          [].concat((window.TOL_NAMES[to] || {})[id] || []).map(String);
+        if(theirs.some(n => n && n.toLowerCase() === term.toLowerCase())) continue;  // same word in both
+        pickLanguage(to);
+        if(search(term, 5).some(n => n.id === id)) leaks.push(to + ' found the ' + from + ' name "' + term + '"');
+        if(!search(term, 1, true).some(n => n.id === id)) unresolvable.push(from + ' name "' + term + '" in a link');
+      }
+    }
+    pickLanguage("en");
+    return { leaks, unresolvable };
+  }, codes);
+  report(result.leaks.length === 0, "a name from another language does not match what you type",
+    result.leaks.slice(0, 3).join(" | "));
+  report(result.unresolvable.length === 0, "links still resolve names from any language",
+    result.unresolvable.slice(0, 3).join(" | "));
+  await ctx.close();
+}
+
 console.log("\nthe single-file build");
 {
   let built = true;
