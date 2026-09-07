@@ -238,6 +238,20 @@ table.lin .cn{color:var(--muted);font-size:13.5px}
 .chip button:hover{background:var(--line);color:var(--ink)}
 .count-note{color:var(--muted);font-size:14px;margin:8px 0 0}
 
+details.full.inset{margin:0 0 14px;box-shadow:none;background:var(--paper-2)}
+details.full.inset > summary{font-size:15.5px;padding:12px 14px}
+details.full.inset .body{padding:0 14px 14px}
+.fig-fields{display:grid;gap:12px}
+.fig-field{display:grid;gap:5px}
+.fig-field label{font-size:14px;font-weight:700}
+.fig-field .hint{font-size:13px;color:var(--muted);font-weight:400}
+.fig-field input{padding:10px 12px;border-radius:var(--r-md);border:2px solid var(--line);
+  background:var(--card);color:var(--ink);font:inherit;font-size:16px;outline:none}
+.fig-field input:focus{border-color:var(--shared)}
+.card > h2 .tools label{font-weight:600}
+.card > h2 select, .export select{font:inherit;font-size:14px;padding:7px 9px;border-radius:10px;
+  border:2px solid var(--line);background:var(--card);color:var(--ink);min-height:40px}
+
 /* ---------- export bar ---------- */
 .export{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:0 20px 16px}
 .export button{padding:8px 14px;font-size:14.5px;min-height:40px}
@@ -388,6 +402,10 @@ footer a{color:var(--a);text-underline-offset:2px}
     <p class="count-note" id="manyNote" role="status"></p>
   </div>
   <ul class="chips" id="chips" aria-label="Animals in this tree"></ul>
+  <details class="full inset" id="figWords">
+    <summary>Names and titles for the picture (optional)</summary>
+    <div class="body" id="figWordsBody"></div>
+  </details>
   <div class="actions">
     <button class="primary" id="manyGo">Draw the tree</button>
     <button id="manyRand">Surprise me</button>
@@ -398,7 +416,9 @@ footer a{color:var(--a);text-underline-offset:2px}
 <section id="manyResult">
   <p class="sr-only" id="manyAnnounce" role="status"></p>
   <div class="card">
-    <h2 id="manyHead">How they are all connected</h2>
+    <h2 id="manyHead"><span id="manyHeadText">How they are all connected</span>
+      <span class="tools"><label for="figStyle">Picture style</label>
+        <select id="figStyle"></select></span></h2>
     <div class="body diagram-scroll" id="manyDiagram"></div>
     <p class="swipe-hint" id="manySwipeHint" hidden>The picture is wider than your screen &mdash; slide it sideways to see all of it.</p>
     <p class="count-note" style="padding:0 20px 4px">A dashed line with a number means that many in-between groups are not shown.</p>
@@ -1783,11 +1803,62 @@ function lineageTable(r, a, b){
    9. THE FAMILY TREE OF UP TO FIVE ANIMALS
    ===================================================================== */
 const MAX_PICKS = 5;
+/* Everything about the picture that is not the choice of animals. null means
+   "work it out for me"; a string (even an empty one) means the person decided. */
+const figState = {style: "page", title: null, footer: null, names: {}};
 let bareMode = false;
 let lastHash = "";
 function setHash(h){ lastHash = h; location.replace(h); }
 const manyPicks = [];
 const ACCENTS = ["var(--p1)","var(--p2)","var(--p3)","var(--p4)","var(--p5)"];
+
+/* ---- how the picture is dressed. Only the figure uses these, never the page. ----
+   "page" borrows the page's own tokens (so it follows light/dark and prints light);
+   the others are fixed palettes, which is what makes an exported file predictable. */
+const FIG_STYLES = {
+  page: {
+    name: "Match the page",
+    paper: "var(--card)", ink: "var(--ink)", muted: "var(--muted)", faint: "var(--faint)",
+    shared: "var(--shared)", meet: "var(--meet)",
+    accents: ["var(--p1)","var(--p2)","var(--p3)","var(--p4)","var(--p5)"],
+    display: "Fredoka, system-ui, sans-serif", body: "Nunito, system-ui, sans-serif",
+    stroke: 1, opaque: false
+  },
+  contrast: {
+    name: "High contrast",
+    paper: "#ffffff", ink: "#000000", muted: "#000000", faint: "#3a3a3a",
+    shared: "#000000", meet: "#000000",
+    accents: ["#000000","#000000","#000000","#000000","#000000"],
+    display: "Nunito, system-ui, sans-serif", body: "Nunito, system-ui, sans-serif",
+    stroke: 1.4, opaque: true, sciWeight: 600
+  },
+  guide: {
+    name: "Field guide",
+    paper: "#f7f1e3", ink: "#2f2417", muted: "#6b5b45", faint: "#756548",
+    shared: "#4a6b3f", meet: "#8f4a14",
+    accents: ["#2f5d8a","#a35a1f","#6b3f6b","#3f6b62","#8a2f4a"],
+    display: "Georgia, 'Iowan Old Style', 'Times New Roman', serif",
+    body: "Georgia, 'Iowan Old Style', 'Times New Roman', serif",
+    stroke: 0.9, opaque: true
+  },
+  chalk: {
+    name: "Chalkboard",
+    paper: "#1f3128", ink: "#f4f1e6", muted: "#c7d8c9", faint: "#9fb5a4",
+    shared: "#f4f1e6", meet: "#ffd166",
+    accents: ["#8fc7ff","#ffb27a","#d4b3ff","#8ee0d4","#ff9ec4"],
+    display: "Nunito, system-ui, sans-serif", body: "Nunito, system-ui, sans-serif",
+    stroke: 1.15, opaque: true
+  },
+  poster: {
+    name: "Bright poster",
+    paper: "#fffdf7", ink: "#151515", muted: "#4a4a4a", faint: "#6a6a6a",
+    shared: "#17703f", meet: "#9c5a0e",
+    accents: ["#1d4ed8","#c2400f","#7326a8","#0c6b64","#b8156b"],
+    display: "Fredoka, system-ui, sans-serif", body: "Nunito, system-ui, sans-serif",
+    stroke: 1.3, opaque: true
+  }
+};
+const figStyle = () => FIG_STYLES[figState.style] || FIG_STYLES.page;
 
 /* ---- the shape of the tree ----
    Take every ancestor of every chosen animal, throw away the nodes that do not
@@ -1868,10 +1939,25 @@ function wrapLabel(text, maxChars){
   return lines;
 }
 
+/* like wrapLabel, but for a heading: two lines, and never truncated */
+function wrapWide(text, maxChars){
+  const words = String(text).split(" "), lines = [""];
+  for(const word of words){
+    const line = lines[lines.length - 1];
+    if(!line) lines[lines.length - 1] = word;
+    else if((line + " " + word).length <= maxChars) lines[lines.length - 1] = line + " " + word;
+    else if(lines.length < 2) lines.push(word);
+    else lines[1] += " " + word;
+  }
+  return lines.filter(Boolean);
+}
+
 function drawFamilyTree(picksArr){
+  const S = figStyle();
   const {root, stemPath} = inducedTree(picksArr);
-  const stem = capStem(stemPath.slice(0, -1), 4);          // the last stem node is the tree's root
-  const accentOf = n => ACCENTS[picksArr.findIndex(p => p.id === n.id) % ACCENTS.length];
+  const stem = capStem(stemPath.slice(0, -1), 4);
+  const accentOf = n => S.accents[picksArr.findIndex(p => p.id === n.id) % S.accents.length];
+  const anyNamed = picksArr.some(n => givenName(n));
 
   /* positions: leaves along the bottom, parents centred over their children */
   const leaves = [];
@@ -1882,11 +1968,20 @@ function drawFamilyTree(picksArr){
   })(root, 0);
   const maxDepth = (function deepest(d){ return d.children.length ? Math.max(...d.children.map(deepest)) : d.depth; })(root);
 
-  const colW = 176, rowH = 86, leafBlock = 128;
-  const padX = 26, stemTop = 30, stemH = 48;
-  const W = Math.max(520, leaves.length * colW + padX * 2);
+  const title = figTitle(picksArr), subtitle = figSubtitle(picksArr, root), footer = figFooter();
+  const titleLines = title ? wrapWide(title, 44) : [];
+  const titleBand = titleLines.length * 30 + (subtitle ? 24 : 0) + (titleLines.length ? 14 : 0);
+  const footerBand = footer ? 36 : 0;
+  const colW = 176, rowH = 86, leafBlock = 128 + (anyNamed ? 20 : 0);
+  const padX = 26, stemTop = 30 + titleBand, stemH = 48;
+  /* wide enough for the animals, and for the words across the top and bottom */
+  const textWidth = (s, size) => s.length * size * 0.55;
+  const W = Math.ceil(Math.max(520, leaves.length * colW + padX * 2,
+    ...titleLines.map(l => textWidth(l, 22) + 48),
+    subtitle ? textWidth(subtitle, 14.5) + 48 : 0,
+    footer ? textWidth(footer, 12.5) + 48 : 0));
   const treeTop = stemTop + stem.length * stemH + 26;
-  const H = treeTop + maxDepth * rowH + leafBlock;
+  const H = treeTop + maxDepth * rowH + leafBlock + footerBand;
 
   const xOf = d => padX + (d.children.length
     ? (xOf(d.children[0]) + xOf(d.children[d.children.length - 1])) / 2 - padX
@@ -1894,22 +1989,30 @@ function drawFamilyTree(picksArr){
   const yOf = d => d.children.length ? treeTop + d.depth * rowH : treeTop + maxDepth * rowH;
 
   const p = [];
-  const SH = "var(--shared)", MUTED = "var(--muted)", FAINT = "var(--faint)", INK = "var(--ink)";
+  const w = n => +(n * S.stroke).toFixed(2);                    // stroke widths follow the style
   const text = (x, y, s, opts) => {
     const o = opts || {};
-    p.push('<text x="' + x + '" y="' + y + '" text-anchor="' + (o.anchor || "middle") + '" fill="' + (o.fill || INK) +
-      '" font-size="' + (o.size || 13) + '"' + (o.weight ? ' font-weight="' + o.weight + '"' : '') +
-      (o.italic ? ' font-style="italic"' : '') + (o.family ? ' font-family="' + o.family + '"' : '') +
-      ' stroke="var(--card)" stroke-width="4.5" paint-order="stroke fill" stroke-linejoin="round">' + esc(s) + '</text>');
+    p.push('<text x="' + x + '" y="' + y + '" text-anchor="' + (o.anchor || "middle") + '" fill="' + (o.fill || S.ink) +
+      '" font-size="' + (o.size || 13) + '" font-family="' + (o.family || S.body) + '"' +
+      (o.weight ? ' font-weight="' + o.weight + '"' : '') + (o.italic ? ' font-style="italic"' : '') +
+      (o.plain ? '' : ' stroke="' + S.paper + '" stroke-width="4.5" paint-order="stroke fill" stroke-linejoin="round"') +
+      '>' + esc(s) + '</text>');
   };
   /* a label beside a node goes right unless it would fall off the picture */
   const besideNode = (x, str, size) =>
     (x + 16 + str.length * size * 0.6 < W - 6) ? {anchor: "start", dx: 16} : {anchor: "end", dx: -16};
   const gapBadge = (x, y, n) => {
     if(!n) return;
-    p.push('<circle cx="' + x + '" cy="' + y + '" r="10" fill="var(--card)" stroke="' + FAINT + '" stroke-width="1.5"/>');
-    text(x, y + 4, String(n), {size: 12, weight: 700, fill: MUTED});
+    p.push('<circle cx="' + x + '" cy="' + y + '" r="10" fill="' + S.paper + '" stroke="' + S.faint + '" stroke-width="' + w(1.5) + '"/>');
+    text(x, y + 4, String(n), {size: 12, weight: 700, fill: S.muted, plain: true});
   };
+
+  if(S.opaque) p.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="' + S.paper + '"/>');
+
+  /* words on the picture */
+  titleLines.forEach((ln, i) => text(W / 2, 34 + i * 30, ln, {size: 22, weight: 700, family: S.display, plain: true}));
+  if(subtitle) text(W / 2, 34 + titleLines.length * 30, subtitle, {size: 14.5, fill: S.muted, family: S.body, plain: true});
+  if(footer) text(W / 2, H - 13, footer, {size: 12.5, fill: S.faint, family: S.body, plain: true});
 
   /* the stem: shared history, drawn as a short chain into the top of the tree */
   const rootX = xOf(root), rootY = yOf(root);
@@ -1917,18 +2020,18 @@ function drawFamilyTree(picksArr){
   stem.forEach((e, i) => {
     const y = stemTop + i * stemH;
     if(prevY !== null) p.push('<line x1="' + rootX + '" y1="' + prevY + '" x2="' + rootX + '" y2="' + y +
-      '" stroke="' + SH + '" stroke-width="3.5" stroke-linecap="round"' + (e.skipped ? ' stroke-dasharray="2 7"' : '') + '/>');
+      '" stroke="' + S.shared + '" stroke-width="' + w(3.5) + '" stroke-linecap="round"' + (e.skipped ? ' stroke-dasharray="2 7"' : '') + '/>');
     if(e.skipped) gapBadge(rootX, (prevY + y) / 2, e.skipped);
-    p.push('<circle cx="' + rootX + '" cy="' + y + '" r="6" fill="var(--card)" stroke="' + SH + '" stroke-width="3"/>');
+    p.push('<circle cx="' + rootX + '" cy="' + y + '" r="6" fill="' + S.paper + '" stroke="' + S.shared + '" stroke-width="' + w(3) + '"/>');
     const side = besideNode(rootX, label(e.node), 14);
-    text(rootX + side.dx, y - 1, label(e.node), {anchor: side.anchor, size: 14, weight: 600, family: "Fredoka, system-ui, sans-serif"});
-    if(showsSci(e.node)) text(rootX + side.dx, y + 14, sciOf(e.node), {anchor: side.anchor, size: 12, fill: MUTED, italic: true});
+    text(rootX + side.dx, y - 1, label(e.node), {anchor: side.anchor, size: 14, weight: 600, family: S.display});
+    if(showsSci(e.node)) text(rootX + side.dx, y + 14, sciOf(e.node), {anchor: side.anchor, size: 12, fill: S.muted, italic: true, weight: S.sciWeight});
     prevY = y;
   });
   if(prevY !== null){
     const gap = stem.length ? stemPath.length - 1 - stem.reduce((a, e) => a + 1 + e.skipped, 0) : 0;
     p.push('<line x1="' + rootX + '" y1="' + prevY + '" x2="' + rootX + '" y2="' + rootY +
-      '" stroke="' + SH + '" stroke-width="3.5" stroke-linecap="round"' + (gap ? ' stroke-dasharray="2 7"' : '') + '/>');
+      '" stroke="' + S.shared + '" stroke-width="' + w(3.5) + '" stroke-linecap="round"' + (gap ? ' stroke-dasharray="2 7"' : '') + '/>');
     if(gap) gapBadge(rootX, (prevY + rootY) / 2, gap);
   }
 
@@ -1937,9 +2040,9 @@ function drawFamilyTree(picksArr){
     const x = xOf(d), y = yOf(d);
     d.children.forEach(c => {
       const cx = xOf(c), cy = yOf(c), midY = y + rowH * 0.45;
-      const col = c.children.length ? SH : accentOf(c.node);
+      const col = c.children.length ? S.shared : accentOf(c.node);
       p.push('<path d="M ' + x + ' ' + y + ' V ' + midY + ' H ' + cx + ' V ' + cy + '" fill="none" stroke="' + col +
-        '" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"' + (c.skipped ? ' stroke-dasharray="2 7"' : '') + '/>');
+        '" stroke-width="' + w(3.5) + '" stroke-linecap="round" stroke-linejoin="round"' + (c.skipped ? ' stroke-dasharray="2 7"' : '') + '/>');
       if(c.skipped){
         const labelTop = c.children.length ? cy - (wrapLabel(label(c.node), 24).length === 2 ? 46 : 31) : cy - 12;
         const from = y + 26;
@@ -1953,15 +2056,15 @@ function drawFamilyTree(picksArr){
   (function labels(d){
     const x = xOf(d), y = yOf(d);
     if(d.children.length){
-      p.push('<circle cx="' + x + '" cy="' + y + '" r="7" fill="var(--card)" stroke="' + SH + '" stroke-width="3"/>');
+      p.push('<circle cx="' + x + '" cy="' + y + '" r="7" fill="' + S.paper + '" stroke="' + S.shared + '" stroke-width="' + w(3) + '"/>');
       if(d === root && stem.length){
         const side = besideNode(x, label(d.node), 14);
-        text(x + side.dx, y - 1, label(d.node), {anchor: side.anchor, size: 14, weight: 600, family: "Fredoka, system-ui, sans-serif"});
-        if(showsSci(d.node)) text(x + side.dx, y + 14, sciOf(d.node), {anchor: side.anchor, size: 12, fill: MUTED, italic: true});
+        text(x + side.dx, y - 1, label(d.node), {anchor: side.anchor, size: 14, weight: 600, family: S.display});
+        if(showsSci(d.node)) text(x + side.dx, y + 14, sciOf(d.node), {anchor: side.anchor, size: 12, fill: S.muted, italic: true, weight: S.sciWeight});
       } else {
         wrapLabel(label(d.node), 24).forEach((ln, i) =>
-          text(x, y - 16 + i * 15, ln, {size: 14, weight: 600, family: "Fredoka, system-ui, sans-serif"}));
-        if(showsSci(d.node)) text(x, y + 20, sciOf(d.node), {size: 12, fill: MUTED, italic: true});
+          text(x, y - 16 + i * 15, ln, {size: 14, weight: 600, family: S.display}));
+        if(showsSci(d.node)) text(x, y + 20, sciOf(d.node), {size: 12, fill: S.muted, italic: true, weight: S.sciWeight});
       }
       d.children.forEach(labels);
     }
@@ -1969,32 +2072,65 @@ function drawFamilyTree(picksArr){
 
   /* the animals themselves, with a picture where we have one */
   leaves.forEach(d => {
-    const x = xOf(d), y = yOf(d), col = accentOf(d.node), n = d.node;
+    const x = xOf(d), y = yOf(d), col = accentOf(d.node), n = d.node, R = 30;
     const pic = typeof TAXON_IMAGES !== "undefined" && TAXON_IMAGES[n.id];
-    const R = 30;
     if(pic){
       const cid = "clip-" + n.id;
       p.push('<clipPath id="' + cid + '"><circle cx="' + x + '" cy="' + (y + R + 6) + '" r="' + R + '"/></clipPath>');
       p.push('<image href="' + pic.src + '" x="' + (x - R) + '" y="' + (y + 6) + '" width="' + (R * 2) + '" height="' + (R * 2) +
         '" preserveAspectRatio="xMidYMid slice" clip-path="url(#' + cid + ')"/>');
-      p.push('<circle cx="' + x + '" cy="' + (y + R + 6) + '" r="' + R + '" fill="none" stroke="' + col + '" stroke-width="3.5"/>');
+      p.push('<circle cx="' + x + '" cy="' + (y + R + 6) + '" r="' + R + '" fill="none" stroke="' + col + '" stroke-width="' + w(3.5) + '"/>');
     } else {
-      p.push('<circle cx="' + x + '" cy="' + (y + R + 6) + '" r="' + R + '" fill="var(--card)" stroke="' + col + '" stroke-width="3.5"/>');
+      p.push('<circle cx="' + x + '" cy="' + (y + R + 6) + '" r="' + R + '" fill="' + S.paper + '" stroke="' + col + '" stroke-width="' + w(3.5) + '"/>');
       p.push('<circle cx="' + x + '" cy="' + (y + R + 6) + '" r="9" fill="' + col + '"/>');
     }
     let ty = y + R * 2 + 26;
-    wrapLabel(label(n), 18).forEach((ln, i) =>
-      text(x, ty + i * 17, ln, {size: 15, weight: 700, fill: col, family: "Fredoka, system-ui, sans-serif"}));
-    if(showsSci(n)) text(x, ty + (wrapLabel(label(n), 18).length) * 17, sciOf(n), {size: 12, fill: MUTED, italic: true});
+    const given = givenName(n);
+    const headline = given || label(n);
+    const lines = wrapLabel(headline, 18);
+    lines.forEach((ln, i) => text(x, ty + i * 17, ln, {size: 15, weight: 700, fill: col, family: S.display}));
+    ty += lines.length * 17;
+    if(given){ text(x, ty, label(n), {size: 12.5, fill: S.muted}); ty += 15; }
+    if(showsSci(n)) text(x, ty, sciOf(n), {size: 12, fill: S.muted, italic: true, weight: S.sciWeight});
   });
 
-  const names = picksArr.map(label);
+  const names = picksArr.map(displayName);
   const desc = "A family tree of " + names.join(", ") + ". It starts at " + label(stemPath[0]) +
     " and branches at " + describeBranches(root) + ".";
   return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H +
     '" role="img" aria-labelledby="manyTitle manyDesc" id="familySvg">' +
-    '<title id="manyTitle">Family tree of ' + esc(names.join(", ")) + '</title>' +
+    '<title id="manyTitle">' + esc(title || ("Family tree of " + names.join(", "))) + '</title>' +
     '<desc id="manyDesc">' + esc(desc) + '</desc>' + p.join("") + '</svg>';
+}
+
+/* ---- the words that go on the picture ---- */
+const SITE = "p-parkinson.github.io/treeoflife";
+const givenName = n => (figState.names[n.id] || "").trim();
+const displayName = n => givenName(n) || label(n);
+function autoTitle(picksArr){
+  const names = picksArr.map(displayName);
+  if(!names.length) return "";
+  if(names.length === 1) return "Where the " + lower(names[0]) + " sits on the tree of life";
+  if(names.length === 2) return "From " + names[0] + " to " + names[1];
+  return "How " + names.slice(0, -1).join(", ") + " and " + names[names.length - 1] + " are related";
+}
+function figTitle(picksArr){
+  return figState.title === null ? autoTitle(picksArr) : figState.title;
+}
+function figSubtitle(picksArr, root){
+  if(figState.title !== null && !figState.title) return "";        // title cleared on purpose: keep it bare
+  if(picksArr.length < 2) return "";
+  const known = MILESTONES.has(root.node.id) || RANK_WORDS[root.node.rank];
+  if(!known) return "";          // no point announcing "Boreoeutherians" to a class
+  return (picksArr.length === 2 ? "They meet at " : "All of them meet at ") + label(root.node);
+}
+function autoFooter(){
+  if(location.protocol === "http:" || location.protocol === "https:")
+    return (location.host + location.pathname).replace(/index\.html$/, "").replace(/\/$/, "");
+  return SITE;
+}
+function figFooter(){
+  return figState.footer === null ? autoFooter() : figState.footer;
 }
 
 function describeBranches(d){
@@ -2179,6 +2315,11 @@ function renderChips(){
 
 function drawMany(){
   renderChips();
+  renderWordsPanel();
+  drawFigure();
+}
+
+function drawFigure(){
   const box = $("manyResult");
   if(!manyPicks.length){
     box.hidden = true;
@@ -2189,13 +2330,25 @@ function drawMany(){
   $("manyDiagram").innerHTML = drawFamilyTree(manyPicks);
   const {root} = inducedTree(manyPicks);
   $("treeAsList").innerHTML = "<ul>" + treeAsList(root) + "</ul>";
-  $("manyHead").textContent = manyPicks.length === 1
-    ? "Where " + label(manyPicks[0]) + " sits on the tree"
+  $("manyHeadText").textContent = manyPicks.length === 1
+    ? "Where " + displayName(manyPicks[0]) + " sits on the tree"
     : "How these " + manyPicks.length + " animals are connected";
-  $("manyAnnounce").textContent = "Tree drawn for " + manyPicks.map(label).join(", ") + ".";
+  $("manyAnnounce").textContent = "Tree drawn for " + manyPicks.map(displayName).join(", ") + ".";
   showSwipeHint();
-  setHash("#tree=" + manyPicks.map(n => encodeURIComponent(sciOf(n))).join(",") + (bareMode ? "&bare=1" : ""));
+  setHash(treeHash());
   markScrollables();
+}
+
+/* the picture, its style and its words, all in the address bar */
+function treeHash(){
+  const parts = ["tree=" + manyPicks.map(n => encodeURIComponent(sciOf(n))).join(",")];
+  if(figState.style !== "page") parts.push("style=" + figState.style);
+  if(figState.title !== null) parts.push("title=" + encodeURIComponent(figState.title));
+  if(figState.footer !== null) parts.push("footer=" + encodeURIComponent(figState.footer));
+  if(manyPicks.some(n => givenName(n)))
+    parts.push("names=" + manyPicks.map(n => encodeURIComponent(givenName(n))).join(","));
+  if(bareMode) parts.push("bare=1");
+  return "#" + parts.join("&");
 }
 
 function addPick(node){
@@ -2237,6 +2390,56 @@ $("manyRand").addEventListener("click", () => {
   }
   drawMany();
 });
+
+/* ---- the figure's own settings: style, titles, and names for the animals ---- */
+$("figStyle").innerHTML = Object.entries(FIG_STYLES)
+  .map(([id, s]) => '<option value="' + id + '">' + esc(s.name) + '</option>').join("");
+
+function renderWordsPanel(){
+  const rows = [
+    '<div class="fig-field"><label for="figTitle">Title on the picture</label>' +
+      '<input id="figTitle" type="text" placeholder="' + esc(autoTitle(manyPicks) || "From one animal to another") + '"' +
+      ' value="' + esc(figState.title === null ? "" : figState.title) + '"></div>',
+    '<div class="fig-field"><label for="figFooter">Small print along the bottom</label>' +
+      '<input id="figFooter" type="text" placeholder="' + esc(autoFooter()) + '"' +
+      ' value="' + esc(figState.footer === null ? "" : figState.footer) + '"></div>'
+  ];
+  manyPicks.forEach((n, i) => rows.push(
+    '<div class="fig-field"><label for="figName' + i + '">A name for the ' + esc(lower(label(n))) +
+      ' <span class="hint">(the picture shows this instead)</span></label>' +
+      '<input id="figName' + i + '" data-name-for="' + n.id + '" type="text" placeholder="' + esc(label(n)) + '"' +
+      ' value="' + esc(figState.names[n.id] || "") + '"></div>'));
+  $("figWordsBody").innerHTML = '<div class="fig-fields">' + rows.join("") + '</div>';
+  $("figWords").hidden = !manyPicks.length;
+}
+
+/* Typing must not rebuild the panel underneath the person's cursor, so text
+   fields redraw the picture only. */
+$("figWordsBody").addEventListener("input", e => {
+  const el = e.target;
+  if(el.id === "figTitle") figState.title = el.value;
+  else if(el.id === "figFooter"){
+    figState.footer = el.value;
+    try{ localStorage.setItem("tol-figfooter", figState.footer); }catch(err){}
+  }
+  else if(el.dataset.nameFor){
+    const v = el.value.trim();
+    if(v) figState.names[el.dataset.nameFor] = v; else delete figState.names[el.dataset.nameFor];
+  } else return;
+  drawFigure();
+});
+$("figStyle").addEventListener("change", e => {
+  figState.style = e.target.value;
+  try{ localStorage.setItem("tol-figstyle", figState.style); }catch(err){}
+  drawFigure();
+});
+(function startFigStyle(){
+  let saved = null, savedFooter = null;
+  try{ saved = localStorage.getItem("tol-figstyle"); savedFooter = localStorage.getItem("tol-figfooter"); }catch(e){}
+  if(saved && FIG_STYLES[saved]) figState.style = saved;
+  if(savedFooter !== null) figState.footer = savedFooter;
+  $("figStyle").value = figState.style;
+})();
 
 /* ---- the two views ---- */
 const tabs = [["tabTwo","viewTwo"],["tabMany","viewMany"]];
@@ -2287,7 +2490,7 @@ function svgForExport(){
   return out;
 }
 function fileName(ext){
-  return "tree-of-life-" + manyPicks.map(n => slug(label(n))).join("-").slice(0, 60) + "." + ext;
+  return "tree-of-life-" + manyPicks.map(n => slug(displayName(n))).join("-").slice(0, 60) + "." + ext;
 }
 function download(blob, name){
   const url = URL.createObjectURL(blob);
@@ -2332,11 +2535,26 @@ function applyHash(){
   document.body.classList.toggle("bare", bareMode);
   if(params.has("tree")){
     const wanted = (params.get("tree") || "").split(",").map(s => s.trim()).filter(Boolean).slice(0, MAX_PICKS);
+    /* names are read from the raw hash, so a name containing a comma survives */
+    const raw = /(?:^|&)names=([^&]*)/.exec((location.hash || "").replace(/^#/, ""));
+    const given = raw ? raw[1].split(",").map(s => {
+      try{ return decodeURIComponent(s.replace(/\+/g, "%20")); }catch(e){ return s; }
+    }) : [];
     manyPicks.length = 0;
-    wanted.forEach(name => {
+    figState.names = {};
+    wanted.forEach((name, i) => {
       const found = search(name, 1)[0];
-      if(found && !manyPicks.some(n => n.id === found.id)) manyPicks.push(found);
+      if(found && !manyPicks.some(n => n.id === found.id)){
+        manyPicks.push(found);
+        if((given[i] || "").trim()) figState.names[found.id] = given[i].trim();
+      }
     });
+    if(params.has("style") && FIG_STYLES[params.get("style")]){
+      figState.style = params.get("style");
+      $("figStyle").value = figState.style;
+    }
+    if(params.has("title")) figState.title = params.get("title");
+    if(params.has("footer")) figState.footer = params.get("footer");
     showView("tabMany");
     return true;
   }

@@ -47,13 +47,28 @@ shown, so the compression is visible rather than silent.
 Branches are ordered by the tree, not by the order you typed them, which is what keeps the
 lines from crossing.
 
+### Making it yours
+
+- **Five picture styles**, chosen next to the figure: *Match the page*, *High contrast*,
+  *Field guide*, *Chalkboard* and *Bright poster*. They change the figure only — the app around it
+  stays put — and each fixed palette is checked to clear 4.5:1 on its own paper, so the
+  high-contrast and chalkboard versions are as legible as the default.
+- **Name the animals.** A teacher demonstrating with the class pet can label a leaf *Mr Whiskers*;
+  the picture then shows the given name, with the animal's usual name and its scientific name
+  underneath.
+- **A title and a footer.** The title defaults to *From Mr Whiskers to Miss Kaur* (or *How A, B and
+  C are related*), with the meeting point as a subtitle; the footer defaults to the site address.
+  Both can be overwritten or cleared.
+
 **Every picture is a URL**, so it can be linked, bookmarked, put in a worksheet or screenshotted
 by any tool:
 
 ```
 index.html#tree=lion,brown+bear,honey+bee,octopus,emperor+penguin
-index.html#tree=Panthera+leo,Ursus+arctos          # scientific names work too
-index.html#tree=lion,emu&bare=1                    # just the picture: no header, no controls
+index.html#tree=Panthera+leo,Ursus+arctos                        # scientific names work too
+index.html#tree=domestic+cat,human&names=Mr+Whiskers&style=guide # named, in the field-guide style
+index.html#tree=lion,emu&title=Our+trip&footer=Class+3B          # your own words on the picture
+index.html#tree=lion,emu&bare=1                                  # just the picture, no controls
 ```
 
 **Getting it out of the browser:**
@@ -113,6 +128,21 @@ by default, and everything in it is reachable another way.
 `tools/fetch-images.mjs` collects one photo per milestone group from Wikimedia Commons, with the
 credits each licence requires — run on your machine, results committed, so the app still makes no
 network calls. See [tools/README.md](tools/README.md).
+
+## Contributing
+
+[AGENTS.md](AGENTS.md) is the short version of what to keep true: one file, no dependencies, no
+network at runtime, one layout engine, and an accessibility bar that is checked rather than
+hoped for. `CLAUDE.md` just points at it.
+
+```bash
+npm i -D playwright axe-core && npx playwright install chromium
+node tools/check.mjs        # axe on both views x light/dark x desktop/phone, figure fit,
+                           # small-screen reflow, and figure-style contrast
+```
+
+[docs/multilingual.md](docs/multilingual.md) sketches how another language would be added, and
+what it would really cost.
 
 ## The data
 
