@@ -4,8 +4,11 @@ A single-page app for exploring the animal tree of life, written for curious 10�
 pick any two animals and it shows **where their family trees join** — the most recent ancestor they
 share, roughly when the two branches split, and what was happening on Earth at the time.
 
-No dependencies, no build step needed to run it, no server, and nothing fetched at runtime.
-Open `index.html`, or serve the folder anywhere static (GitHub Pages works as-is).
+No build step needed to run it and no server: open `index.html`, or serve the folder anywhere
+static (GitHub Pages works as-is). Everything the app is *for* works with the network unplugged,
+from a USB stick. Two optional extras reach the network and degrade quietly without it — the
+webfonts, and the library behind **Adjust the framing** on a photo. See
+[AGENTS.md](AGENTS.md#network-and-what-happens-without-it) for the full list.
 
 ```
 open index.html            # macOS
@@ -42,8 +45,6 @@ itself.
   the meeting point → each animal — with skipped rungs marked as "+3 more groups" so nothing is
   hidden dishonestly. **Show every step** switches to the complete lineage.
 - **Full scientific classification** tucked behind a collapsed panel for anyone who wants the Latin.
-- **A browsable tree** of the whole dataset, collapsed by default: open it to expand, filter, and click any
-  group to load it into a slot.
 - **A second view** for up to five animals at once — see below.
 - **Shareable links** — the URL hash carries the pair, e.g. `index.html#a=Panthera%20leo&b=Octopus%20vulgaris`.
 - **Two layouts.** On a laptop or tablet the two lineages fork left and right; on a phone the same
@@ -79,7 +80,8 @@ lines from crossing.
   underneath.
 - **Add your own photo** to any animal — the class pet, the school guinea pig, the child holding it.
   Pick a file, nudge it up or down to frame it, and it appears in the circle at the end of that
-  branch. The photo is cropped and shrunk in the browser and kept on that device only: **nothing is
+  branch. Online you also get **Adjust the framing** — drag, zoom, or use the buttons — and offline
+  the nudge remains, so the feature never simply vanishes. The photo is cropped and shrunk in the browser and kept on that device only: **nothing is
   uploaded**. It does become part of the picture you print or download, which the page says on the
   spot, and it is deliberately not carried in the URL — a shared link has names and titles, never
   someone's photograph.
@@ -146,10 +148,6 @@ light or dark theme**, and the manual parts were tested too.
   the suggestion list and panels.
 - **Motion:** `prefers-reduced-motion` is honoured, including the scrolling.
 
-Known limitation: the tree explorer is a list of buttons rather than a full ARIA treeview, so a
-screen-reader user tabs through it rather than using arrow keys. It is a secondary panel, closed
-by default, and everything in it is reachable another way.
-
 ## Pictures for each group
 
 `tools/fetch-images.mjs` collects one photo per milestone group from Wikimedia Commons, with the
@@ -158,9 +156,13 @@ network calls. See [tools/README.md](tools/README.md).
 
 ## Contributing
 
-[AGENTS.md](AGENTS.md) is the short version of what to keep true: one file, no dependencies, no
-network at runtime, one layout engine, and an accessibility bar that is checked rather than
-hoped for. `CLAUDE.md` just points at it.
+[AGENTS.md](AGENTS.md) is the short version of what to keep true: offline as the floor rather
+than the ceiling, one layout engine, every visible string through `t()`, and an accessibility bar
+that is checked rather than hoped for. `CLAUDE.md` just points at it.
+
+`.github/workflows/build.yml` runs `node tools/check.mjs` on every pull request and builds the
+single-file copy and the site on merge to `main`. Run the checks locally first — they need
+`npm i -D playwright axe-core` once.
 
 ```bash
 npm i -D playwright axe-core && npx playwright install chromium
@@ -221,8 +223,10 @@ than a curated few hundred; the app is structured so a fetched dataset could rep
 **Fonts.** Fredoka and Nunito, served by Google Fonts under the SIL Open Font License. The page falls
 back to system fonts and works fully offline without them.
 
-**Code.** No dependencies, no frameworks, no analytics, no network calls at runtime — nothing to
-acknowledge and nothing that phones home. Suitable for a school network or an offline museum kiosk.
+**Code.** No frameworks, no bundler, no analytics, nothing that phones home. One optional
+third-party library: [Cropper.js](https://github.com/fengyuanchen/cropperjs) (MIT, (c) Chen
+Fengyuan), loaded only when someone frames a photo by hand and absent from every other path.
+Suitable for a school network or an offline museum kiosk.
 
 **Pictures.** Not bundled. `tools/fetch-images.mjs` fetches them from Wikimedia Commons and records
 per-image credits; those images keep their own licences (usually CC BY or CC BY-SA) and must be

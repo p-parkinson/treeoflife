@@ -52,17 +52,48 @@ verified as far as they can be offline, but never run for real.
 
 ## Photos people supply
 
-- [ ] **A real crop tool.** Photos get a centre crop plus an up/down nudge, which handles most
-  pet photos and no more. A pan-and-zoom crop is the obvious next step and the one place a library
-  earns its keep — Cropper.js is about 30 KB and would have to be **vendored into the repo**, not
-  loaded from a CDN, to keep the offline promise. Check its licence (MIT) and pin the version.
+- [ ] **The real Cropper.js has never been run.** cdnjs is blocked in the environment this was
+  built in, so the integration is checked against a stand-in with the same small API surface
+  (`new Cropper(img, opts)`, `zoom`, `move`, `reset`, `getCroppedCanvas`, `destroy`) and the
+  offline fallback is checked for real. **Open the page online once and frame a photo** before
+  relying on it. Every call is inside a `try`, and the button only appears after the script
+  loads, so the worst case is the fallback — but "probably fine" is not the same as tested.
+- [ ] **Fill in `CROPPER_SRI`.** `index.html` loads the CDN copy without subresource integrity
+  because the hash cannot be computed offline. Third-party code runs in a page that handles
+  photographs of children, so before any public deployment either run
+  `node tools/vendor-cropper.mjs` (which prints the hash and vendors the file) or paste the hash
+  in by hand. The CI build vendors it, so anything built by the workflow is already safe; a
+  hand-served copy of the repo is not.
 - [ ] **HEIC photos from iPhones** fail outside Safari; the page says so and suggests JPEG. A
-  decoder library would fix it but costs hundreds of kilobytes — probably not worth it.
+  decoder library would fix it but costs hundreds of kilobytes — and it is now allowed under
+  rule 1 as a lazy, network-only enhancement, if anyone thinks the size is worth it.
 - [ ] **Photos are per-device.** They live in `localStorage`, so they do not follow a shared link
   and are lost if the browser is cleared. A "save these settings to a file" export/import would
   make a lesson portable.
 - [ ] **No face detection**, so a group photo needs manual framing. Deliberate: it would mean
   either a library or a service, and safeguarding argues against sending a child's photo anywhere.
+
+## Libraries: what was considered and rejected
+
+Rule 1 now allows a networked enhancement, so the question "would a library help?" was asked of
+every part of the app, not just cropping. The bar is the one the rule sets: **it must be
+inessential, so that losing it degrades instead of breaking.** That bar excludes most of them
+before size or quality even comes up — anything on the critical path cannot be a CDN script,
+because the app has to work from a USB stick.
+
+| Instead of | Considered | Verdict |
+| --- | --- | --- |
+| the crop UI | Cropper.js | **Adopted.** Genuinely inessential, and pointer maths for pan/zoom/pinch is the fiddliest code here. |
+| `inducedTree`/`condense`/layout | d3-hierarchy | **No.** On the critical path, so it cannot fail gracefully. It would also only supply the dendrogram maths, not the compression, the skipped-group badges, the label collision work or the two responsive layouts — that is where the code actually is. |
+| the search index | Fuse.js | **No.** On the critical path. Fuzzy matching also fights a deliberate decision: search is scoped to the reader's language to avoid cross-language mishits, and typo tolerance widens exactly that. |
+| SVG → PNG | canvg, dom-to-image | **No.** On the critical path, and ~20 lines today. Both libraries are weaker at the thing that actually matters here: resolving `var(--x)` to literals so the export is not blank. |
+| print → PDF | jsPDF + svg2pdf | **No.** On the critical path. It would fix the patchy `@page { size }` support, but the browser's own print gives real vector text in the real fonts; jsPDF would need the fonts embedded (~80 KB each) to match. |
+| `t()` and the string files | i18next | **No.** On the critical path, and ~20 lines. Plurals and word order are already handled by making a string a function. A translator editing one plain object is the point. |
+| the theme, layout, components | Tailwind, any framework | **No.** On the critical path, and the markup, styles and code together are ~100 KB. |
+
+The short version: cropping was the only place a library earned its keep, which is roughly what
+was expected. The rule change is still worth having — it is what makes the crop tool possible at
+all, and it gives HEIC decoding a legitimate route in if anyone wants it.
 
 ## The figure
 
@@ -90,15 +121,17 @@ verified as far as they can be offline, but never run for real.
 
 ## Accessibility and infrastructure
 
-- [ ] **The tree explorer is a list of buttons, not an ARIA treeview.** Everything is reachable,
-  but a screen-reader user tabs through rows instead of using arrow keys. Full treeview means
-  `role="tree"`, roving tabindex and arrow-key handling. *Half a day.*
 - [ ] **`tools/check.mjs` takes about four minutes** offline, most of it waiting for the blocked
   Google Fonts request on each page load. Stubbing that route in the checker would cut it to
   under a minute.
-- [ ] **Wire the checks into CI.** The script already exits non-zero; a GitHub Action running it
-  on pull requests would stop the accessibility bar drifting.
-- [ ] **Turn on GitHub Pages** (Settings → Pages → deploy from `main`, root) so the URLs in the
-  footer and in worksheets actually resolve.
-- [ ] **Decide whether to publish `dist/tree-of-life.html`.** It is gitignored as a build output;
-  attaching it to a release would give teachers a one-file download without a build step.
+- [x] **Wire the checks into CI.** `.github/workflows/build.yml` runs `tools/check.mjs` on every
+  pull request, then builds the single-file copy and the site on merge to `main`.
+- [ ] **Turn on GitHub Pages, once.** Settings → Pages → Source: **GitHub Actions**. Until that is
+  done the `pages` job fails and the rest of the workflow is unaffected. The footer URLs and any
+  worksheet links only resolve after this.
+- [ ] **The workflow has never run.** It is written against this repo's layout but was committed
+  from an environment with no access to Actions. Expect to fix something on the first run —
+  most likely the Chromium install step or the Pages permissions.
+- [ ] **Attach the single file to a release.** The build uploads it as a workflow artifact, which
+  expires and needs a GitHub login to download. A release asset on a tag would give teachers a
+  plain, permanent link.

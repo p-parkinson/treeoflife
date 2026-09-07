@@ -6,21 +6,26 @@ Read this before changing anything.
 
 **What exists today.** Two views (the two-animal answer, the family tree of up to five); 1,050 taxa
 and 343 animals; English, French and Spanish; five figure styles; per-animal names and photos a
-teacher supplies; print/PDF and SVG/PNG export; light/dark; a browsable tree. Everything is driven
-from the URL. `node tools/check.mjs` is the gate — 44 checks, and it must stay green.
+teacher supplies; print/PDF and SVG/PNG export; light/dark. Everything is driven
+from the URL. `node tools/check.mjs` is the gate — 55 checks, and it must stay green.
 
 ## What must stay true
 
-1. **No dependencies, no network at runtime.** No frameworks, no bundler, no CDN scripts, no
-   analytics, no API calls. The only external request is the Google Fonts stylesheet, and the page
-   is fully usable when it fails. `index.html` holds the markup, styles and code; the data, the
-   interface text and the translated names sit beside it in `data/` as plain scripts, which is what
-   lets a translator or a taxonomist work on one small file. Everything still has to work from a
-   USB stick (`file://`): use classic `<script src>` tags, never `fetch` or ES modules.
-   `node tools/build-single.mjs` folds it all back into one `dist/tree-of-life.html` for offline
-   distribution, plus `dist/artifact.html` (the same page minus the document skeleton) for
-   publishing as an Artifact. Never hand-strip that copy: the tool exists so the published page
-   cannot drift from the built one.
+1. **Offline is the floor, not the ceiling.** Every teaching task the app exists for — look up two
+   animals, draw the tree, name it, print it, export it — must work with the network unplugged,
+   from a USB stick, on `file://`. That is the floor and it does not move.
+
+   Above that floor an enhancement **may** reach the network, on three conditions: it is not
+   needed for any of those tasks; its absence is invisible or plainly explained, never a broken
+   control or a hang; and it is listed in **Network, and what happens without it** below. No
+   analytics and no API calls, ever — those fail the first condition by definition.
+
+   Practically: the core stays in `index.html` plus plain `<script src>` files in `data/`, never
+   `fetch` or ES modules, so the page opens from a filesystem. An enhancement loads its own script
+   at the moment it is first wanted, times out, and falls back. `node tools/build-single.mjs` folds
+   the core into one `dist/tree-of-life.html` for offline distribution, plus `dist/artifact.html`
+   (the same page minus the document skeleton) for publishing as an Artifact. Never hand-strip that
+   copy: the tool exists so the published page cannot drift from the built one.
 2. **One layout engine.** The two-animal answer and the five-animal figure share
    `inducedTree`/`condense`, the milestone set and the autocomplete. Presentation differs;
    the tree logic does not. Don't fork the renderer — add a parameter.
@@ -55,6 +60,20 @@ This is the rule most easily broken, so it is checked: **no user-visible English
 - Adding a string means editing `data/strings.en.js` **and** checking which other languages now
   fall back — the check script prints the coverage. Draft translations must say so in their header
   and in `foot.translation`, which the page shows to the reader.
+
+## Network, and what happens without it
+
+Three requests, none of them required. Anything added here needs a row in this table and a check
+that the fallback works, because a school network will block all of it sooner or later.
+
+| What | When | Without it |
+| --- | --- | --- |
+| Google Fonts stylesheet | page load | System font stack. Every size and weight is set in CSS, so the layout does not move. |
+| Cropper.js 1.6.2 (cdnjs) | first time a photo is chosen | No **Adjust the framing** button. Photos still work: centre crop plus the up/down slider, which is also the keyboard path. |
+| Wikimedia Commons | never at runtime | `tools/fetch-images.mjs` is a build-time script a maintainer runs by hand. The page only ever reads what it committed. |
+
+The rule that makes this safe: a networked enhancement is wired up *after* it loads, so a control
+that cannot work is never on the screen. Never show a button and have it fail when pressed.
 
 ## Photos people supply
 
