@@ -50,6 +50,20 @@ verified as far as they can be offline, but never run for real.
 - [ ] **Check the fixed figure styles against non-Latin scripts.** Field guide forces a serif
   stack that may not cover CJK or Arabic.
 
+## Photos people supply
+
+- [ ] **A real crop tool.** Photos get a centre crop plus an up/down nudge, which handles most
+  pet photos and no more. A pan-and-zoom crop is the obvious next step and the one place a library
+  earns its keep — Cropper.js is about 30 KB and would have to be **vendored into the repo**, not
+  loaded from a CDN, to keep the offline promise. Check its licence (MIT) and pin the version.
+- [ ] **HEIC photos from iPhones** fail outside Safari; the page says so and suggests JPEG. A
+  decoder library would fix it but costs hundreds of kilobytes — probably not worth it.
+- [ ] **Photos are per-device.** They live in `localStorage`, so they do not follow a shared link
+  and are lost if the browser is cleared. A "save these settings to a file" export/import would
+  make a lesson portable.
+- [ ] **No face detection**, so a group photo needs manual framing. Deliberate: it would mean
+  either a library or a service, and safeguarding argues against sending a child's photo anywhere.
+
 ## The figure
 
 - [ ] **Time-scaled option** (`&scale=time`): place branch points by divergence date instead of

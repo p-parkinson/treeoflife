@@ -75,6 +75,12 @@ lines from crossing.
 - **Name the animals.** A teacher demonstrating with the class pet can label a leaf *Mr Whiskers*;
   the picture then shows the given name, with the animal's usual name and its scientific name
   underneath.
+- **Add your own photo** to any animal — the class pet, the school guinea pig, the child holding it.
+  Pick a file, nudge it up or down to frame it, and it appears in the circle at the end of that
+  branch. The photo is cropped and shrunk in the browser and kept on that device only: **nothing is
+  uploaded**. It does become part of the picture you print or download, which the page says on the
+  spot, and it is deliberately not carried in the URL — a shared link has names and titles, never
+  someone's photograph.
 - **A title and a footer.** The title defaults to *From Mr Whiskers to Miss Kaur* (or *How A, B and
   C are related*), with the meeting point as a subtitle; the footer defaults to the site address.
   Both can be overwritten or cleared.

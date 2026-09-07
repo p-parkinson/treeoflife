@@ -247,6 +247,18 @@ details.full.inset .body{padding:0 14px 14px}
 .fig-field .hint{font-size:13px;color:var(--muted);font-weight:400}
 .fig-field input{padding:10px 12px;border-radius:var(--r-md);border:2px solid var(--line);
   background:var(--card);color:var(--ink);font:inherit;font-size:16px;outline:none}
+.photo-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:4px}
+.photo-thumb{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
+.photo-pick{display:inline-flex;align-items:center;min-height:44px}
+.photo-pick span{border:2px solid var(--line);border-radius:999px;padding:9px 16px;font-size:14.5px;font-weight:600;
+  background:var(--card);cursor:pointer}
+.photo-pick:hover span{background:var(--paper-2)}
+.photo-pick input{position:absolute;width:1px;height:1px;opacity:0;padding:0;margin:-1px;overflow:hidden}
+.photo-pick:focus-within span{outline:3px solid var(--a);outline-offset:2px}
+.photo-move{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
+.photo-move input[type=range]{width:120px;padding:0;border:0;accent-color:var(--shared);min-height:44px}
+.photo-row button{min-height:44px;padding:9px 14px;font-size:14.5px}
+.photo-note{margin:2px 0 0;font-size:13.5px;color:var(--muted)}
 .fig-field input:focus{border-color:var(--shared)}
 .card > h2 .tools label{font-weight:600}
 .card > h2 select, .export select{font:inherit;font-size:14px;padding:7px 9px;border-radius:10px;
@@ -1124,7 +1136,7 @@ function lineageTable(r, a, b){
 const MAX_PICKS = 5;
 /* Everything about the picture that is not the choice of animals. null means
    "work it out for me"; a string (even an empty one) means the person decided. */
-const figState = {style: "page", title: null, footer: null, names: {}};
+const figState = {style: "page", title: null, footer: null, names: {}, photos: {}, photoOffsets: {}};
 let bareMode = false;
 let lastHash = "";
 function setHash(h){ lastHash = h; location.replace(h); }
@@ -1402,7 +1414,7 @@ function drawFamilyTree(picksArr){
   /* the animals themselves, with a picture where we have one */
   leaves.forEach(d => {
     const x = xOf(d), y = yOf(d), col = accentOf(d.node), n = d.node, R = 30;
-    const pic = typeof TAXON_IMAGES !== "undefined" && TAXON_IMAGES[n.id];
+    const pic = photoFor(n);
     if(pic){
       const cid = "clip-" + n.id;
       p.push('<clipPath id="' + cid + '"><circle cx="' + x + '" cy="' + (y + R + 6) + '" r="' + R + '"/></clipPath>');
@@ -1739,6 +1751,91 @@ $("manyRand").addEventListener("click", () => {
   drawMany();
 });
 
+/* ---- a photo of your own on an animal ----
+   Kept on this device only: read from the file picker, cropped square and
+   shrunk in the browser, then stored as a data URI so it travels with the
+   exported SVG, PNG and print without any upload. The platform does the work
+   a resize library would: createImageBitmap corrects EXIF rotation and scales
+   with proper filtering, and toDataURL encodes. Nothing is fetched. */
+const PHOTO_SIZE = 320;              // enough for A3 at the size the figure draws it
+const PHOTO_BUDGET = 1.6e6;          // characters of localStorage we are willing to use
+const photoWorking = {};             // id -> a bigger copy, this session only, for re-cropping
+
+async function squarePhoto(source, offset){
+  let bitmap;
+  try { bitmap = await createImageBitmap(source, {imageOrientation: "from-image"}); }
+  catch(err){ throw new Error("unreadable"); }
+  const side = Math.min(bitmap.width, bitmap.height);
+  const sx = (bitmap.width - side) / 2;
+  const sy = (bitmap.height - side) * Math.max(0, Math.min(1, offset));
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = PHOTO_SIZE;
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bitmap, sx, sy, side, side, 0, 0, PHOTO_SIZE, PHOTO_SIZE);
+  if(bitmap.close) bitmap.close();
+  return canvas.toDataURL("image/jpeg", 0.82);
+}
+
+function savePhotos(){
+  try{
+    const kept = JSON.stringify(figState.photos);
+    if(kept.length > PHOTO_BUDGET) throw new Error("too big to keep");
+    localStorage.setItem("tol-photos", kept);
+  }catch(err){
+    $("manyNote").textContent = t("ui.photoDropped");
+  }
+}
+
+async function choosePhoto(id, file){
+  if(!file) return;
+  if(file.size > 20e6){ $("manyNote").textContent = t("ui.photoTooBig"); return; }
+  try{
+    /* a working copy for the up/down slider, and the square that goes in the figure */
+    photoWorking[id] = file;
+    figState.photos[id] = await squarePhoto(file, figState.photoOffsets[id] ?? 0.5);
+    savePhotos();
+    renderWordsPanel();
+    drawFigure();
+    const node = nodes.get(id);
+    $("manyNote").textContent = t("ui.photoAdded", {name: node ? displayName(node) : ""});
+  }catch(err){
+    delete photoWorking[id];
+    $("manyNote").textContent = t("ui.photoUnreadable");
+  }
+}
+
+async function movePhoto(id, offset){
+  figState.photoOffsets[id] = offset;
+  if(!photoWorking[id]) return;
+  figState.photos[id] = await squarePhoto(photoWorking[id], offset);
+  savePhotos();
+  drawFigure();
+}
+
+function dropPhoto(id){
+  delete figState.photos[id];
+  delete photoWorking[id];
+  delete figState.photoOffsets[id];
+  savePhotos();
+  renderWordsPanel();
+  drawFigure();
+}
+
+/* the picture for a leaf: the reader's own, else a fetched one, else none */
+function photoFor(node){
+  if(figState.photos[node.id]) return {src: figState.photos[node.id]};
+  return (typeof TAXON_IMAGES !== "undefined" && TAXON_IMAGES[node.id]) || null;
+}
+
+(function startPhotos(){
+  try{
+    const kept = JSON.parse(localStorage.getItem("tol-photos") || "{}");
+    if(kept && typeof kept === "object") Object.assign(figState.photos, kept);
+  }catch(err){ /* nothing kept, or unreadable */ }
+})();
+
 /* ---- the figure's own settings: style, titles, and names for the animals ---- */
 $("figStyle").innerHTML = Object.entries(FIG_STYLES)
   .map(([id, s]) => '<option value="' + id + '">' + esc(s.name) + '</option>').join("");
@@ -1752,19 +1849,42 @@ function renderWordsPanel(){
       '<input id="figFooter" type="text" placeholder="' + esc(autoFooter()) + '"' +
       ' value="' + esc(figState.footer === null ? "" : figState.footer) + '"></div>'
   ];
-  manyPicks.forEach((n, i) => rows.push(
-    '<div class="fig-field"><label for="figName' + i + '">' + esc(t("ui.figNameLabel", {animal: lower(label(n))})) +
-      ' <span class="hint">' + esc(t("ui.figNameHint")) + '</span></label>' +
-      '<input id="figName' + i + '" data-name-for="' + n.id + '" type="text" placeholder="' + esc(label(n)) + '"' +
-      ' value="' + esc(figState.names[n.id] || "") + '"></div>'));
+  manyPicks.forEach((n, i) => {
+    const photo = figState.photos[n.id];
+    rows.push(
+      '<div class="fig-field"><label for="figName' + i + '">' + esc(t("ui.figNameLabel", {animal: lower(label(n))})) +
+        ' <span class="hint">' + esc(t("ui.figNameHint")) + '</span></label>' +
+        '<input id="figName' + i + '" data-name-for="' + n.id + '" type="text" placeholder="' + esc(label(n)) + '"' +
+        ' value="' + esc(figState.names[n.id] || "") + '">' +
+        '<div class="photo-row">' +
+          (photo ? '<img class="photo-thumb" src="' + photo + '" alt="">' : '') +
+          '<label class="photo-pick"><span>' + esc(t(photo ? "ui.photoReplace" : "ui.photoChoose")) + '</span>' +
+            '<input type="file" accept="image/*" data-photo-for="' + n.id + '"></label>' +
+          (photo && photoWorking[n.id]
+            ? '<label class="photo-move">' + esc(t("ui.photoOffset")) +
+              '<input type="range" min="0" max="1" step="0.05" value="' + (figState.photoOffsets[n.id] ?? 0.5) +
+              '" data-photo-move="' + n.id + '"></label>' : '') +
+          (photo ? '<button type="button" data-photo-drop="' + n.id + '">' + esc(t("ui.photoRemove")) + '</button>' : '') +
+        '</div></div>');
+  });
+  rows.push('<p class="photo-note">' + esc(t("ui.photoPrivacy")) + '</p>');
   $("figWordsBody").innerHTML = '<div class="fig-fields">' + rows.join("") + '</div>';
   $("figWords").hidden = !manyPicks.length;
 }
 
 /* Typing must not rebuild the panel underneath the person's cursor, so text
    fields redraw the picture only. */
+$("figWordsBody").addEventListener("change", e => {
+  const el = e.target;
+  if(el.dataset.photoFor) choosePhoto(el.dataset.photoFor, el.files && el.files[0]);
+});
+$("figWordsBody").addEventListener("click", e => {
+  const drop = e.target.closest("[data-photo-drop]");
+  if(drop) dropPhoto(drop.dataset.photoDrop);
+});
 $("figWordsBody").addEventListener("input", e => {
   const el = e.target;
+  if(el.dataset.photoMove){ movePhoto(el.dataset.photoMove, +el.value); return; }
   if(el.id === "figTitle") figState.title = el.value;
   else if(el.id === "figFooter"){
     figState.footer = el.value;

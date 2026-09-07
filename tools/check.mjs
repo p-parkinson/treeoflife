@@ -9,7 +9,9 @@
  *
  * It exits non-zero on any failure, so it can go in CI as-is.
  */
-import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync, writeFileSync, unlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { deflateSync, crc32 } from "node:zlib";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -118,6 +120,54 @@ console.log("\nevery language renders with no missing text");
     report(problems.length === 0, code + ": page renders cleanly", problems.slice(0, 3).join(" | "));
     await ctx.close();
   }
+}
+
+console.log("\na photo of your own");
+{
+  /* a real PNG, written here so the check needs no fixtures on disk */
+  const w = 240, h = 160;
+  const rows = [];
+  for(let y = 0; y < h; y++){
+    const line = [0];
+    for(let x = 0; x < w; x++) line.push(y < h / 3 ? 240 : 40, y < h / 3 ? 90 : 120, 40);
+    rows.push(Buffer.from(line));
+  }
+  const chunk = (type, data) => {
+    const body = Buffer.concat([Buffer.from(type), data]);
+    const len = Buffer.alloc(4); len.writeUInt32BE(data.length);
+    const crc = Buffer.alloc(4); crc.writeUInt32BE(crc32(body) >>> 0);
+    return Buffer.concat([len, body, crc]);
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(w, 0); ihdr.writeUInt32BE(h, 4);
+  ihdr[8] = 8; ihdr[9] = 2;
+  const file = join(tmpdir(), "tol-check-photo.png");
+  writeFileSync(file, Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    chunk("IHDR", ihdr), chunk("IDAT", deflateSync(Buffer.concat(rows))), chunk("IEND", Buffer.alloc(0))]));
+
+  const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 }, acceptDownloads: true });
+  const page = await ctx.newPage();
+  const problems = [];
+  page.on("pageerror", e => problems.push(e.message));
+  await page.goto(PAGE + "#tree=domestic+cat,human&names=Mr+Whiskers");
+  await page.waitForTimeout(700);
+  await page.evaluate(() => (document.querySelector("#figWords").open = true));
+  await page.setInputFiles('[data-photo-for="sp-felis-catus"]', file);
+  await page.waitForTimeout(900);
+  const href = await page.$eval("#familySvg image", el => el.getAttribute("href")).catch(() => "");
+  report(href.startsWith("data:image/"), "a chosen photo lands on the animal, inlined not linked",
+    href.slice(0, 30));
+  report(await page.evaluate(() => !!JSON.parse(localStorage.getItem("tol-photos") || "{}")["sp-felis-catus"]),
+    "the photo is remembered on this device");
+  const [download] = await Promise.all([page.waitForEvent("download"), page.click("#btnPng")]);
+  const bytes = readFileSync(await download.path()).length;
+  report(bytes > 20000, "the photo survives into the PNG export (canvas not tainted)", Math.round(bytes / 1024) + " KB");
+  await page.click("[data-photo-drop]");
+  await page.waitForTimeout(500);
+  report((await page.$$("#familySvg image")).length === 0, "removing the photo clears it from the figure");
+  report(problems.length === 0, "no script errors while handling a photo", problems.slice(0, 2).join(" | "));
+  await ctx.close();
+  try { unlinkSync(file); } catch { /* fine */ }
 }
 
 console.log("\ntyped search stays in the reader's language");
