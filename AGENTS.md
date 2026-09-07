@@ -7,7 +7,7 @@ Read this before changing anything.
 **What exists today.** Two views (the two-animal answer, the family tree of up to five); 1,050 taxa
 and 343 animals; English, French and Spanish; five figure styles; per-animal names and photos a
 teacher supplies; print/PDF and SVG/PNG export; light/dark. Everything is driven
-from the URL. `node tools/check.mjs` is the gate — 58 checks, and it must stay green.
+from the URL. `node tools/check.mjs` is the gate — 63 checks, and it must stay green.
 
 ## What must stay true
 
@@ -127,6 +127,25 @@ Not aspirational — it is checked. `node tools/check.mjs` must pass before push
 - **Touch and zoom**: 44 px targets, nothing under 13 px, text inputs at 16 px so iOS doesn't zoom
   on focus, no sideways page scroll at 320 px or 200 % zoom, nothing clipped under the WCAG
   text-spacing overrides, and `prefers-reduced-motion` honoured — including scrolling.
+
+## A picture you can press
+
+The numbered badges on the family tree ("3" on a dashed line) are buttons: pressing one opens out
+the groups it stands for, and a "−" badge folds them away again. Two things this cost, both of
+which will catch the next person:
+
+- **An SVG cannot be both `role="img"` and a container of controls.** `role="img"` makes everything
+  inside it presentational, so focusable descendants are a real contradiction and axe fails on
+  `nested-interactive`. The root therefore takes `role="group"` when any badge turned out to be
+  pressable and `role="img"` when none did. `&bare=1` never gets controls, because that mode exists
+  to be screenshotted.
+- **Exports go back to being pictures.** `svgForExport()` strips the badge wrappers and puts
+  `role="img"` back, so a downloaded SVG is not a page with dead buttons in it.
+
+Opened gaps live in `openedGaps`, deliberately not in the URL: a shared link shows the tidy
+version. Exports do follow it, because the picture you can see is the picture you should get.
+The layout needs no help — height is derived from the stem length and the deepest branch, so
+opening a gap simply makes the picture taller.
 
 ## Multi-viewport rules
 

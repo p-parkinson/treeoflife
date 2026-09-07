@@ -274,6 +274,39 @@ console.log("\na photo of your own");
   try { unlinkSync(file); } catch { /* fine */ }
 }
 
+console.log("\nopening a skipped-groups badge");
+{
+  const ctx = await browser.newContext({ viewport: { width: 1200, height: 950 } });
+  const page = await ctx.newPage();
+  const problems = [];
+  page.on("pageerror", e => problems.push(e.message));
+  await page.goto(PAGE + "#tree=lion,brown+bear,honey+bee,octopus,emu");
+  await page.waitForTimeout(700);
+  const state = () => page.evaluate(() => ({
+    badges: document.querySelectorAll("#manyDiagram [data-gap]").length,
+    open: document.querySelectorAll('#manyDiagram [data-gap][aria-expanded="true"]').length,
+    labels: document.querySelectorAll("#manyDiagram text").length,
+    height: +document.querySelector("#familySvg").getAttribute("height"),
+  }));
+  const shut = await state();
+  report(shut.badges > 0, "the badges are reachable as controls", shut.badges + " of them");
+  await page.click("#manyDiagram [data-gap]");
+  await page.waitForTimeout(400);
+  const open = await state();
+  report(open.labels > shut.labels && open.height > shut.height && open.open === 1,
+    "opening one shows the groups it stood for", shut.labels + " -> " + open.labels + " labels");
+  report(await page.evaluate(() => document.activeElement &&
+    document.activeElement.getAttribute && document.activeElement.getAttribute("data-gap") !== null),
+    "the keyboard lands on the badge after the redraw");
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(400);
+  const again = await state();
+  report(again.labels === shut.labels && again.height === shut.height && again.open === 0,
+    "Enter folds it back to exactly where it started");
+  report(problems.length === 0, "no script errors while opening a gap", problems.slice(0, 2).join(" | "));
+  await ctx.close();
+}
+
 console.log("\ntyped search stays in the reader's language");
 {
   const codes = readdirSync(join(ROOT, "data")).filter(f => /^names\./.test(f)).map(f => f.split(".")[1]);

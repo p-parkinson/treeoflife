@@ -6,6 +6,9 @@
 window.TOL_STRINGS = window.TOL_STRINGS || {};
 window.TOL_STRINGS.en = {
   "lang.name": "English",
+  "fig.showSkippedOne": "Show the 1 group not named here",
+  "fig.showSkippedMany": v => "Show the " + v.n + " groups not named here",
+  "fig.hideSkipped": "Hide these groups again",
 
   /* --- page furniture --- */
   "ui.skip": "Skip to the answer",
@@ -120,7 +123,7 @@ window.TOL_STRINGS.en = {
   "grp.life": "life",
 
   /* --- the family-tree view --- */
-  "ui.figWords": "Names and titles for the picture (optional)",
+  "ui.figWords": "Names and photos for the animals (optional)",
   "ui.figStyle": "Picture style",
   "style.page": "Match the page",
   "style.contrast": "High contrast",
@@ -134,8 +137,6 @@ window.TOL_STRINGS.en = {
   "ui.paper": "Paper",
   "ui.downloadSvg": "Download SVG",
   "ui.downloadPng": "Download PNG",
-  "ui.figTitleLabel": "Title on the picture",
-  "ui.figFooterLabel": "Small print along the bottom",
   "ui.figNameLabel": v => "A name for the " + v.animal,
   "ui.choosePhoto": "Choose a photo",
   "ui.replacePhoto": "Choose a different photo",
@@ -168,7 +169,6 @@ window.TOL_STRINGS.en = {
   "fig.titleOne": v => "Where the " + v.a + " sits on the tree of life",
   "fig.titleTwo": v => "From " + v.a + " to " + v.b,
   "fig.titleMany": v => "How " + v.list + " and " + v.last + " are related",
-  "fig.titlePlaceholder": "From one animal to another",
   "fig.meetTwo": v => "They meet at " + v.group,
   "fig.meetMany": v => "All of them meet at " + v.group,
   "fig.desc": v => "A family tree of " + v.names + ". It starts at " + v.root + " and branches at " + v.branches + ".",
@@ -197,12 +197,11 @@ window.TOL_STRINGS.en = {
   "a11y.tableScrolls": "The full classification table. Scroll sideways to see all of it.",
 
   /* --- footer --- */
-  "foot.howHead": "How this works.",
-  "foot.how": "Every animal here sits on one big family tree. To find a common ancestor, both animals are traced back up the tree until the two paths land on the same branch. That branch is the most recent ancestor they share — the last animal that was a great-great-great-(and so on)-grandparent of both.",
-  "foot.dates": "The dates are rough estimates from fossils and DNA, so treat them as \"roughly this long ago\" rather than exact numbers. The tree follows how scientists group animals today, which has a few surprises in it: birds count as dinosaurs, whales sit inside the hoofed animals, and termites are a kind of cockroach.",
-  "foot.sourcesHead": "Where this comes from.",
-  "foot.sources": "The 343 animals, the groups they sit in and the dates were compiled by hand for this page, following the modern published picture of how animals are related. It is a teaching model, not a copy of any one database, and nothing here is looked up live. If you need the authoritative version — for a project, a label or a lesson plan — use",
+  "foot.dates": "Dates are rough estimates from fossils and DNA, so read them as “roughly this long ago”. The tree follows how scientists group animals today, which has surprises in it: birds count as dinosaurs, whales sit inside the hoofed animals, and termites are a kind of cockroach.",
+  "foot.sources": "The 343 animals and the groups they sit in were compiled by hand for this page. It is a teaching model, not a copy of any one database, and nothing is looked up live. For the authoritative version, use",
   "foot.sourcesTail": "for classification, and",
+  "foot.short": "Every animal here sits on one big family tree. Trace two of them back up it, and the branch where their paths meet is the most recent ancestor they share.",
+  "foot.moreLabel": "Where the dates and the groups come from",
   "foot.sourcesTail2": "for divergence dates.",
   "foot.translation": ""
 };

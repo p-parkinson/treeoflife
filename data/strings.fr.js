@@ -6,6 +6,9 @@
 window.TOL_STRINGS = window.TOL_STRINGS || {};
 window.TOL_STRINGS.fr = {
   "lang.name": "Français",
+  "fig.showSkippedOne": "Afficher le groupe non nommé ici",
+  "fig.showSkippedMany": v => "Afficher les " + v.n + " groupes non nommés ici",
+  "fig.hideSkipped": "Masquer de nouveau ces groupes",
 
   "ui.skip": "Aller à la réponse",
   "ui.title": "L'arbre du vivant",
@@ -114,7 +117,7 @@ window.TOL_STRINGS.fr = {
   "grp.animal": "animal",
   "grp.life": "vivant",
 
-  "ui.figWords": "Noms et titres pour l'image (facultatif)",
+  "ui.figWords": "Noms et photos pour les animaux (facultatif)",
   "ui.figStyle": "Style de l'image",
   "style.page": "Comme la page",
   "style.contrast": "Contraste élevé",
@@ -128,8 +131,6 @@ window.TOL_STRINGS.fr = {
   "ui.paper": "Papier",
   "ui.downloadSvg": "Télécharger le SVG",
   "ui.downloadPng": "Télécharger le PNG",
-  "ui.figTitleLabel": "Titre sur l'image",
-  "ui.figFooterLabel": "Petite ligne en bas de l'image",
   "ui.figNameLabel": v => "Un nom pour cet animal (" + v.animal + ")",
   "ui.choosePhoto": "Choisir une photo",
   "ui.replacePhoto": "Choisir une autre photo",
@@ -162,7 +163,6 @@ window.TOL_STRINGS.fr = {
   "fig.titleOne": v => "Où se trouve " + v.a + " dans l'arbre du vivant",
   "fig.titleTwo": v => "De " + v.a + " à " + v.b,
   "fig.titleMany": v => "Comment " + v.list + " et " + v.last + " sont liés",
-  "fig.titlePlaceholder": "D'un animal à un autre",
   "fig.meetTwo": v => "Ils se rejoignent à " + v.group,
   "fig.meetMany": v => "Tous se rejoignent à " + v.group,
   "fig.desc": v => "Un arbre généalogique de : " + v.names + ". Il commence à " + v.root +
@@ -188,12 +188,11 @@ window.TOL_STRINGS.fr = {
   "a11y.diagramScrolls": "L'image montrant comment les deux animaux sont liés. Fais défiler sur le côté pour tout voir.",
   "a11y.tableScrolls": "Le tableau complet de la classification. Fais défiler sur le côté pour tout voir.",
 
-  "foot.howHead": "Comment ça marche.",
-  "foot.how": "Chaque animal présenté ici occupe une place sur un même grand arbre généalogique. Pour trouver un ancêtre commun, on remonte l'arbre depuis les deux animaux jusqu'à ce que les deux chemins arrivent sur la même branche. Cette branche est l'ancêtre le plus récent qu'ils partagent — le dernier animal qui était l'arrière-arrière-arrière-(et ainsi de suite)-grand-parent des deux.",
-  "foot.dates": "Les dates sont des estimations approximatives, tirées des fossiles et de l'ADN : lis-les comme « à peu près à cette époque » et non comme des chiffres exacts. L'arbre suit la façon dont les scientifiques classent les animaux aujourd'hui, ce qui réserve quelques surprises : les oiseaux comptent parmi les dinosaures, les baleines se trouvent parmi les animaux à sabots, et les termites sont une sorte de cafard.",
-  "foot.sourcesHead": "D'où viennent ces données.",
-  "foot.sources": "Les 343 animaux, les groupes auxquels ils appartiennent et les dates ont été rassemblés à la main pour cette page, d'après l'image publiée aujourd'hui des liens de parenté entre animaux. C'est un modèle pédagogique, et non une copie d'une base de données ; rien n'est consulté en ligne. Si tu as besoin de données de référence — pour un exposé, une étiquette ou une préparation de cours — utilise",
+  "foot.dates": "Les dates sont des estimations approximatives tirées des fossiles et de l'ADN : lis-les comme « il y a à peu près si longtemps ». L'arbre suit la façon dont les scientifiques classent les animaux aujourd'hui, ce qui réserve des surprises : les oiseaux sont des dinosaures, les baleines font partie des ongulés, et les termites sont une sorte de blatte.",
+  "foot.sources": "Les 343 animaux et les groupes auxquels ils appartiennent ont été compilés à la main pour cette page. C'est un modèle pédagogique, pas une copie d'une base de données, et rien n'est consulté en ligne. Pour la version de référence, utilise",
   "foot.sourcesTail": "pour la classification, et",
+  "foot.short": "Chaque animal ici occupe une place dans un seul grand arbre généalogique. Remonte-le à partir de deux animaux : la branche où leurs chemins se rejoignent est leur ancêtre commun le plus récent.",
+  "foot.moreLabel": "D'où viennent les dates et les groupes",
   "foot.sourcesTail2": "pour les dates de séparation.",
   "foot.translation": "Cette traduction française est une première version, encore non relue par un locuteur natif : les corrections sont bienvenues."
 };

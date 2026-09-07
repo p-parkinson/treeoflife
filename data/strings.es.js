@@ -6,6 +6,9 @@
 window.TOL_STRINGS = window.TOL_STRINGS || {};
 window.TOL_STRINGS.es = {
   "lang.name": "Español",
+  "fig.showSkippedOne": "Mostrar el grupo que no se nombra aquí",
+  "fig.showSkippedMany": v => "Mostrar los " + v.n + " grupos que no se nombran aquí",
+  "fig.hideSkipped": "Ocultar de nuevo estos grupos",
 
   "ui.skip": "Ir a la respuesta",
   "ui.title": "El árbol de la vida",
@@ -114,7 +117,7 @@ window.TOL_STRINGS.es = {
   "grp.animal": "animal",
   "grp.life": "vida",
 
-  "ui.figWords": "Nombres y títulos para la imagen (opcional)",
+  "ui.figWords": "Nombres y fotos para los animales (opcional)",
   "ui.figStyle": "Estilo de la imagen",
   "style.page": "Como la página",
   "style.contrast": "Contraste alto",
@@ -128,8 +131,6 @@ window.TOL_STRINGS.es = {
   "ui.paper": "Papel",
   "ui.downloadSvg": "Descargar el SVG",
   "ui.downloadPng": "Descargar el PNG",
-  "ui.figTitleLabel": "Título en la imagen",
-  "ui.figFooterLabel": "Letra pequeña al pie de la imagen",
   "ui.figNameLabel": v => "Un nombre para este animal (" + v.animal + ")",
   "ui.choosePhoto": "Elegir una foto",
   "ui.replacePhoto": "Elegir otra foto",
@@ -162,7 +163,6 @@ window.TOL_STRINGS.es = {
   "fig.titleOne": v => "Dónde está " + v.a + " en el árbol de la vida",
   "fig.titleTwo": v => "De " + v.a + " a " + v.b,
   "fig.titleMany": v => "Cómo están emparentados " + v.list + " y " + v.last,
-  "fig.titlePlaceholder": "De un animal a otro",
   "fig.meetTwo": v => "Se encuentran en " + v.group,
   "fig.meetMany": v => "Todos se encuentran en " + v.group,
   "fig.desc": v => "Un árbol familiar de: " + v.names + ". Empieza en " + v.root +
@@ -188,12 +188,11 @@ window.TOL_STRINGS.es = {
   "a11y.diagramScrolls": "La imagen de cómo están emparentados los dos animales. Desplázala hacia los lados para verla entera.",
   "a11y.tableScrolls": "La tabla completa de la clasificación. Desplázala hacia los lados para verla entera.",
 
-  "foot.howHead": "Cómo funciona.",
-  "foot.how": "Cada animal que aparece aquí ocupa un lugar en un mismo árbol familiar enorme. Para encontrar un antepasado común se sube por el árbol desde los dos animales hasta que los dos caminos llegan a la misma rama. Esa rama es el antepasado más reciente que comparten: el último animal que fue tatarabuelo (y así sucesivamente) de los dos.",
-  "foot.dates": "Las fechas son estimaciones aproximadas obtenidas de fósiles y de ADN: léelas como «más o menos por entonces» y no como cifras exactas. El árbol sigue la forma en que los científicos agrupan hoy a los animales, lo que trae alguna sorpresa: las aves cuentan como dinosaurios, las ballenas están entre los animales con pezuñas y las termitas son un tipo de cucaracha.",
-  "foot.sourcesHead": "De dónde salen estos datos.",
-  "foot.sources": "Los 343 animales, los grupos a los que pertenecen y las fechas se reunieron a mano para esta página, siguiendo la imagen publicada hoy del parentesco entre animales. Es un modelo para enseñar, no una copia de ninguna base de datos, y aquí no se consulta nada en línea. Si necesitas los datos de referencia —para un trabajo, una etiqueta o una clase— usa",
+  "foot.dates": "Las fechas son estimaciones aproximadas a partir de fósiles y ADN, así que léelas como «hace más o menos tanto». El árbol sigue cómo agrupan los científicos a los animales hoy, lo que trae sorpresas: las aves son dinosaurios, las ballenas están dentro de los ungulados y las termitas son una clase de cucaracha.",
+  "foot.sources": "Los 343 animales y los grupos a los que pertenecen se recopilaron a mano para esta página. Es un modelo didáctico, no una copia de ninguna base de datos, y nada se consulta en línea. Para la versión de referencia, usa",
   "foot.sourcesTail": "para la clasificación, y",
+  "foot.short": "Cada animal de aquí ocupa un lugar en un único gran árbol genealógico. Sigue a dos de ellos hacia arriba: la rama donde sus caminos se encuentran es el antepasado común más reciente.",
+  "foot.moreLabel": "De dónde salen las fechas y los grupos",
   "foot.sourcesTail2": "para las fechas de separación.",
   "foot.translation": "Esta traducción al español es una primera versión, todavía sin revisar por un hablante nativo: se agradecen las correcciones."
 };
