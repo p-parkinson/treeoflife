@@ -265,6 +265,14 @@ details.full.inset .body{padding:0 14px 14px}
 .sel select:hover{background:var(--paper-2)}
 @media (forced-colors: active){.sel::after{border-color:ButtonText}}
 
+/* a numbered badge you can open out, and the "-" that folds it away again */
+.gap-btn{cursor:pointer}
+.gap-btn circle{transition:fill .12s}
+.gap-btn:hover circle{fill:var(--shared-soft)}
+.gap-btn:focus{outline:none}
+.gap-btn:focus-visible circle{outline:3px solid var(--a);outline-offset:2px}
+@media (forced-colors: active){.gap-btn:focus-visible circle{outline-color:Highlight}}
+
 /* ---------- export bar ---------- */
 .export{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:0 20px 16px}
 .export button{padding:8px 14px;font-size:14.5px;min-height:40px}
@@ -295,9 +303,19 @@ body.bare .card > h3{border:0;padding-bottom:0}
   *{print-color-adjust:exact;-webkit-print-color-adjust:exact}
 }
 
-footer{margin-top:30px;color:var(--muted);font-size:14.5px;line-height:1.65;max-width:70ch}
-footer strong{color:var(--ink)}
+/* The footer lines up with the cards above it: same edges, so the page reads as
+   one column. The detail is folded away because most readers never want it. */
+footer{margin-top:26px;color:var(--muted);font-size:14.5px;line-height:1.6}
 footer a{color:var(--a);text-underline-offset:2px}
+footer p{margin:0 0 10px}
+.foot-more{border-top:1px solid var(--line);padding-top:10px}
+.foot-more > summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:8px;
+  font-weight:600;color:var(--muted);padding:6px 0;min-height:36px}
+.foot-more > summary::-webkit-details-marker{display:none}
+.foot-more > summary::before{content:"+";font-size:17px;width:15px;text-align:center}
+.foot-more[open] > summary::before{content:"\2013"}
+.foot-more > summary:hover{color:var(--ink)}
+.foot-more .foot-body{padding-top:4px}
 @media (max-width:700px){
   h1{font-size:26px}
   .slots{grid-template-columns:1fr}
@@ -410,7 +428,7 @@ footer a{color:var(--a);text-underline-offset:2px}
   </div>
   <ul class="chips" id="chips" data-i18n-al="a11y.chips" aria-label="Animals in this tree"></ul>
   <details class="full inset" id="figWords">
-    <summary data-i18n="ui.figWords">Names and titles for the picture (optional)</summary>
+    <summary data-i18n="ui.figWords">Names and photos for the animals (optional)</summary>
     <div class="body" id="figWordsBody"></div>
   </details>
   <div class="actions">
@@ -467,26 +485,28 @@ footer a{color:var(--a);text-underline-offset:2px}
 </dialog>
 
 <footer>
-  <p><strong data-i18n="foot.howHead">How this works.</strong> <span data-i18n="foot.how">Every animal here sits on one big family tree. To find a common ancestor,
-  both animals are traced back up the tree until the two paths land on the same branch. That branch is the most
-  recent ancestor they share &mdash; the last animal that was a great-great-great-(and so on)-grandparent of both.</span></p>
+  <p class="foot-lead"><span data-i18n="foot.short">Every animal here sits on one big family tree. Trace two of them back up it, and
+  the branch where their paths meet is the most recent ancestor they share.</span></p>
 
-  <p data-i18n="foot.dates">The dates are rough estimates from fossils and DNA, so treat them as "roughly this long ago" rather than exact
-  numbers. The tree follows how scientists group animals today, which has a few surprises in it: birds count as
-  dinosaurs, whales sit inside the hoofed animals, and termites are a kind of cockroach.</p>
+  <details class="foot-more">
+    <summary data-i18n="foot.moreLabel">Where the dates and the groups come from</summary>
+    <div class="foot-body">
+      <p data-i18n="foot.dates">Dates are rough estimates from fossils and DNA, so read them as "roughly this long ago". The tree
+      follows how scientists group animals today, which has surprises in it: birds count as dinosaurs, whales sit
+      inside the hoofed animals, and termites are a kind of cockroach.</p>
 
-  <p><strong data-i18n="foot.sourcesHead">Where this comes from.</strong> <span data-i18n="foot.sources">The 343 animals, the groups they sit in and the dates were compiled by
-  hand for this page, following the modern published picture of how animals are related. It is a teaching model, not
-  a copy of any one database, and nothing here is looked up live. If you need the authoritative version &mdash; for a
-  project, a label or a lesson plan &mdash; use</span>
-  <a href="https://tree.opentreeoflife.org">Open Tree of Life</a>,
-  <a href="https://www.gbif.org">GBIF</a> <span data-i18n="ui.or">or</span>
-  <a href="https://www.ncbi.nlm.nih.gov/taxonomy">NCBI Taxonomy</a>
-  <span data-i18n="foot.sourcesTail">for classification, and</span>
-  <a href="https://timetree.org">TimeTree</a>
-  <span data-i18n="foot.sourcesTail2">for divergence dates.</span></p>
+      <p><span data-i18n="foot.sources">The 343 animals and the groups they sit in were compiled by hand for this page. It is a teaching
+      model, not a copy of any one database, and nothing is looked up live. For the authoritative version, use</span>
+      <a href="https://tree.opentreeoflife.org">Open Tree of Life</a>,
+      <a href="https://www.gbif.org">GBIF</a> <span data-i18n="ui.or">or</span>
+      <a href="https://www.ncbi.nlm.nih.gov/taxonomy">NCBI Taxonomy</a>
+      <span data-i18n="foot.sourcesTail">for classification, and</span>
+      <a href="https://timetree.org">TimeTree</a>
+      <span data-i18n="foot.sourcesTail2">for divergence dates.</span></p>
 
-  <p id="transNote" class="trans-note" hidden></p>
+      <p id="transNote" class="trans-note" hidden></p>
+    </div>
+  </details>
 </footer>
 
 </div>
@@ -519,8 +539,18 @@ let lang = "en";
 function t(id, vars){
   const value = (STRINGS[lang] && STRINGS[lang][id] !== undefined && STRINGS[lang][id] !== "")
     ? STRINGS[lang][id] : (STRINGS.en ? STRINGS.en[id] : undefined);
-  if(value === undefined){ console.warn("No text for " + id); return id; }
+  if(value === undefined){ console.warn("No text for " + id); return humanise(id); }
   return typeof value === "function" ? value(vars || {}) : value;
+}
+
+/* A last resort, and it should never be reached: tools/check.mjs fails if the
+   app asks for an id English does not define. It exists because the one way it
+   *can* happen in the wild is a stale data/strings.<lang>.js next to a fresh
+   index.html - a browser cache, or a half-finished deploy - and a classroom
+   should see clumsy English rather than "ui.choosePhoto". */
+function humanise(id){
+  const words = id.replace(/^[a-z0-9]+\./, "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 /* the names people use for a taxon, in the current language, best first */
@@ -547,9 +577,16 @@ function applyStrings(){
      rebuilding here too - doing it at any single call site gets forgotten, as
      it was: the style names stayed English after a language change. */
   if(typeof renderStyleOptions === "function"){ renderStyleOptions(); renderPaperOptions(); }
-  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
-  document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
-  document.querySelectorAll("[data-i18n-al]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAl)); });
+  /* Where an id is unknown, the English written into the markup is better than
+     anything we could invent, so leave it be. */
+  const known = id => (STRINGS[lang] && STRINGS[lang][id] !== undefined) ||
+                      (STRINGS.en && STRINGS.en[id] !== undefined);
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    if(known(el.dataset.i18n)) el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+    if(known(el.dataset.i18nPh)) el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll("[data-i18n-al]").forEach(el => {
+    if(known(el.dataset.i18nAl)) el.setAttribute("aria-label", t(el.dataset.i18nAl)); });
   const note = t("foot.translation");
   $("transNote").textContent = note;
   $("transNote").hidden = !note;
@@ -1130,6 +1167,11 @@ const MAX_PICKS = 5;
 /* Everything about the picture that is not the choice of animals. null means
    "work it out for me"; a string (even an empty one) means the person decided. */
 const figState = {style: "page", title: null, footer: null, names: {}, photos: {}, photoOffsets: {}};
+/* Gaps the reader has opened out, keyed by the group just below each one.
+   Deliberately not in the URL: a shared link shows the tidy version, and
+   whoever opens it can open the gaps for themselves. Exports do follow it,
+   because the picture you can see is the picture you should get. */
+const openedGaps = new Set();
 let bareMode = false;
 let lastHash = "";
 function setHash(h){ lastHash = h; location.replace(h); }
@@ -1204,17 +1246,28 @@ function inducedTree(picksArr){
     stemPath.push(root);
   }
 
-  function build(node, skipped){
+  /* `hidden` collects the groups passed over on the way to a node worth naming.
+     Normally they become a numbered badge; if the reader has opened that badge
+     they are emitted as an ordinary chain instead, and the first of them
+     carries the key that closes it again. */
+  function build(node, hidden){
     const kids = kidsOf(node);
     const worthShowing = node === root || pickIds.has(node.id) || kids.length !== 1 || MILESTONES.has(node.id);
-    if(!worthShowing) return build(kids[0], skipped + 1);
-    return {
-      node, skipped,
+    if(!worthShowing) return build(kids[0], hidden.concat(node));
+    const here = {
+      node, skipped: hidden.length, gapKey: hidden.length ? node.id : null,
       pick: pickIds.has(node.id),
-      children: kids.map(k => build(k, 0))
+      children: kids.map(k => build(k, []))
     };
+    if(!hidden.length || !openedGaps.has(node.id)) return here;
+    here.skipped = 0; here.gapKey = null;
+    let chain = here;
+    for(let i = hidden.length - 1; i >= 0; i--)
+      chain = {node: hidden[i], skipped: 0, gapKey: null, pick: false,
+               closeKey: i === 0 ? node.id : null, children: [chain]};
+    return chain;
   }
-  return {root: build(root, 0), stemPath};
+  return {root: build(root, []), stemPath};
 }
 
 /* The stem can be a dozen groups long (five mammals share a lot of history).
@@ -1239,12 +1292,21 @@ function capStem(path, maxShown){
     .slice(0, room)
     .forEach(n => keep.add(n.id));
 
-  const out = []; let skipped = 0;
+  const out = []; let pending = [];
   path.forEach(n => {
-    if(keep.has(n.id)){ out.push({node: n, skipped}); skipped = 0; }
-    else skipped++;
+    if(!keep.has(n.id)){ pending.push(n); return; }
+    if(pending.length && openedGaps.has(n.id)){
+      pending.forEach((h, i) => out.push({node: h, skipped: 0, gapKey: null,
+                                          closeKey: i === 0 ? n.id : null}));
+      out.push({node: n, skipped: 0, gapKey: null});
+    } else {
+      out.push({node: n, skipped: pending.length, gapKey: pending.length ? n.id : null});
+    }
+    pending = [];
   });
-  return out;
+  /* whatever is left over sits between the last named group and the root, and
+     is the caller's to draw: it has no entry of its own to hang a key on */
+  return {shown: out, tail: pending};
 }
 
 /* ---- drawing it: trunk down from the root, then a fan of branches ---- */
@@ -1289,7 +1351,16 @@ function wrapWide(text, maxChars){
 function drawFamilyTree(picksArr){
   const S = figStyle();
   const {root, stemPath} = inducedTree(picksArr);
-  const stem = capStem(stemPath.slice(0, -1), 4);
+  const capped = capStem(stemPath.slice(0, -1), 4);
+  /* The run between the last named group and the root has no entry of its own,
+     so it is keyed by the root and opened out here. */
+  const rootGapKey = root.node.id;
+  const rootGapOpen = openedGaps.has(rootGapKey) && capped.tail.length > 0;
+  const stem = rootGapOpen
+    ? capped.shown.concat(capped.tail.map((n, i) => ({node: n, skipped: 0, gapKey: null,
+        closeKey: i === 0 ? rootGapKey : null})))
+    : capped.shown;
+  const rootGap = rootGapOpen ? 0 : capped.tail.length;
   const accentOf = n => S.accents[picksArr.findIndex(p => p.id === n.id) % S.accents.length];
   const anyNamed = picksArr.some(n => givenName(n));
 
@@ -1323,6 +1394,12 @@ function drawFamilyTree(picksArr){
   const yOf = d => d.children.length ? treeTop + d.depth * rowH : treeTop + maxDepth * rowH;
 
   const p = [];
+  /* An SVG that is only a picture takes role="img", and screen readers treat
+     everything inside as decoration - which is right until there are buttons
+     in it, because then they would be unreachable. So the role depends on
+     whether any badge turned out to be pressable. */
+  let hasControls = false;
+  const bare = document.body.classList.contains("bare");
   const w = n => +(n * S.stroke).toFixed(2);                    // stroke widths follow the style
   const text = (x, y, s, opts) => {
     const o = opts || {};
@@ -1335,10 +1412,21 @@ function drawFamilyTree(picksArr){
   /* a label beside a node goes right unless it would fall off the picture */
   const besideNode = (x, str, size) =>
     (x + 16 + str.length * size * 0.6 < W - 6) ? {anchor: "start", dx: 16} : {anchor: "end", dx: -16};
-  const gapBadge = (x, y, n) => {
-    if(!n) return;
-    p.push('<circle cx="' + x + '" cy="' + y + '" r="10" fill="' + S.paper + '" stroke="' + S.faint + '" stroke-width="' + w(1.5) + '"/>');
-    text(x, y + 4, String(n), {size: 12, weight: 700, fill: S.muted, plain: true});
+  /* A badge says how many groups a dashed line stands for. Given a key it also
+     becomes a button that opens those groups out, and a "-" badge that folds
+     them away again - so the number is not just a note, it is the way in. */
+  const gapBadge = (x, y, n, key, open) => {
+    if(!n && !open) return;
+    if(key && bare) key = null;               // the static picture has nothing to press
+    if(key) hasControls = true;
+    const face = open ? "\u2212" : String(n);
+    if(key) p.push('<g class="gap-btn" data-gap="' + esc(key) + '" role="button" tabindex="0"' +
+      ' aria-expanded="' + (open ? "true" : "false") + '" aria-label="' +
+      esc(open ? t("fig.hideSkipped") : (n === 1 ? t("fig.showSkippedOne") : t("fig.showSkippedMany", {n: n}))) + '">');
+    p.push('<circle cx="' + x + '" cy="' + y + '" r="10" fill="' + S.paper + '" stroke="' +
+      (key ? S.shared : S.faint) + '" stroke-width="' + w(1.5) + '"/>');
+    text(x, y + 4, face, {size: open ? 15 : 12, weight: 700, fill: key ? S.shared : S.muted, plain: true});
+    if(key) p.push('</g>');
   };
 
   if(S.opaque) p.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="' + S.paper + '"/>');
@@ -1355,7 +1443,8 @@ function drawFamilyTree(picksArr){
     const y = stemTop + i * stemH;
     if(prevY !== null) p.push('<line x1="' + rootX + '" y1="' + prevY + '" x2="' + rootX + '" y2="' + y +
       '" stroke="' + S.shared + '" stroke-width="' + w(3.5) + '" stroke-linecap="round"' + (e.skipped ? ' stroke-dasharray="2 7"' : '') + '/>');
-    if(e.skipped) gapBadge(rootX, (prevY + y) / 2, e.skipped);
+    if(prevY !== null && (e.skipped || e.closeKey))
+      gapBadge(rootX, (prevY + y) / 2, e.skipped, e.gapKey || e.closeKey, !!e.closeKey);
     p.push('<circle cx="' + rootX + '" cy="' + y + '" r="6" fill="' + S.paper + '" stroke="' + S.shared + '" stroke-width="' + w(3) + '"/>');
     const side = besideNode(rootX, label(e.node), 14);
     text(rootX + side.dx, y - 1, label(e.node), {anchor: side.anchor, size: 14, weight: 600, family: S.display});
@@ -1363,10 +1452,9 @@ function drawFamilyTree(picksArr){
     prevY = y;
   });
   if(prevY !== null){
-    const gap = stem.length ? stemPath.length - 1 - stem.reduce((a, e) => a + 1 + e.skipped, 0) : 0;
     p.push('<line x1="' + rootX + '" y1="' + prevY + '" x2="' + rootX + '" y2="' + rootY +
-      '" stroke="' + S.shared + '" stroke-width="' + w(3.5) + '" stroke-linecap="round"' + (gap ? ' stroke-dasharray="2 7"' : '') + '/>');
-    if(gap) gapBadge(rootX, (prevY + rootY) / 2, gap);
+      '" stroke="' + S.shared + '" stroke-width="' + w(3.5) + '" stroke-linecap="round"' + (rootGap ? ' stroke-dasharray="2 7"' : '') + '/>');
+    if(rootGap) gapBadge(rootX, (prevY + rootY) / 2, rootGap, rootGapKey, false);
   }
 
   /* every branch below the root */
@@ -1377,10 +1465,11 @@ function drawFamilyTree(picksArr){
       const col = c.children.length ? S.shared : accentOf(c.node);
       p.push('<path d="M ' + x + ' ' + y + ' V ' + midY + ' H ' + cx + ' V ' + cy + '" fill="none" stroke="' + col +
         '" stroke-width="' + w(3.5) + '" stroke-linecap="round" stroke-linejoin="round"' + (c.skipped ? ' stroke-dasharray="2 7"' : '') + '/>');
-      if(c.skipped){
+      if(c.skipped || c.closeKey){
         const labelTop = c.children.length ? cy - (wrapLabel(label(c.node), 24).length === 2 ? 46 : 31) : cy - 12;
         const from = y + 26;
-        if(labelTop - from >= 20) gapBadge(cx, (from + labelTop) / 2, c.skipped);
+        if(labelTop - from >= 20)
+          gapBadge(cx, (from + labelTop) / 2, c.skipped, c.gapKey || c.closeKey, !!c.closeKey);
       }
       branch(c);
     });
@@ -1431,7 +1520,7 @@ function drawFamilyTree(picksArr){
   const names = picksArr.map(displayName);
   const desc = t("fig.desc", {names: names.join(", "), root: label(stemPath[0]), branches: describeBranches(root)});
   return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H +
-    '" role="img" aria-labelledby="manyTitle manyDesc" id="familySvg">' +
+    '" role="' + (hasControls ? "group" : "img") + '" aria-labelledby="manyTitle manyDesc" id="familySvg">' +
     '<title id="manyTitle">' + esc(title || autoTitle(picksArr) || t("ui.title")) + '</title>' +
     '<desc id="manyDesc">' + esc(desc) + '</desc>' + p.join("") + '</svg>';
 }
@@ -1574,6 +1663,27 @@ function drawMany(){
   renderWordsPanel();
   drawFigure();
 }
+
+/* Opening a gap redraws the whole picture, so put the keyboard back on the
+   badge the reader was using - it is now a "-" instead of a number, in the
+   same place. */
+function toggleGap(key){
+  if(openedGaps.has(key)) openedGaps.delete(key); else openedGaps.add(key);
+  drawFigure();
+  const again = $("manyDiagram").querySelector('[data-gap="' + CSS.escape(key) + '"]');
+  if(again) again.focus({preventScroll: true});
+}
+$("manyDiagram").addEventListener("click", e => {
+  const btn = e.target.closest("[data-gap]");
+  if(btn) toggleGap(btn.dataset.gap);
+});
+$("manyDiagram").addEventListener("keydown", e => {
+  if(e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+  const btn = e.target.closest("[data-gap]");
+  if(!btn) return;
+  e.preventDefault();                 // Space would otherwise scroll the page
+  toggleGap(btn.dataset.gap);
+});
 
 function drawFigure(){
   const box = $("manyResult");
@@ -1896,14 +2006,10 @@ function renderStyleOptions(){
 renderStyleOptions();
 
 function renderWordsPanel(){
-  const rows = [
-    '<div class="fig-field"><label for="figTitle">' + esc(t("ui.figTitleLabel")) + '</label>' +
-      '<input id="figTitle" type="text" placeholder="' + esc(autoTitle(manyPicks) || t("fig.titlePlaceholder")) + '"' +
-      ' value="' + esc(figState.title === null ? "" : figState.title) + '"></div>',
-    '<div class="fig-field"><label for="figFooter">' + esc(t("ui.figFooterLabel")) + '</label>' +
-      '<input id="figFooter" type="text" placeholder="' + esc(autoFooter()) + '"' +
-      ' value="' + esc(figState.footer === null ? "" : figState.footer) + '"></div>'
-  ];
+  /* Only the animals are worth a teacher's attention here. The title and the
+     footer write themselves from the names, and can still be overridden with
+     &title= and &footer= for anyone generating pictures from URLs. */
+  const rows = [];
   manyPicks.forEach((n, i) => {
     const photo = figState.photos[n.id];
     rows.push(
@@ -1913,15 +2019,15 @@ function renderWordsPanel(){
         ' value="' + esc(figState.names[n.id] || "") + '">' +
         '<div class="photo-row">' +
           (photo ? '<img class="photo-thumb" src="' + photo + '" alt="">' : '') +
-          '<label class="photo-pick"><span>' + esc(t(photo ? "ui.photoReplace" : "ui.photoChoose")) + '</span>' +
+          '<label class="photo-pick"><span>' + esc(t(photo ? "ui.replacePhoto" : "ui.choosePhoto")) + '</span>' +
             '<input type="file" accept="image/*" data-photo-for="' + n.id + '"></label>' +
           (photo && photoWorking[n.id]
-            ? '<label class="photo-move">' + esc(t("ui.photoOffset")) +
+            ? '<label class="photo-move">' + esc(t("ui.movePhoto")) +
               '<input type="range" min="0" max="1" step="0.05" value="' + (figState.photoOffsets[n.id] ?? 0.5) +
               '" data-photo-move="' + n.id + '"></label>' : '') +
           (photo && photoBig[n.id] && typeof Cropper === "function"
-            ? '<button type="button" data-photo-crop="' + n.id + '">' + esc(t("ui.photoAdjust")) + '</button>' : '') +
-          (photo ? '<button type="button" data-photo-drop="' + n.id + '">' + esc(t("ui.photoRemove")) + '</button>' : '') +
+            ? '<button type="button" data-photo-crop="' + n.id + '">' + esc(t("ui.adjustFraming")) + '</button>' : '') +
+          (photo ? '<button type="button" data-photo-drop="' + n.id + '">' + esc(t("ui.removePhoto")) + '</button>' : '') +
         '</div></div>');
   });
   rows.push('<p class="photo-note">' + esc(t("ui.photoPrivacy")) + '</p>');
@@ -1944,12 +2050,7 @@ $("figWordsBody").addEventListener("click", e => {
 $("figWordsBody").addEventListener("input", e => {
   const el = e.target;
   if(el.dataset.photoMove){ movePhoto(el.dataset.photoMove, +el.value); return; }
-  if(el.id === "figTitle") figState.title = el.value;
-  else if(el.id === "figFooter"){
-    figState.footer = el.value;
-    try{ localStorage.setItem("tol-figfooter", figState.footer); }catch(err){}
-  }
-  else if(el.dataset.nameFor){
+  if(el.dataset.nameFor){
     const v = el.value.trim();
     if(v) figState.names[el.dataset.nameFor] = v; else delete figState.names[el.dataset.nameFor];
   } else return;
@@ -1962,9 +2063,8 @@ $("figStyle").addEventListener("change", e => {
 });
 (function startFigStyle(){
   let saved = null, savedFooter = null;
-  try{ saved = localStorage.getItem("tol-figstyle"); savedFooter = localStorage.getItem("tol-figfooter"); }catch(e){}
+  try{ saved = localStorage.getItem("tol-figstyle"); }catch(e){}
   if(saved && FIG_STYLES[saved]) figState.style = saved;
-  if(savedFooter !== null) figState.footer = savedFooter;
   $("figStyle").value = figState.style;
 })();
 
@@ -2006,6 +2106,9 @@ function svgForExport(){
   if(!svg) return null;
   const style = getComputedStyle(document.documentElement);
   let out = new XMLSerializer().serializeToString(svg);
+  /* The file is a picture, not a page: the badges lose the attributes that
+     only mean something on screen, and the root goes back to being an image. */
+  out = out.replace(/<g class="gap-btn"[^>]*>/g, "<g>").replace(' role="group"', ' role="img"');
   out = out.replace(/var\(--([\w-]+)\)/g, (_, name) => (style.getPropertyValue("--" + name) || "#000").trim());
   const paper = (style.getPropertyValue("--card") || "#fff").trim();
   out = out.replace(/(<svg[^>]*>)/, '$1<rect width="100%" height="100%" fill="' + paper + '"/>');

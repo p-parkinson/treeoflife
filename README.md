@@ -85,9 +85,13 @@ lines from crossing.
   uploaded**. It does become part of the picture you print or download, which the page says on the
   spot, and it is deliberately not carried in the URL — a shared link has names and titles, never
   someone's photograph.
-- **A title and a footer.** The title defaults to *From Mr Whiskers to Miss Kaur* (or *How A, B and
-  C are related*), with the meeting point as a subtitle; the footer defaults to the site address.
-  Both can be overwritten or cleared.
+- **A title and a footer** that write themselves: *From Mr Whiskers to Miss Kaur* (or *How A, B and
+  C are related*), with the meeting point as a subtitle and the site address along the bottom.
+  There is nothing to fill in — the panel is names and photos only — but `&title=` and `&footer=`
+  still override them for anyone generating pictures from URLs.
+- **Open out a skipped step.** A dashed line with a numbered badge stands for groups too minor to
+  name. Press the badge and they appear; press the "−" and they fold away again. It works with a
+  keyboard, and the picture you export is the picture you can see.
 
 **Every picture is a URL**, so it can be linked, bookmarked, put in a worksheet or screenshotted
 by any tool:
