@@ -307,6 +307,53 @@ console.log("\nopening a skipped-groups badge");
   await ctx.close();
 }
 
+console.log("\npointing at a part of the picture");
+{
+  const ctx = await browser.newContext({ viewport: { width: 1200, height: 950 } });
+  const page = await ctx.newPage();
+  const problems = [];
+  page.on("pageerror", e => problems.push(e.message));
+  await page.goto(PAGE + "#tree=lion,brown+bear,octopus");
+  await page.waitForTimeout(700);
+  const cap = () => page.$eval("#figCaption", el => el.textContent.trim());
+  const resting = await cap();
+  report((await page.$$(".fig-hits [data-part]")).length > 10, "every group, animal and link has a hit target");
+
+  /* a group says when it lived; the picture itself shows no dates at all */
+  await page.hover('.fig-hits [data-part="n:mammalia"]');
+  await page.waitForTimeout(150);
+  const onGroup = await cap();
+  report(/Mammalia/.test(onGroup) && /million years ago/.test(onGroup),
+    "a group gives its name, rank and when it lived", onGroup.slice(0, 60));
+
+  /* a link says how far apart its two ends are */
+  await page.hover('.fig-hits [data-part="e:mammalia"]');
+  await page.waitForTimeout(150);
+  const onEdge = await cap();
+  report(/\u2192/.test(onEdge) && /apart/.test(onEdge), "a link gives the two ends and the gap between them",
+    onEdge.slice(0, 60));
+  report(onEdge !== onGroup, "a link and the group below it do not say the same thing");
+
+  /* the keyboard reaches the same facts, or the dates would be mouse-only */
+  await page.evaluate(() => document.querySelector("#familySvg").focus());
+  await page.keyboard.press("ArrowDown");
+  await page.waitForTimeout(150);
+  const first = await cap();
+  await page.keyboard.press("ArrowDown");
+  await page.waitForTimeout(150);
+  report(first !== resting && (await cap()) !== first, "arrow keys walk the picture part by part");
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(150);
+  report((await cap()) === resting, "Escape puts the caption back to its resting line");
+
+  /* and none of it leaves the page in a downloaded file */
+  const out = await page.evaluate(() => svgForExport());
+  report(!/fig-hits|data-part|tabindex/.test(out) && /<title>/.test(out) && /role="img"/.test(out),
+    "the exported picture has no hit layer, and gets its title back");
+  report(problems.length === 0, "no script errors while pointing at the picture", problems.slice(0, 2).join(" | "));
+  await ctx.close();
+}
+
 console.log("\ntyped search stays in the reader's language");
 {
   const codes = readdirSync(join(ROOT, "data")).filter(f => /^names\./.test(f)).map(f => f.split(".")[1]);

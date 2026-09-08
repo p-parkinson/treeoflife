@@ -92,6 +92,11 @@ lines from crossing.
 - **Open out a skipped step.** A dashed line with a numbered badge stands for groups too minor to
   name. Press the badge and they appear; press the "−" and they fold away again. It works with a
   keyboard, and the picture you export is the picture you can see.
+- **Point at any part** — a group, an animal, or the line between two of them — and the caption
+  under the picture fills in: what the group is, when it lived, how many animals belong to it, or
+  for a line, how many years separate its two ends. The figure prints no dates, so this is where
+  the "when" lives. Tapping works the same as hovering; the figure is one tab stop and the arrow
+  keys walk its parts.
 
 **Every picture is a URL**, so it can be linked, bookmarked, put in a worksheet or screenshotted
 by any tool:
